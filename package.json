@@ -1,34 +1,27 @@
 {
-  "name": "grievase-web",
+  "name": "grievease-monorepo",
   "version": "1.0.0",
-  "main": "index.js",
+  "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
-  "dependencies": {
-    "@types/qrcode": "^1.5.6",
-    "framer-motion": "^14.3.0",
-    "lucide-react": "^1.59.0",
-    "next": "^16.4.2",
-    "qrcode": "^1.5.4",
-    "react": "^19.3.1",
-    "react-dom": "^19.3.1",
-    "react-hook-form": "^7.90.0",
-    "zod": "^4.6.7"
+    "dev": "pnpm --parallel --filter @grievease/* dev",
+    "dev:web": "pnpm --filter @grievease/web dev",
+    "dev:api": "pnpm --filter @grievease/api dev",
+    "build": "pnpm --filter @grievease/contracts build && pnpm --filter @grievease/ui build && pnpm --filter @grievease/api build && pnpm --filter @grievease/web build",
+    "lint": "pnpm -r lint",
+    "type-check": "pnpm -r type-check",
+    "test": "pnpm -r test",
+    "test:unit": "pnpm --filter @grievease/api test:unit",
+    "test:integration": "pnpm --filter @grievease/api test:integration",
+    "test:e2e": "pnpm --filter @grievease/web test:e2e",
+    "db:generate": "pnpm --filter @grievease/api db:generate",
+    "db:migrate": "pnpm --filter @grievease/api db:migrate",
+    "db:seed": "pnpm --filter @grievease/api db:seed",
+    "admin:bootstrap": "pnpm --filter @grievease/api admin:bootstrap",
+    "admin:emergency-transfer": "pnpm --filter @grievease/api admin:emergency-transfer",
+    "audit:verify": "pnpm --filter @grievease/api audit:verify",
+    "secret-scan": "node scripts/secret-scan.js"
   },
   "devDependencies": {
-    "@types/node": "^26.6.5",
-    "@types/react": "^19.3.0",
-    "@types/react-dom": "^19.3.0",
-    "autoprefixer": "^10.6.1",
-    "postcss": "^8.5.30",
-    "tailwindcss": "^3.4.19",
-    "typescript": "^7.0.2"
+    "typescript": "^5.7.3"
   }
 }
