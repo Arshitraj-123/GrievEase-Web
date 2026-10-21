@@ -1,0 +1,113 @@
+name: GrievEase CI Pipeline
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+    branches: [master, main]
+
+jobs:
+  security-and-quality:
+    name: Lint, Secret Scan & Type Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js 22 LTS
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Secret Scan (No Hardcoded Passwords or Cloud Keys)
+        run: pnpm secret-scan
+
+      - name: Run Type Check
+        run: pnpm type-check
+
+      - name: Run Linter
+        run: pnpm lint
+
+  tests:
+    name: Unit & Integration Tests + Restore Verification
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_DB: grievease_db
+          POSTGRES_USER: grievease_user
+          POSTGRES_PASSWORD: local_dev_secret_replace_in_prod
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js 22 LTS
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run Database Migrations
+        run: pnpm db:migrate
+        env:
+          DATABASE_URL: postgresql://grievease_user:local_dev_secret_replace_in_prod@localhost:5432/grievease_db
+
+      - name: Run Unit Tests
+        run: pnpm test:unit
+
+      - name: Run Integration Tests
+        run: pnpm test:integration
+        env:
+          DATABASE_URL: postgresql://grievease_user:local_dev_secret_replace_in_prod@localhost:5432/grievease_db
+          REDIS_HOST: localhost
+          REDIS_PORT: 6379
+
+      - name: Test Encrypted Backup & Restore Workflow
+        run: |
+          chmod +x scripts/backup-db.sh scripts/restore-db.sh
+          ./scripts/backup-db.sh
+          LATEST_BACKUP=$(ls -t backups/*.sql.enc | head -n 1)
+          ./scripts/restore-db.sh "$LATEST_BACKUP"
+        env:
+          DB_HOST: localhost
+          DB_PORT: 5432
+          DB_USER: grievease_user
+          DB_PASSWORD: local_dev_secret_replace_in_prod
+          DB_NAME: grievease_db
+
+      - name: Build All Workspaces
+        run: pnpm build
