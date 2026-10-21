@@ -1,99 +1,311 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { ShellLayout } from '@/components/ShellLayout';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, Badge, Button } from '@grievease/ui';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, Badge } from '@grievease/ui';
 import {
   MessageSquare,
-  Users,
-  FileText,
-  Home,
+  Bell,
   ShieldCheck,
-  AlertOctagon,
+  HelpCircle,
   Clock,
+  CheckCircle2,
+  AlertCircle,
   Sparkles,
+  ArrowRight,
+  Smartphone,
+  Calendar,
 } from 'lucide-react';
+import { api } from '@/lib/api-client';
+import { useAccessibility } from '@/components/AccessibilityProvider';
+import { io, Socket } from 'socket.io-client';
+
+interface ActivityItem {
+  id: string;
+  title: string;
+  message: string;
+  created_at: string;
+  read?: boolean;
+}
 
 export default function ResidentDashboardPage() {
-  const residentModules = [
-    {
-      title: 'Lodge Grievance & SLA Tracking',
-      description: 'Lodge complaints with photo proofs, track 48h-120h SLA progress, and see automatic escalation.',
-      icon: <MessageSquare className="w-6 h-6 text-teal-600" />,
-      status: 'Phase 3 Module',
-    },
-    {
-      title: 'Visitor & Delivery Passes',
-      description: 'Generate 6-digit gate entry codes for guests and deliveries, and get notified of gate arrivals.',
-      icon: <Users className="w-6 h-6 text-blue-600" />,
-      status: 'Phase 3 Module',
-    },
-    {
-      title: 'Maintenance Bills & Receipts',
-      description: 'View monthly society dues, cash payment records signed by the treasurer, and download PDF receipts.',
-      icon: <FileText className="w-6 h-6 text-green-600" />,
-      status: 'Phase 3 Module',
-    },
-    {
-      title: 'Book Society Amenities',
-      description: 'Reserve clubhouse, tennis court, and party hall slots with automated slot conflict prevention.',
-      icon: <Home className="w-6 h-6 text-amber-600" />,
-      status: 'Phase 3 Module',
-    },
-  ];
+  const { t } = useAccessibility();
+  const [profile, setProfile] = useState<any>(null);
+  const [notifications, setNotifications] = useState<ActivityItem[]>([]);
+  const [unreadCount, setUnreadCount] = useState<number>(0);
+  const [lastVisitTime, setLastVisitTime] = useState<string>('');
+
+  useEffect(() => {
+    // 1. Fetch user profile
+    api.getProfile()
+      .then((p) => setProfile(p))
+      .catch(() => {});
+
+    // 2. Fetch notifications
+    api.getNotifications()
+      .then((data) => {
+        setNotifications(data.items || []);
+        setUnreadCount(data.unreadCount || 0);
+      })
+      .catch(() => {});
+
+    // 3. Track last visit time
+    const storedLastVisit = localStorage.getItem('grievease_last_visit');
+    const nowStr = new Date().toISOString();
+    if (storedLastVisit) {
+      setLastVisitTime(new Date(storedLastVisit).toLocaleString());
+    } else {
+      setLastVisitTime('First session today');
+    }
+    localStorage.setItem('grievease_last_visit', nowStr);
+
+    // 4. Live Socket.io connection for realtime activity feed
+    const socketUrl = process.env.NEXT_PUBLIC_API_BASE_URL
+      ? process.env.NEXT_PUBLIC_API_BASE_URL.replace('/api/v1', '')
+      : 'http://localhost:4000';
+
+    let socket: Socket | null = null;
+    try {
+      socket = io(`${socketUrl}/notifications`, {
+        withCredentials: true,
+        transports: ['websocket', 'polling'],
+      });
+
+      socket.on('notification', (newNotif: ActivityItem) => {
+        setNotifications((prev) => [newNotif, ...prev]);
+        setUnreadCount((prev) => prev + 1);
+      });
+    } catch {}
+
+    return () => {
+      if (socket) socket.disconnect();
+    };
+  }, []);
+
+  const flatLabel = profile?.flatNumber
+    ? `Flat ${profile.flatNumber}`
+    : 'Green Valley Residency';
 
   return (
-    <ShellLayout role="RESIDENT" userRoleTitle="Resident">
-      <div className="space-y-8">
-        {/* Welcome Banner */}
-        <div className="p-6 rounded-3xl bg-gradient-to-r from-teal-900 to-slate-900 text-white shadow-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div className="space-y-1">
-            <Badge variant="default" className="bg-teal-500/20 text-teal-300 border border-teal-400/30">
-              Green Valley Residency • Wing A, Flat 102
-            </Badge>
-            <h1 className="text-2xl font-black">Welcome Home</h1>
-            <p className="text-xs text-slate-300 max-w-lg">
-              Phase 2 account activation complete. Your cryptographic identity is registered with the society council.
-            </p>
-          </div>
+    <ShellLayout role="RESIDENT" userRoleTitle={t.nav.residentRole}>
+      <div className="space-y-6 max-w-5xl mx-auto">
+        {/* Welcome Header: Mobile-First 360px+ */}
+        <div className="p-5 sm:p-7 rounded-3xl bg-gradient-to-br from-teal-900 via-slate-900 to-slate-950 text-white shadow-xl border border-teal-800/30">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="space-y-1.5">
+              <div className="flex items-center gap-2 flex-wrap">
+                <Badge variant="default" className="bg-teal-500/20 text-teal-300 border border-teal-400/30 text-xs">
+                  {t.nav.societyName} • {flatLabel}
+                </Badge>
+              </div>
+              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
+                {t.appHome.welcomeTitle}, {profile?.fullName || t.nav.residentRole}
+              </h1>
+              <p className="text-xs sm:text-sm text-slate-300 max-w-lg leading-relaxed">
+                {t.appHome.welcomeSubtitle}
+              </p>
+            </div>
 
-          <button
-            disabled
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-red-600/30 text-red-300 border border-red-500/30 text-xs font-bold opacity-70 cursor-not-allowed"
-          >
-            <AlertOctagon className="w-4 h-4 text-red-400" />
-            <span>SOS Alert (Phase 3)</span>
-          </button>
+            <div className="flex items-center gap-2 mt-2 sm:mt-0">
+              <Link
+                href="/app/notifications"
+                className="min-h-[44px] px-4 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-500 active:scale-[0.98] text-white text-xs font-semibold inline-flex items-center gap-2 transition-all shadow-md"
+              >
+                <Bell className="w-4 h-4" />
+                <span>{unreadCount} {t.nav.notifications}</span>
+              </Link>
+            </div>
+          </div>
         </div>
 
-        {/* Modules Grid */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-bold text-slate-900 dark:text-white">Resident Services</h2>
-            <span className="text-xs text-slate-400">Arriving in Phase 3</span>
-          </div>
+        {/* 1. "Since your last visit" Summary Card */}
+        <Card className="border border-teal-200/60 dark:border-teal-900/40 bg-teal-50/30 dark:bg-teal-950/20 shadow-sm">
+          <CardHeader className="pb-3">
+            <div className="flex items-center gap-2">
+              <div className="p-2 rounded-xl bg-teal-600 text-white">
+                <Clock className="w-4 h-4" />
+              </div>
+              <div>
+                <CardTitle className="text-base sm:text-lg">{t.appHome.sinceLastVisitTitle}</CardTitle>
+                <CardDescription className="text-xs">
+                  {lastVisitTime ? `Last active: ${lastVisitTime}` : t.appHome.sinceLastVisitSubtitle}
+                </CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {/* Unread Alerts Metric */}
+              <div className="p-3.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 flex items-center gap-3">
+                <div className={`p-2.5 rounded-xl ${unreadCount > 0 ? 'bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300' : 'bg-teal-100 text-teal-700 dark:bg-teal-950/60 dark:text-teal-300'}`}>
+                  <Bell className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="text-xl font-bold text-slate-900 dark:text-white">{unreadCount}</div>
+                  <div className="text-[11px] text-slate-500">{t.appHome.unreadNotifications}</div>
+                </div>
+              </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-            {residentModules.map((m, idx) => (
-              <Card key={idx} className="border border-slate-200 dark:border-slate-800 opacity-90 hover:opacity-100 transition-opacity">
-                <CardHeader className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <div className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800">
-                      {m.icon}
-                    </div>
-                    <Badge variant="warning" className="text-[10px]">
-                      {m.status}
-                    </Badge>
+              {/* Security Health */}
+              <div className="p-3.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 flex items-center gap-3">
+                <div className="p-2.5 rounded-xl bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300">
+                  <CheckCircle2 className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="text-xs font-bold text-slate-900 dark:text-white">{t.appHome.securityStatus}</div>
+                  <div className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">
+                    {t.appHome.securityStatusActive}
                   </div>
-                  <CardTitle className="text-base">{m.title}</CardTitle>
-                  <CardDescription className="text-xs leading-relaxed">
-                    {m.description}
-                  </CardDescription>
-                </CardHeader>
-              </Card>
-            ))}
+                </div>
+              </div>
+
+              {/* Device Session */}
+              <div className="p-3.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 flex items-center gap-3">
+                <div className="p-2.5 rounded-xl bg-teal-100 text-teal-700 dark:bg-teal-950/60 dark:text-teal-300">
+                  <Smartphone className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="text-xs font-bold text-slate-900 dark:text-white">{t.appHome.sessionsActive}</div>
+                  <div className="text-[11px] text-slate-500">15-minute inactivity protection</div>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* 2. Live Resident Services (Strictly Only Live Modules) */}
+        <div>
+          <h2 className="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3">
+            {t.appHome.quickActionsTitle}
+          </h2>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* Grievances */}
+            <Link
+              href="/app/grievances"
+              className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:border-teal-500 transition-all flex items-start justify-between group min-h-[44px]"
+            >
+              <div className="flex items-start gap-3.5">
+                <div className="p-3 rounded-xl bg-teal-50 dark:bg-teal-950/60 text-teal-600 dark:text-teal-400 group-hover:scale-105 transition-transform">
+                  <MessageSquare className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-slate-900 dark:text-white text-base group-hover:text-teal-600 transition-colors">
+                    {t.appHome.viewGrievances}
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">
+                    Permanent resolution, dedicated SLA timers, 4-tier escalation
+                  </p>
+                </div>
+              </div>
+              <ArrowRight className="w-5 h-5 text-slate-400 group-hover:text-teal-600 group-hover:translate-x-1 transition-all mt-1" />
+            </Link>
+
+            {/* Profile & Security */}
+            <Link
+              href="/app/settings/security"
+              className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:border-teal-500 transition-all flex items-start justify-between group min-h-[44px]"
+            >
+              <div className="flex items-start gap-3.5">
+                <div className="p-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 group-hover:scale-105 transition-transform">
+                  <ShieldCheck className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-slate-900 dark:text-white text-base group-hover:text-teal-600 transition-colors">
+                    {t.appHome.manageSecurity}
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">
+                    Font size, language choice, sessions, credentials
+                  </p>
+                </div>
+              </div>
+              <ArrowRight className="w-5 h-5 text-slate-400 group-hover:text-teal-600 group-hover:translate-x-1 transition-all mt-1" />
+            </Link>
+
+            {/* Notifications Center */}
+            <Link
+              href="/app/notifications"
+              className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:border-teal-500 transition-all flex items-start justify-between group min-h-[44px]"
+            >
+              <div className="flex items-start gap-3.5">
+                <div className="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 group-hover:scale-105 transition-transform">
+                  <Bell className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-slate-900 dark:text-white text-base group-hover:text-teal-600 transition-colors">
+                    {t.nav.notifications}
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">
+                    Live updates, secretary broadcasts, activity logs
+                  </p>
+                </div>
+              </div>
+              <ArrowRight className="w-5 h-5 text-slate-400 group-hover:text-teal-600 group-hover:translate-x-1 transition-all mt-1" />
+            </Link>
+
+            {/* Help & Support */}
+            <Link
+              href="/account-help"
+              className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:border-teal-500 transition-all flex items-start justify-between group min-h-[44px]"
+            >
+              <div className="flex items-start gap-3.5">
+                <div className="p-3 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 group-hover:scale-105 transition-transform">
+                  <HelpCircle className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-slate-900 dark:text-white text-base group-hover:text-teal-600 transition-colors">
+                    {t.appHome.helpSupport}
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">
+                    Emergency recovery, account unlocking, contact council
+                  </p>
+                </div>
+              </div>
+              <ArrowRight className="w-5 h-5 text-slate-400 group-hover:text-teal-600 group-hover:translate-x-1 transition-all mt-1" />
+            </Link>
           </div>
         </div>
+
+        {/* 3. Recent Activity Feed (Live over Socket.io) */}
+        <Card className="border border-slate-200 dark:border-slate-800 shadow-sm">
+          <CardHeader className="flex flex-row items-center justify-between pb-3">
+            <div>
+              <CardTitle className="text-base sm:text-lg">{t.appHome.recentActivityTitle}</CardTitle>
+              <CardDescription className="text-xs">
+                {t.appHome.recentActivitySubtitle}
+              </CardDescription>
+            </div>
+            <Link
+              href="/app/notifications"
+              className="text-xs text-teal-600 dark:text-teal-400 font-semibold hover:underline min-h-[44px] flex items-center"
+            >
+              View all
+            </Link>
+          </CardHeader>
+          <CardContent>
+            {notifications.length === 0 ? (
+              <div className="py-8 text-center text-xs text-slate-400">
+                {t.appHome.noActivity}
+              </div>
+            ) : (
+              <div className="divide-y divide-slate-100 dark:divide-slate-800">
+                {notifications.slice(0, 5).map((item) => (
+                  <div key={item.id} className="py-3 flex items-start gap-3 text-xs">
+                    <div className="w-2 h-2 rounded-full bg-teal-500 mt-1.5 shrink-0" />
+                    <div className="flex-1">
+                      <div className="font-semibold text-slate-900 dark:text-white">{item.title}</div>
+                      <p className="text-slate-600 dark:text-slate-300 mt-0.5">{item.message}</p>
+                    </div>
+                    <span className="text-[10px] text-slate-400 whitespace-nowrap">
+                      {new Date(item.created_at).toLocaleDateString()}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
     </ShellLayout>
   );

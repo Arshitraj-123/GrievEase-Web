@@ -63,7 +63,8 @@ export class AuthController {
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
     @Ip() ip: string,
-    @Headers('user-agent') userAgent: string = 'Browser'
+    @Headers('user-agent') userAgent: string = 'Browser',
+    @Headers('x-client') xClient?: string
   ) {
     const cookieName = getCookieName('refresh_token');
     const token = req.cookies?.[cookieName] || req.body?.refreshToken;
@@ -71,6 +72,15 @@ export class AuthController {
     const result = await this.authService.refreshToken(token, ip, userAgent);
     res.cookie(getCookieName('access_token'), result.accessToken, getCookieOptions(15 * 60 * 1000));
     res.cookie(getCookieName('refresh_token'), result.refreshToken, getCookieOptions(7 * 24 * 60 * 60 * 1000));
+
+    if (xClient === 'mobile' || req.body?.refreshToken) {
+      return {
+        success: true,
+        accessToken: result.accessToken,
+        refreshToken: result.refreshToken,
+        expiresIn: 15 * 60,
+      };
+    }
 
     return { success: true };
   }

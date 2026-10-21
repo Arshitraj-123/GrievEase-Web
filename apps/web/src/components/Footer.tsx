@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { Building2, ArrowUp, Globe } from 'lucide-react';
 import { siteConfig } from '@/config/site';
 
@@ -13,6 +14,7 @@ const LANGUAGES = [
 
 export function Footer() {
   const [currentLang, setCurrentLang] = useState('EN');
+  const pathname = usePathname();
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -22,6 +24,22 @@ export function Footer() {
     setCurrentLang(code);
     document.cookie = `grievease_locale=${code}; path=/; max-age=31536000; SameSite=Lax`;
   };
+
+  if (
+    pathname &&
+    (pathname.startsWith('/app') ||
+      pathname.startsWith('/admin') ||
+      pathname.startsWith('/login') ||
+      pathname.startsWith('/activate') ||
+      pathname.startsWith('/recovery') ||
+      pathname.startsWith('/account-help') ||
+      pathname.startsWith('/offline') ||
+      pathname.startsWith('/session-expired') ||
+      pathname.startsWith('/guard') ||
+      pathname.startsWith('/vendor'))
+  ) {
+    return null;
+  }
 
   return (
     <footer

@@ -73,6 +73,7 @@ export const appUsers = pgTable(
     mustChangePassword: boolean('must_change_password').notNull().default(true),
     passwordChangedAt: timestamp('password_changed_at'),
     language: varchar('language', { length: 10 }).notNull().default('en'),
+    fontSize: varchar('font_size', { length: 20 }).notNull().default('normal'),
     directoryVisible: boolean('directory_visible').notNull().default(false),
     failedLoginAttempts: integer('failed_login_attempts').notNull().default(0),
     lockedUntil: timestamp('locked_until'),

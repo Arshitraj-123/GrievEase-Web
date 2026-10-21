@@ -572,4 +572,44 @@ export class UsersService {
     `, [userId, currentSessionId]);
     return { success: true };
   }
+
+  async getMyProfile(userId: string) {
+    const res = await pool.query(`
+      SELECT u.id, u.member_id, u.username, u.full_name, u.mobile, u.email, u.role, u.status,
+             u.language, u.font_size, u.directory_visible,
+             f.flat_number, w.name as wing_name, s.name as society_name, s.code as society_code
+      FROM app_user u
+      LEFT JOIN flat f ON u.flat_id = f.id
+      LEFT JOIN wing w ON f.wing_id = w.id
+      LEFT JOIN society s ON u.society_id = s.id
+      WHERE u.id = $1;
+    `, [userId]);
+    if (res.rows.length === 0) throw new NotFoundException('User not found');
+    return res.rows[0];
+  }
+
+  async updateMyPreferences(userId: string, prefs: { language?: string; fontSize?: string; directoryVisible?: boolean }) {
+    const updates: string[] = [];
+    const values: any[] = [];
+    let idx = 1;
+
+    if (prefs.language) {
+      updates.push(`language = $${idx++}`);
+      values.push(prefs.language.toLowerCase());
+    }
+    if (prefs.fontSize) {
+      updates.push(`font_size = $${idx++}`);
+      values.push(prefs.fontSize);
+    }
+    if (prefs.directoryVisible !== undefined) {
+      updates.push(`directory_visible = $${idx++}`);
+      values.push(prefs.directoryVisible);
+    }
+
+    if (updates.length === 0) return { success: true };
+
+    values.push(userId);
+    await pool.query(`UPDATE app_user SET ${updates.join(', ')} WHERE id = $${idx};`, values);
+    return { success: true, message: 'Preferences updated.' };
+  }
 }

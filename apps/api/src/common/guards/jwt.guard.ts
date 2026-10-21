@@ -75,8 +75,9 @@ export class JwtGuard implements CanActivate {
     if (request.headers.authorization && request.headers.authorization.startsWith('Bearer ')) {
       return request.headers.authorization.substring(7);
     }
-    if (request.cookies && request.cookies.access_token) {
-      return request.cookies.access_token;
+    if (request.cookies) {
+      if (request.cookies.access_token) return request.cookies.access_token;
+      if (request.cookies['__Host-access_token']) return request.cookies['__Host-access_token'];
     }
     return null;
   }

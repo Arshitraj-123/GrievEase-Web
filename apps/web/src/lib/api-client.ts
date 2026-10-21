@@ -108,6 +108,9 @@ export const api = {
   updateStatus: (id: string, status: 'ACTIVE' | 'DISABLED') =>
     request(`/users/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status }) }),
   getMySessions: () => request('/users/me/sessions'),
+  getProfile: () => request('/users/me'),
+  updatePreferences: (body: { language?: string; fontSize?: string; directoryVisible?: boolean }) =>
+    request('/users/me/preferences', { method: 'PATCH', body: JSON.stringify(body) }),
   revokeMySession: (sessionId: string) => request(`/users/me/sessions/${sessionId}`, { method: 'DELETE' }),
   revokeOtherSessions: () => request('/users/me/sessions/revoke-others', { method: 'POST' }),
   nominateSuperAdmin: (nomineeUserId: string) =>

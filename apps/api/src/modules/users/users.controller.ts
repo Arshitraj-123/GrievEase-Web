@@ -127,6 +127,19 @@ export class UsersController {
     return this.usersService.revokeAllOtherSessions(user.userId, user.sessionId || '');
   }
 
+  @Get('me')
+  async getMyProfile(@CurrentUser() user: UserPayload) {
+    return this.usersService.getMyProfile(user.userId);
+  }
+
+  @Patch('me/preferences')
+  async updateMyPreferences(
+    @CurrentUser() user: UserPayload,
+    @Body() body: { language?: string; fontSize?: string; directoryVisible?: boolean }
+  ) {
+    return this.usersService.updateMyPreferences(user.userId, body);
+  }
+
   @Get(':id')
   @Roles('SUPER_ADMIN', 'SECRETARY', 'CHAIRMAN')
   async getUser(@Param('id') id: string, @CurrentUser() user: UserPayload) {

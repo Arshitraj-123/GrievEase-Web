@@ -4,15 +4,22 @@ import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { CookieConsent } from '@/components/CookieConsent';
 import { siteConfig } from '@/config/site';
+import { AccessibilityProvider } from '@/components/AccessibilityProvider';
+import { InstallPrompt } from '@/components/InstallPrompt';
 
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  themeColor: '#00B894',
+  themeColor: '#0d9488',
 };
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
+  manifest: '/manifest.json',
+  icons: {
+    icon: '/icons/icon.svg',
+    apple: '/icons/icon-192.png',
+  },
   title: {
     default: `${siteConfig.name} — ${siteConfig.tagline}`,
     template: `%s | ${siteConfig.name}`,
@@ -86,6 +93,9 @@ export default function RootLayout({
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdOrg) }}
@@ -100,19 +110,24 @@ export default function RootLayout({
           Skip to main content
         </a>
 
-        {/* Section 1: Navbar */}
-        <Navbar />
+        <AccessibilityProvider>
+          {/* Section 1: Navbar */}
+          <Navbar />
 
-        {/* Page Content */}
-        <main id="main-content" className="flex-1">
-          {children}
-        </main>
+          {/* Page Content */}
+          <main id="main-content" className="flex-1">
+            {children}
+          </main>
 
-        {/* Section 17: Footer */}
-        <Footer />
+          {/* Section 17: Footer */}
+          <Footer />
 
-        {/* Cookie Consent Banner */}
-        <CookieConsent />
+          {/* Cookie Consent Banner */}
+          <CookieConsent />
+
+          {/* PWA Add to Home Screen Prompt */}
+          <InstallPrompt />
+        </AccessibilityProvider>
       </body>
     </html>
   );

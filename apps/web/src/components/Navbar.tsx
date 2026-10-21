@@ -48,6 +48,22 @@ export function Navbar() {
     return pathname.startsWith(href);
   };
 
+  if (
+    pathname &&
+    (pathname.startsWith('/app') ||
+      pathname.startsWith('/admin') ||
+      pathname.startsWith('/login') ||
+      pathname.startsWith('/activate') ||
+      pathname.startsWith('/recovery') ||
+      pathname.startsWith('/account-help') ||
+      pathname.startsWith('/offline') ||
+      pathname.startsWith('/session-expired') ||
+      pathname.startsWith('/guard') ||
+      pathname.startsWith('/vendor'))
+  ) {
+    return null;
+  }
+
   return (
     <header
       role="banner"

@@ -4,9 +4,12 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ShieldCheck, Cookie } from 'lucide-react';
 
+import { usePathname } from 'next/navigation';
+
 export function CookieConsent() {
   const [showBanner, setShowBanner] = useState(false);
   const [analyticsEnabled, setAnalyticsEnabled] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
     const consent = localStorage.getItem('grievease_cookie_consent');
@@ -41,6 +44,22 @@ export function CookieConsent() {
   };
 
   if (!showBanner) return null;
+
+  if (
+    pathname &&
+    (pathname.startsWith('/app') ||
+      pathname.startsWith('/admin') ||
+      pathname.startsWith('/login') ||
+      pathname.startsWith('/activate') ||
+      pathname.startsWith('/recovery') ||
+      pathname.startsWith('/account-help') ||
+      pathname.startsWith('/offline') ||
+      pathname.startsWith('/session-expired') ||
+      pathname.startsWith('/guard') ||
+      pathname.startsWith('/vendor'))
+  ) {
+    return null;
+  }
 
   return (
     <div

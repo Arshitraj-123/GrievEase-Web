@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="grievease-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f766e" />
+      <stop offset="100%" stop-color="#0d9488" />
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="16" flood-color="#042f2e" flood-opacity="0.4"/>
+    </filter>
+  </defs>
+  <!-- Background Rounded Rect -->
+  <rect width="512" height="512" rx="112" fill="#042f2e" />
+  <rect x="24" y="24" width="464" height="464" rx="96" fill="url(#grievease-grad)" filter="url(#shadow)" />
+  
+  <!-- Stylized Shield -->
+  <path d="M 256 96 C 330 96 384 130 384 190 C 384 290 286 368 256 392 C 226 368 128 290 128 190 C 128 130 182 96 256 96 Z" fill="#ffffff" fill-opacity="0.12" />
+  
+  <!-- Stylized Bold 'G' -->
+  <path d="M 296 200 L 296 236 L 252 236 C 243 236 236 243 236 252 C 236 261 243 268 252 268 L 276 268 C 285 268 292 275 292 284 L 292 312 C 276 320 256 324 236 324 C 187 324 152 288 152 236 C 152 184 189 148 240 148 C 268 148 290 158 304 172 L 278 198 C 268 188 256 182 240 182 C 210 182 188 205 188 236 C 188 267 210 290 240 290 C 248 290 255 288 260 286 L 260 268 L 252 268 C 243 268 236 261 236 252 Z" fill="#ffffff" />
+  <!-- Accent checkmark dot -->
+  <circle cx="340" cy="180" r="16" fill="#2dd4bf" />
+</svg>

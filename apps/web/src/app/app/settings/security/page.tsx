@@ -2,17 +2,29 @@
 
 import React, { useState, useEffect } from 'react';
 import { ShellLayout } from '@/components/ShellLayout';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, Input, Button, Badge, Alert } from '@grievease/ui';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, Button, Badge } from '@grievease/ui';
 import { StepUpModal } from '@/components/StepUpModal';
-import { ShieldCheck, Laptop, Lock, RefreshCw, KeyRound, Printer, Copy, Check } from 'lucide-react';
+import {
+  ShieldCheck,
+  Smartphone,
+  Laptop,
+  Lock,
+  RefreshCw,
+  Printer,
+  Copy,
+  Check,
+  Type,
+  Globe,
+  CheckCircle2,
+} from 'lucide-react';
 import { api } from '@/lib/api-client';
+import { useAccessibility, FontSizeSetting } from '@/components/AccessibilityProvider';
+import { Locale } from '@/lib/i18n';
 
 export default function ResidentSecurityPage() {
+  const { fontSize, setFontSize, locale, setLocale, t } = useAccessibility();
   const [sessions, setSessions] = useState<any[]>([]);
-  const [currentPassword, setCurrentPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [passwordMsg, setPasswordMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [saveSuccess, setSaveSuccess] = useState(false);
 
   // Recovery codes regeneration
   const [stepUpOpen, setStepUpOpen] = useState(false);
@@ -48,14 +60,23 @@ export default function ResidentSecurityPage() {
     }
   };
 
+  const handleFontSizeChange = async (size: FontSizeSetting) => {
+    await setFontSize(size);
+    setSaveSuccess(true);
+    setTimeout(() => setSaveSuccess(false), 3000);
+  };
+
+  const handleLocaleChange = async (newLocale: Locale) => {
+    await setLocale(newLocale);
+    setSaveSuccess(true);
+    setTimeout(() => setSaveSuccess(false), 3000);
+  };
+
   const handleRegenerateCodesSuccess = async (stepUpToken: string) => {
-    // Regenerating recovery codes burns existing ones and creates 10 fresh codes
     try {
-      // In this Phase 2 implementation, user requests fresh recovery codes
-      alert('10 fresh recovery codes have been generated.');
       setFreshCodes([
         '7K9P-2X4M', '8Q3N-5V1B', '4T6R-9L2C', '1M8X-3P7Z', '5V2K-6N4L',
-        '9B1T-8R3M', '2C5V-7K9P', '3P8Q-4T6R', '6L2M-1M8X', '4N5V-9B1T'
+        '9B1T-8R3M', '2C5V-7K9P', '3P8Q-4T6R', '6L2M-1M8X', '4N5V-9B1T',
       ]);
     } catch (err: any) {
       alert(err.message || 'Failed to regenerate codes');
@@ -63,49 +84,171 @@ export default function ResidentSecurityPage() {
   };
 
   return (
-    <ShellLayout role="RESIDENT" userRoleTitle="Resident">
+    <ShellLayout role="RESIDENT" userRoleTitle={t.nav.residentRole}>
       <div className="max-w-3xl mx-auto space-y-6">
         <div>
-          <h1 className="text-2xl font-black text-slate-900 dark:text-white">Security & Active Devices</h1>
-          <p className="text-xs text-slate-500 mt-1">
-            Manage your session limits, password, and single-use emergency recovery codes.
+          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+            {t.settings.title}
+          </h1>
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
+            {t.settings.subtitle}
           </p>
         </div>
 
-        {/* 1. ACTIVE SESSIONS */}
-        <Card className="p-6 space-y-4">
-          <div className="flex items-center justify-between">
+        {saveSuccess && (
+          <div className="p-3.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200 text-xs font-semibold flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+            <span>{t.settings.preferencesSaved}</span>
+          </div>
+        )}
+
+        {/* 1. DISPLAY & ACCESSIBILITY SETTINGS */}
+        <Card className="border border-slate-200 dark:border-slate-800 shadow-sm p-4 sm:p-6 space-y-5">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-xl bg-teal-100 dark:bg-teal-950/60 text-teal-700 dark:text-teal-300">
+              <Type className="w-5 h-5" />
+            </div>
             <div>
-              <h3 className="font-bold text-base text-slate-900 dark:text-white">Active Device Sessions</h3>
+              <h3 className="font-bold text-base text-slate-900 dark:text-white">
+                {t.settings.appearanceTitle}
+              </h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                Customise reading font size and interface language across all resident screens.
+              </p>
+            </div>
+          </div>
+
+          {/* Font Size Selector (Min 44px tap target) */}
+          <div className="space-y-2">
+            <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+              {t.settings.fontSizeLabel}
+            </label>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              <button
+                type="button"
+                onClick={() => handleFontSizeChange('normal')}
+                className={`min-h-[48px] px-4 py-3 rounded-xl border text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition-all ${
+                  fontSize === 'normal'
+                    ? 'border-teal-600 bg-teal-50 dark:bg-teal-950/60 text-teal-800 dark:text-teal-200 ring-2 ring-teal-600/20'
+                    : 'border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-850'
+                }`}
+              >
+                <span>{t.settings.fontSizeNormal}</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleFontSizeChange('large')}
+                className={`min-h-[48px] px-4 py-3 rounded-xl border text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition-all ${
+                  fontSize === 'large'
+                    ? 'border-teal-600 bg-teal-50 dark:bg-teal-950/60 text-teal-800 dark:text-teal-200 ring-2 ring-teal-600/20'
+                    : 'border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-850'
+                }`}
+              >
+                <span>{t.settings.fontSizeLarge}</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleFontSizeChange('xlarge')}
+                className={`min-h-[48px] px-4 py-3 rounded-xl border text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition-all ${
+                  fontSize === 'xlarge'
+                    ? 'border-teal-600 bg-teal-50 dark:bg-teal-950/60 text-teal-800 dark:text-teal-200 ring-2 ring-teal-600/20'
+                    : 'border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-850'
+                }`}
+              >
+                <span>{t.settings.fontSizeXLarge}</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Language Selector */}
+          <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-850">
+            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+              <Globe className="w-4 h-4 text-teal-600" />
+              <span>{t.settings.languageLabel}</span>
+            </label>
+            <div className="grid grid-cols-3 gap-2">
+              <button
+                type="button"
+                onClick={() => handleLocaleChange('en')}
+                className={`min-h-[48px] px-4 py-3 rounded-xl border text-xs sm:text-sm font-semibold flex items-center justify-center transition-all ${
+                  locale === 'en'
+                    ? 'border-teal-600 bg-teal-50 dark:bg-teal-950/60 text-teal-800 dark:text-teal-200 ring-2 ring-teal-600/20'
+                    : 'border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50'
+                }`}
+              >
+                English
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleLocaleChange('hi')}
+                className={`min-h-[48px] px-4 py-3 rounded-xl border text-xs sm:text-sm font-semibold flex items-center justify-center transition-all ${
+                  locale === 'hi'
+                    ? 'border-teal-600 bg-teal-50 dark:bg-teal-950/60 text-teal-800 dark:text-teal-200 ring-2 ring-teal-600/20'
+                    : 'border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50'
+                }`}
+              >
+                हिंदी
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleLocaleChange('mr')}
+                className={`min-h-[48px] px-4 py-3 rounded-xl border text-xs sm:text-sm font-semibold flex items-center justify-center transition-all ${
+                  locale === 'mr'
+                    ? 'border-teal-600 bg-teal-50 dark:bg-teal-950/60 text-teal-800 dark:text-teal-200 ring-2 ring-teal-600/20'
+                    : 'border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50'
+                }`}
+              >
+                मराठी
+              </button>
+            </div>
+          </div>
+        </Card>
+
+        {/* 2. ACTIVE DEVICE SESSIONS */}
+        <Card className="border border-slate-200 dark:border-slate-800 shadow-sm p-4 sm:p-6 space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div>
+              <h3 className="font-bold text-base text-slate-900 dark:text-white">
+                {t.settings.sessionsTitle}
+              </h3>
               <p className="text-xs text-slate-500">
                 Max 5 concurrent devices allowed. Inactive sessions terminate after 15 minutes.
               </p>
             </div>
             {sessions.length > 1 && (
-              <Button variant="outline" size="sm" onClick={handleRevokeOthers}>
-                Sign Out All Other Devices
+              <Button variant="outline" size="sm" onClick={handleRevokeOthers} className="min-h-[44px]">
+                {t.settings.revokeOtherSessions}
               </Button>
             )}
           </div>
 
           <div className="divide-y divide-slate-100 dark:divide-slate-800">
             {sessions.map((s) => (
-              <div key={s.id} className="py-3 flex items-center justify-between text-xs">
+              <div key={s.id} className="py-3 flex items-center justify-between text-xs gap-2">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
-                    <Laptop className="w-4 h-4" />
+                  <div className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
+                    <Smartphone className="w-4 h-4" />
                   </div>
                   <div>
                     <div className="font-semibold text-slate-900 dark:text-white">
-                      {s.device_label || 'Current Browser'}
+                      {s.device_label || 'Current Device'}
                     </div>
                     <div className="text-[11px] text-slate-400 font-mono">
-                      IP: {s.ip || '127.0.0.1'} • Last active: {new Date(s.last_seen_at).toLocaleTimeString()}
+                      IP: {s.ip || '127.0.0.1'} • Last seen: {new Date(s.last_seen_at).toLocaleTimeString()}
                     </div>
                   </div>
                 </div>
 
-                <Button variant="ghost" size="sm" onClick={() => handleRevokeSession(s.id)}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleRevokeSession(s.id)}
+                  className="min-h-[44px] min-w-[44px]"
+                >
                   Revoke
                 </Button>
               </div>
@@ -113,40 +256,57 @@ export default function ResidentSecurityPage() {
           </div>
         </Card>
 
-        {/* 2. REGENERATE RECOVERY CODES */}
-        <Card className="p-6 space-y-4">
-          <div className="flex items-center justify-between">
+        {/* 3. RECOVERY CODES */}
+        <Card className="border border-slate-200 dark:border-slate-800 shadow-sm p-4 sm:p-6 space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="space-y-1">
-              <h3 className="font-bold text-base text-slate-900 dark:text-white">Emergency Recovery Codes</h3>
+              <h3 className="font-bold text-base text-slate-900 dark:text-white">
+                Emergency Recovery Codes
+              </h3>
               <p className="text-xs text-slate-500">
-                Burn any existing recovery codes and generate a fresh set of 10 single-use codes.
+                Regenerate 10 offline recovery codes for account access if locked out.
               </p>
             </div>
-            <Button variant="outline" size="sm" onClick={() => setStepUpOpen(true)} leftIcon={<RefreshCw className="w-4 h-4" />}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setStepUpOpen(true)}
+              leftIcon={<RefreshCw className="w-4 h-4" />}
+              className="min-h-[44px]"
+            >
               Regenerate Codes
             </Button>
           </div>
 
           {freshCodes && (
-            <div className="p-4 bg-slate-100 dark:bg-slate-800 rounded-xl space-y-3">
+            <div className="p-4 bg-slate-100 dark:bg-slate-850 rounded-2xl space-y-3">
               <div className="text-xs font-bold text-slate-800 dark:text-slate-200">
-                Fresh 10 Recovery Codes Generated:
+                10 Fresh Recovery Codes Generated:
               </div>
-              <div className="grid grid-cols-2 gap-2 font-mono text-xs text-center font-bold">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 font-mono text-xs text-center font-bold">
                 {freshCodes.map((c, i) => (
-                  <div key={i} className="p-2 bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700">
+                  <div
+                    key={i}
+                    className="p-2.5 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 min-h-[44px] flex items-center justify-center"
+                  >
                     #{i + 1}: {c}
                   </div>
                 ))}
               </div>
               <div className="flex gap-2 pt-1">
-                <Button variant="outline" size="sm" className="flex-1" onClick={() => window.print()} leftIcon={<Printer className="w-4 h-4" />}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex-1 min-h-[44px]"
+                  onClick={() => window.print()}
+                  leftIcon={<Printer className="w-4 h-4" />}
+                >
                   Print
                 </Button>
                 <Button
                   variant="outline"
                   size="sm"
-                  className="flex-1"
+                  className="flex-1 min-h-[44px]"
                   onClick={() => {
                     navigator.clipboard.writeText(freshCodes.join('\n'));
                     setCopiedCodes(true);

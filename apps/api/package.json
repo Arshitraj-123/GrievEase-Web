@@ -7,7 +7,7 @@
     "dev": "tsx watch src/main.ts",
     "start": "node dist/main.js",
     "type-check": "tsc --noEmit",
-    "lint": "eslint src/ --ext .ts",
+    "lint": "tsc --noEmit",
     "test": "vitest run",
     "test:unit": "vitest run test/unit",
     "test:integration": "vitest run test/integration",

@@ -58,6 +58,7 @@ CREATE TABLE IF NOT EXISTS app_user (
   must_change_password BOOLEAN NOT NULL DEFAULT TRUE,
   password_changed_at TIMESTAMP,
   language VARCHAR(10) NOT NULL DEFAULT 'en',
+  font_size VARCHAR(20) NOT NULL DEFAULT 'normal',
   directory_visible BOOLEAN NOT NULL DEFAULT FALSE,
   failed_login_attempts INTEGER NOT NULL DEFAULT 0,
   locked_until TIMESTAMP,
