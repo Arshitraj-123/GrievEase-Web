@@ -1,0 +1,80 @@
+[
+  {
+    "id": "faq-1",
+    "category": "General",
+    "question": "What is GrievEase and how is it different from WhatsApp groups?",
+    "answer": "Unlike WhatsApp groups where complaints get buried in chats with zero accountability, GrievEase provides structured ticket filing, category tagging, photo proof, live status tracking, and automated 4-level escalation with strict SLA timers to guarantee prompt resolution."
+  },
+  {
+    "id": "faq-2",
+    "category": "Escalation",
+    "question": "How does the auto-escalation system work?",
+    "answer": "Every complaint has a strict SLA countdown. If an assigned Secretary does not resolve the issue within 48 hours (Level 1), it automatically escalates to the Managing Committee within 72 hours (Level 2), then to the Chairman within 96 hours (Level 3), and finally to the Governing Body within 120 hours (Level 4)."
+  },
+  {
+    "id": "faq-3",
+    "category": "Privacy",
+    "question": "Can I submit a complaint anonymously?",
+    "answer": "Yes! GrievEase allows you to flag sensitive community concerns as anonymous. Resolvers and committee members only see the issue and proof without exposing your name or apartment number."
+  },
+  {
+    "id": "faq-4",
+    "category": "Privacy",
+    "question": "Is my identity safe if I complain anonymously?",
+    "answer": "Absolutely. When you submit anonymously, your identity is cryptographically separated from the ticket. Resolvers never see who you are. Only a verified Super Admin can audit identity in exceptional safety circumstances, and even then, only with a recorded justification in the tamper-evident audit log."
+  },
+  {
+    "id": "faq-5",
+    "category": "Escalation",
+    "question": "What happens if my complaint is not resolved in time?",
+    "answer": "If an SLA threshold is breached, GrievEase automatically escalates the ticket up the chain without requiring you to manually follow up: Secretary (L1, SLA 48h) → Committee (L2, 72h) → Chairman (L3, 96h) → Governing Body (L4, 120h, final authority). Every handover is permanently stamped in the audit trail."
+  },
+  {
+    "id": "faq-6",
+    "category": "Resolution",
+    "question": "How long does it take to resolve a complaint?",
+    "answer": "Turnaround depends on the category, but routine maintenance (water pumps, corridor lighting, plumbing) is typically resolved within 24 hours. Every ticket displays a live countdown timer showing the remaining SLA."
+  },
+  {
+    "id": "faq-7",
+    "category": "Pricing",
+    "question": "Is GrievEase free for residents?",
+    "answer": "USE_CONFIG_PRICING"
+  },
+  {
+    "id": "faq-8",
+    "category": "Security",
+    "question": "Can I pre-approve guests and track deliveries?",
+    "answer": "Yes. GrievEase includes full Visitor & Delivery Management. You can generate one-time digital entry passes for guests, pre-authorize frequent delivery partners, and receive instant push notifications as soon as anyone arrives at the society gate."
+  },
+  {
+    "id": "faq-9",
+    "category": "Safety",
+    "question": "How does the SOS button work?",
+    "answer": "Tapping the Emergency SOS button immediately broadcasts a high-priority audible alert along with your flat number to all on-duty security guards, emergency contacts, and committee officers simultaneously."
+  },
+  {
+    "id": "faq-10",
+    "category": "Payments",
+    "question": "How do I pay maintenance bills online?",
+    "answer": "You can pay monthly maintenance dues, utility charges, and amenity deposits directly via UPI, Net Banking, or Debit/Credit cards. Invoices and tax-compliant receipts are generated automatically and saved permanently to your profile."
+  },
+  {
+    "id": "faq-11",
+    "category": "Security",
+    "question": "Is my data secure and who can see it?",
+    "answer": "Your data is encrypted both in transit (TLS 1.3) and at rest (AES-256). GrievEase enforces strict Role-Based Access Control (RBAC). Only authorized society administrators and assigned technicians can view ticket details, and your personal contact information is never shared with third parties."
+  },
+  {
+    "id": "faq-12",
+    "category": "Platforms",
+    "question": "Which devices are supported?",
+    "answer": "GrievEase runs on all modern platforms: native iOS and Android mobile apps for residents and guards, as well as a full-featured web portal for desktop computers, tablets, and mobile browsers."
+  },
+  {
+    "id": "faq-13",
+    "category": "Onboarding",
+    "question": "How do I register my housing society?",
+    "answer": "Simply click 'Get Started' or 'Request a demo', enter your society name and unit count, and our onboarding team will configure your custom residential portal and send invitation links to all residents in under 5 minutes."
+  }
+]

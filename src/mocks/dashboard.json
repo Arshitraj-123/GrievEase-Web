@@ -1,0 +1,60 @@
+{
+  "society": {
+    "name": "Green Valley Residency",
+    "slug": "demo",
+    "units": 240,
+    "location": "Bengaluru, KA"
+  },
+  "metrics": {
+    "totalComplaints": 168,
+    "resolvedComplaints": 156,
+    "inProgress": 10,
+    "escalated": 2,
+    "slaAdherencePct": 94.2,
+    "satisfactionScore": 4.6,
+    "satisfactionPct": 88
+  },
+  "categoryBreakdown": [
+    { "category": "Plumbing", "total": 48, "resolved": 46, "avgHours": 18 },
+    { "category": "Electrical", "total": 38, "resolved": 37, "avgHours": 14 },
+    { "category": "Lift & Elevator", "total": 26, "resolved": 24, "avgHours": 8 },
+    { "category": "Security & Gate", "total": 22, "resolved": 22, "avgHours": 6 },
+    { "category": "Cleanliness", "total": 20, "resolved": 19, "avgHours": 12 },
+    { "category": "Noise & Disputes", "total": 14, "resolved": 13, "avgHours": 24 }
+  ],
+  "escalationLevelTimes": [
+    { "level": "L1 Secretary", "slaHours": 48, "avgResolveHours": 19, "resolvedPct": 84 },
+    { "level": "L2 Committee", "slaHours": 72, "avgResolveHours": 38, "resolvedPct": 12 },
+    { "level": "L3 Chairman", "slaHours": 96, "avgResolveHours": 62, "resolvedPct": 3 },
+    { "level": "L4 Governing Body", "slaHours": 120, "avgResolveHours": 94, "resolvedPct": 1 }
+  ],
+  "recentResolutions": [
+    {
+      "id": "GR-2026-104",
+      "title": "Main gate intercom malfunction",
+      "category": "Security & Gate",
+      "resolvedAt": "2 hours ago",
+      "turnaround": "4h 12m",
+      "status": "Resolved",
+      "level": "L1 Secretary"
+    },
+    {
+      "id": "GR-2026-098",
+      "title": "B-Wing 3rd floor water pump pressure drop",
+      "category": "Plumbing",
+      "resolvedAt": "5 hours ago",
+      "turnaround": "14h 30m",
+      "status": "Resolved",
+      "level": "L1 Secretary"
+    },
+    {
+      "id": "GR-2026-091",
+      "title": "Clubhouse AC thermostat replaced",
+      "category": "Electrical",
+      "resolvedAt": "1 day ago",
+      "turnaround": "21h 05m",
+      "status": "Resolved",
+      "level": "L2 Committee"
+    }
+  ]
+}
