@@ -76,6 +76,39 @@ export class NotificationsGateway implements OnGatewayConnection, OnGatewayDisco
     }
   }
 
+  @SubscribeMessage('join_society')
+  handleJoinSociety(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: { societyId: string }
+  ) {
+    if (data?.societyId) {
+      client.join(`society:${data.societyId}`);
+      this.logger.debug(`Client ${client.id} joined room [society:${data.societyId}]`);
+    }
+  }
+
+  private lastStatsTickMap = new Map<string, number>();
+
+  /**
+   * Emit a throttled stats.tick event (max one per 5 seconds per society).
+   */
+  emitStatsTick(societyId: string) {
+    if (!this.server) return;
+
+    const now = Date.now();
+    const lastTick = this.lastStatsTickMap.get(societyId) || 0;
+    if (now - lastTick < 5000) {
+      // Throttle: ignore if within 5s
+      return;
+    }
+
+    this.lastStatsTickMap.set(societyId, now);
+    this.server.to(`society:${societyId}`).emit('stats.tick', {
+      societyId,
+      timestamp: new Date().toISOString(),
+    });
+  }
+
   emitToUser(userId: string, notification: any) {
     if (this.server) {
       this.server.to(`user:${userId}`).emit('notification.new', notification);
@@ -96,3 +129,4 @@ export class NotificationsGateway implements OnGatewayConnection, OnGatewayDisco
     }
   }
 }
+

@@ -10,6 +10,7 @@ import { StorageModule } from './modules/storage/storage.module';
 import { GovernanceModule } from './modules/governance/governance.module';
 import { EscalationModule } from './modules/escalation/escalation.module';
 import { GrievancesModule } from './modules/grievances/grievances.module';
+import { AnalyticsModule } from './modules/analytics/analytics.module';
 
 @Module({
   imports: [
@@ -24,6 +25,8 @@ import { GrievancesModule } from './modules/grievances/grievances.module';
     GovernanceModule,
     EscalationModule,
     GrievancesModule,
+    AnalyticsModule,
   ],
 })
 export class AppModule {}
+

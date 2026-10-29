@@ -21,6 +21,8 @@
     "admin:bootstrap": "pnpm --filter @grievease/api admin:bootstrap",
     "admin:emergency-transfer": "pnpm --filter @grievease/api admin:emergency-transfer",
     "audit:verify": "pnpm --filter @grievease/api audit:verify",
+    "analytics:rebuild": "pnpm --filter @grievease/api analytics:rebuild",
+    "seed:analytics": "pnpm --filter @grievease/api seed:analytics",
     "secret-scan": "node scripts/secret-scan.js"
   },
   "devDependencies": {
