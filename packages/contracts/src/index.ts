@@ -445,3 +445,231 @@ export const SocietySettingsSchema = z.object({
   maxEvidence: z.number().int().min(1).max(20).default(10),
 });
 export type SocietySettingsDto = z.infer<typeof SocietySettingsSchema>;
+
+// ==========================================
+// 8. PHASE 4: ANALYTICS, TRANSPARENCY & REPORTING
+// ==========================================
+
+export const AnalyticsRangeEnum = z.enum(['30d', '90d', '12m']);
+export type AnalyticsRange = z.infer<typeof AnalyticsRangeEnum>;
+
+export const AnalyticsFilterSchema = z.object({
+  range: AnalyticsRangeEnum.default('30d'),
+  categoryId: z.string().uuid().optional(),
+  priority: GrievancePriorityEnum.optional(),
+  wingId: z.string().uuid().optional(),
+  level: z.coerce.number().int().min(1).max(4).optional(),
+});
+export type AnalyticsFilterDto = z.infer<typeof AnalyticsFilterSchema>;
+
+export const PublicDashboardVisibilityEnum = z.enum(['PUBLIC', 'RESIDENTS_ONLY']);
+export type PublicDashboardVisibility = z.infer<typeof PublicDashboardVisibilityEnum>;
+
+export const AnalyticsSettingsSchema = z.object({
+  publicDashboardEnabled: z.boolean().default(true),
+  publicDashboardVisibility: PublicDashboardVisibilityEnum.default('RESIDENTS_ONLY'),
+  minCellSize: z.coerce.number().int().min(1).max(50).default(5),
+  perfThresholdExcellent: z.coerce.number().int().min(50).max(100).default(90),
+  perfThresholdOnTrack: z.coerce.number().int().min(30).max(95).default(75),
+});
+export type AnalyticsSettingsDto = z.infer<typeof AnalyticsSettingsSchema>;
+
+export interface PublicDashboardStatsDto {
+  societyName: string;
+  societySlug: string;
+  summaryCards: {
+    openLoad: number;
+    resolvedCount: number;
+    avgResolutionHours: number;
+    satisfactionScore: number | null;
+    ratedCount: number;
+    escalationRate: number;
+  };
+  statusSplit: {
+    status: GrievanceStatus;
+    count: number;
+  }[];
+  resolutionByCategory: {
+    categoryId: string;
+    categoryName: string;
+    resolvedCount: number;
+    avgHours: number;
+  }[];
+  averageTimePerLevel: {
+    level: number;
+    avgMinutes: number;
+    avgHours: number;
+    count: number;
+  }[];
+  satisfaction: {
+    score: number | null;
+    count: number;
+    breakdown: { stars: number; count: number }[];
+  };
+  twelveMonthTrend: {
+    month: string;
+    submitted: number;
+    resolved: number;
+  }[];
+  topRecurringIssues: {
+    categoryName: string;
+    areaTagName: string;
+    count: number;
+  }[];
+  suppressed: boolean;
+  lastUpdated: string;
+}
+
+export interface LandingStatsDto {
+  resolvedThisMonth: number;
+  averageResolutionHours: number;
+  satisfactionScore: number;
+  ratingCount: number;
+  societyName: string;
+}
+
+export interface ResidentAnalyticsDto extends PublicDashboardStatsDto {
+  slaComplianceByLevel: {
+    level: number;
+    complianceRate: number;
+    totalHandled: number;
+  }[];
+}
+
+export interface AdminAnalyticsDto {
+  kpis: {
+    totalSubmitted: number;
+    openLoad: number;
+    resolvedCount: number;
+    avgResolutionHours: number;
+    slaComplianceRate: number;
+    satisfactionScore: number | null;
+    appealsCount: number;
+    reopensCount: number;
+  };
+  trend: {
+    date: string;
+    submitted: number;
+    resolved: number;
+    escalated: number;
+  }[];
+  categoryMix: {
+    categoryId: string;
+    categoryName: string;
+    count: number;
+    percentage: number;
+  }[];
+  priorityMix: {
+    priority: string;
+    count: number;
+  }[];
+  agingBuckets: {
+    zeroToOneDays: number;
+    oneToThreeDays: number;
+    threeToSevenDays: number;
+    sevenPlusDays: number;
+  };
+  wingHeatmap: {
+    wingId: string;
+    wingName: string;
+    categoryId: string;
+    categoryName: string;
+    count: number;
+    isSuppressed: boolean;
+    displayValue: string;
+  }[];
+  levelFunnel: {
+    level: number;
+    levelName: string;
+    enteredCount: number;
+    resolvedCount: number;
+    escalatedOutCount: number;
+    avgMinutes: number;
+  }[];
+  finalLevelOverdue: {
+    id: string;
+    publicId: string;
+    title: string;
+    categoryName: string;
+    priority: string;
+    hoursOverdue: number;
+    slaDueAt: string;
+  }[];
+}
+
+export type ResolverPerformanceLabel =
+  | 'Excellent'
+  | 'On track'
+  | 'Needs support'
+  | 'Not enough data (<5 closed)';
+
+export interface ResolverSummaryDto {
+  userId: string;
+  fullName: string;
+  level: number;
+  levelName: string;
+  assigned: number;
+  resolved: number;
+  acknowledgedWithinSlaRate: number;
+  avgAckMinutes: number;
+  avgResolutionMinutes: number;
+  slaHitRate: number | null;
+  breachesWhileAssigned: number;
+  reopenRate: number;
+  avgRating: number | null;
+  ratingCount: number;
+  currentOpenLoad: number;
+  performanceLabel: ResolverPerformanceLabel;
+  isSampleSizeSufficient: boolean;
+}
+
+export interface SlaBreachItemDto {
+  id: string;
+  publicId: string;
+  categoryName: string;
+  levelFrom: number;
+  levelTo: number;
+  reason: string;
+  hoursOverdue: number;
+  resolverAtTime: string | null;
+  occurredAt: string;
+}
+
+export interface ResolverDetailDto extends ResolverSummaryDto {
+  recentBreaches: SlaBreachItemDto[];
+  dailyTrend: {
+    date: string;
+    resolved: number;
+    breaches: number;
+  }[];
+}
+
+export interface SlaBreachReportDto {
+  items: SlaBreachItemDto[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
+export const ReportTypeEnum = z.enum([
+  'category-trends',
+  'aging',
+  'resolver-performance',
+  'sla-breaches',
+  'satisfaction',
+  'monthly-summary',
+]);
+export type ReportType = z.infer<typeof ReportTypeEnum>;
+
+export const ReportFormatEnum = z.enum(['json', 'xlsx', 'pdf']);
+export type ReportFormat = z.infer<typeof ReportFormatEnum>;
+
+export const ExportReportQuerySchema = z.object({
+  format: ReportFormatEnum.default('json'),
+  range: AnalyticsRangeEnum.default('30d'),
+  categoryId: z.string().uuid().optional(),
+  priority: GrievancePriorityEnum.optional(),
+  level: z.coerce.number().int().min(1).max(4).optional(),
+});
+export type ExportReportQueryDto = z.infer<typeof ExportReportQuerySchema>;
+
