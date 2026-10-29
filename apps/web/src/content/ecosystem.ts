@@ -9,7 +9,7 @@ export const ecosystemContent = {
       title: 'Visitor Management',
       tag: 'Smart Security',
       description:
-        'Pre-approve guests, track deliveries, manage cab entries. Complete digital entry log for all visitors at society security gates.',
+        'Pre-approve guests with 6-digit gate codes and HMAC-signed QRs. Live in-app walk-in approvals with atomic first-response-wins and parcel tracking (no SMS or push required).',
       href: '/features#visitors',
       color: '#00B894',
       bg: 'bg-[#00B894]/10',
@@ -64,7 +64,7 @@ export const ecosystemContent = {
       title: 'Emergency SOS',
       tag: '24/7 Safety',
       description:
-        'One-tap emergency panic alert broadcasted to main gate security guards, medical responders, and society committee chairs.',
+        'One-tap panic alert broadcasted in-app via Socket.io with loud audible siren and full-screen takeover to online sentries and committee responders (delivered in open app; no SMS/push).',
       href: '/features#sos',
       color: '#EF4444',
       bg: 'bg-[#EF4444]/10',
@@ -75,7 +75,7 @@ export const ecosystemContent = {
       title: 'Security Guard Management',
       tag: 'Guard Patrols',
       description:
-        'Shift rosters, digital attendance, incident reports, checkpoint QR patrols, and live gate status monitoring.',
+        'Dedicated sentry console with 15s heartbeat monitoring, device binding, 56px touch UI, offline tolerance, incident logs, and checkpoint QR patrols.',
       href: '/features#guards',
       color: '#00A383',
       bg: 'bg-[#00A383]/10',
