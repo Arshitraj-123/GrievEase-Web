@@ -124,3 +124,39 @@ In the event of sudden absence or complete lockout of the Super Admin:
 - **CORS**: Strict origin whitelist configured via `CORS_ORIGINS`.
 - **Cookies**: `HttpOnly`, `SameSite=Lax`, `Secure`, and `__Host-` prefix on HTTPS.
 - **PII Redaction**: Application logger redacts passwords, tokens, activation codes, security answers, and TOTP secrets from console and file logs.
+
+---
+
+## 8. Anonymous Grievance Cryptography & Identity Protection Model
+
+### 8.1 Zero-Identity Storage Guarantee
+- Anonymous grievances NEVER persist `submitter_user_id` or `flat_id` in the `grievance` record.
+- Submitter identity is encapsulated into a separate `anonymous_identity` table:
+  - **Cipher**: AES-256-GCM.
+  - **Envelope**: `iv` (12 bytes) + `ciphertext` + `authTag` (16 bytes).
+  - **Key Custody**: Key derived from `ANON_ENCRYPTION_KEY` environment variable with version tracking (`key_version`). Rotation preserves historical keys for decryption.
+- The `anonymous_identity` table is completely segregated from day-to-day resolvers; no resolver or committee member query can access this table.
+
+### 8.2 Submitter Blind Index
+- To allow residents to query their own anonymous grievances without maintaining an identity link in the database, the API computes an HMAC:
+  ```
+  submitter_blind_index = HMAC-SHA256(ANON_ENCRYPTION_KEY, society_id + ":" + user_id)
+  ```
+- Because HMAC is deterministic for the resident session but cryptographically irreversible without `ANON_ENCRYPTION_KEY`, residents query their own complaints seamlessly.
+- Rate-limiting (default 5 grievances per 24 hours per resident) uses `submitter_user_id` for named submissions and `submitter_blind_index` for anonymous submissions, preventing abuse while preserving anonymity.
+
+### 8.3 Single-Use Tracking Code
+- Upon submission of an anonymous grievance, a 12-character high-entropy tracking code is presented **ONCE** to the resident.
+- Only the `SHA-256` hash of this code is persisted (`tracking_code_hash`).
+- This code allows anonymous follow-up and public tracking via `/track` without exposing any personal identifiers or session cookies.
+
+### 8.4 Break-Glass Identity Reveal Protocol
+- **Authorization**: `SUPER_ADMIN` only.
+- **Pre-Conditions**:
+  1. Active elevated step-up token (`X-Step-Up-Token` or cookie, valid for 5 minutes).
+  2. Mandatory written legal/security justification (minimum 30 characters).
+- **Execution & Audit**:
+  1. Decrypts identity in a narrow, memory-isolated function.
+  2. Appends an immutable row to `identity_reveal` and `audit_log` recording the actor ID, reason, and timestamp (decrypted PII is NEVER written to logs or audit snapshots).
+  3. Dispatches immediate high-priority in-app alerts to all members of the `GOVERNING_BODY` and the `CHAIRMAN`.
+  4. Returns the decrypted identity only to the requesting Super Admin. Bulk reveal endpoints are strictly prohibited.

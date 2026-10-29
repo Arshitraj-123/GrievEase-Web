@@ -34,6 +34,36 @@ services:
       timeout: 5s
       retries: 5
 
+  minio:
+    image: minio/minio:RELEASE.2023-09-27T15-22-50Z
+    container_name: grievease_minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY:-local_minio_secret_replace_in_prod}
+    ports:
+      - "${MINIO_PORT:-9000}:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Optional ClamAV Antivirus Scanner (set CLAMAV_ENABLED=true)
+  clamav:
+    image: clamav/clamav:1.2_base
+    container_name: grievease_clamav
+    restart: unless-stopped
+    ports:
+      - "${CLAMAV_PORT:-3310}:3310"
+    profiles:
+      - optional-clamav
+
 volumes:
   postgres_data:
   redis_data:
+  minio_data:
