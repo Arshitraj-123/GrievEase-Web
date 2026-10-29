@@ -2,14 +2,31 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, Input, Button, Alert } from '@grievease/ui';
-import { ShieldAlert, KeyRound, Lock, User, ArrowRight, Printer, Check, Copy } from 'lucide-react';
+import Link from 'next/link';
+import {
+  AuthLayout,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  TextField,
+  PasswordField,
+  Button,
+  Alert,
+  CopyButton,
+  RecoveryCodesGrid,
+} from '@grievease/ui';
+import { ShieldCheck, Lock, User, ArrowRight, Smartphone } from 'lucide-react';
 import { api } from '@/lib/api-client';
+import { useAccessibility } from '@/components/AccessibilityProvider';
 
 function FirstRunSetupContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialToken = searchParams?.get('token') || '';
+
+  const { locale, setLocale } = useAccessibility();
 
   const [isAvailable, setIsAvailable] = useState<boolean | null>(null);
   const [setupToken, setSetupToken] = useState(initialToken);
@@ -22,7 +39,7 @@ function FirstRunSetupContent() {
 
   // Success data
   const [completedData, setCompletedData] = useState<any | null>(null);
-  const [copiedKey, setCopiedKey] = useState(false);
+  const [isBackupConfirmed, setIsBackupConfirmed] = useState(false);
 
   useEffect(() => {
     api
@@ -62,186 +79,159 @@ function FirstRunSetupContent() {
 
   if (isAvailable === false) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4 bg-slate-50 dark:bg-slate-950">
-        <Card className="max-w-md w-full border border-slate-200 dark:border-slate-800 text-center p-6 space-y-4">
-          <div className="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-500 flex items-center justify-center mx-auto">
-            <Lock className="w-6 h-6" />
-          </div>
-          <h3 className="text-xl font-bold text-slate-900 dark:text-white">404 - Setup Unavailable</h3>
-          <p className="text-xs text-slate-500 leading-relaxed">
-            First-time Super Admin bootstrap has already been completed or is permanently locked.
-          </p>
-          <Button variant="primary" size="sm" onClick={() => router.push('/login')}>
-            Go to Login
-          </Button>
-        </Card>
-      </div>
-    );
-  }
-
-  if (completedData) {
-    return (
-      <div className="min-h-screen flex items-center justify-center p-4 bg-slate-50 dark:bg-slate-950">
-        <Card className="max-w-lg w-full border border-teal-300 dark:border-teal-700 shadow-2xl space-y-6">
-          <CardHeader className="text-center pb-2">
-            <div className="w-12 h-12 rounded-2xl bg-teal-100 text-teal-600 flex items-center justify-center mx-auto mb-2">
-              <ShieldAlert className="w-7 h-7" />
+      <AuthLayout
+        LinkComponent={Link}
+        currentLocale={locale}
+        onLocaleChange={setLocale}
+      >
+        <div className="w-full">
+          <Card className="border border-slate-200/90 dark:border-slate-800 shadow-xl dark:shadow-2xl bg-white dark:bg-slate-900 rounded-2xl overflow-hidden text-center p-6 space-y-4">
+            <div className="w-14 h-14 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-500 flex items-center justify-center mx-auto">
+              <Lock className="w-7 h-7" />
             </div>
-            <CardTitle className="text-xl">Super Admin Setup Completed</CardTitle>
-            <CardDescription>
-              Scan your offline Authenticator QR code and store the 10 backup codes. The /setup endpoint is now permanently sealed.
-            </CardDescription>
-          </CardHeader>
-
-          <CardContent className="space-y-5">
-            <div className="flex flex-col sm:flex-row items-center gap-6 p-4 bg-slate-50 dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800">
-              <div className="p-2 bg-white rounded-xl shadow-sm shrink-0">
-                <img src={completedData.qrCode} alt="TOTP QR" className="w-36 h-36" />
-              </div>
-              <div className="text-xs space-y-2">
-                <span className="font-semibold text-slate-900 dark:text-white block">Offline TOTP Secret</span>
-                <p className="text-slate-500">Scan with Google Authenticator, Microsoft Authenticator, or Bitwarden.</p>
-                <div className="flex items-center gap-2 font-mono text-[11px] bg-slate-200 dark:bg-slate-800 p-1.5 rounded-lg select-all">
-                  <span className="truncate">{completedData.totpSecret}</span>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      navigator.clipboard.writeText(completedData.totpSecret);
-                      setCopiedKey(true);
-                      setTimeout(() => setCopiedKey(false), 2000);
-                    }}
-                  >
-                    {copiedKey ? <Check className="w-3.5 h-3.5 text-green-600" /> : <Copy className="w-3.5 h-3.5" />}
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <div className="text-xs font-semibold text-slate-800 dark:text-slate-200">
-                Emergency Backup Codes (10 Single-Use Codes)
-              </div>
-              <div className="grid grid-cols-2 gap-1.5 p-3 bg-slate-100 dark:bg-slate-800 rounded-xl font-mono text-xs">
-                {completedData.backupCodes?.map((c: string, idx: number) => (
-                  <span key={idx}>#{idx + 1}: {c}</span>
-                ))}
-              </div>
-            </div>
-
-            <div className="flex gap-3">
-              <Button variant="outline" size="sm" className="flex-1" onClick={() => window.print()} leftIcon={<Printer className="w-4 h-4" />}>
-                Print Slip
-              </Button>
-              <Button variant="primary" size="sm" className="flex-1" onClick={() => router.push('/login')}>
-                Go to Sign In
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+            <CardTitle className="text-xl sm:text-2xl font-bold">Setup Unavailable</CardTitle>
+            <p className="text-xs sm:text-sm text-slate-500 leading-relaxed max-w-sm mx-auto">
+              First-time Super Admin bootstrap has already been completed or is permanently locked.
+            </p>
+            <Button variant="primary" size="lg" className="w-full" onClick={() => router.push('/login')}>
+              Go to Sign In
+            </Button>
+          </Card>
+        </div>
+      </AuthLayout>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-slate-50 dark:bg-slate-950">
-      <div className="w-full max-w-lg space-y-6">
-        <div className="text-center space-y-2">
-          <div className="inline-flex items-center gap-2 text-2xl font-black text-slate-900 dark:text-white">
-            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-teal-600 text-white font-bold">G</span>
-            <span>Griev<span className="text-teal-600">Ease</span></span>
-          </div>
-          <p className="text-xs text-slate-500">First-Run Super Admin Bootstrap</p>
-        </div>
-
-        <Card className="border border-slate-200 dark:border-slate-800 shadow-xl">
-          <CardHeader className="space-y-1 pb-4">
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-teal-100 text-teal-800 dark:bg-teal-900/50 dark:text-teal-300 w-fit mb-1">
-              One-Time Initial Setup
+    <AuthLayout
+      LinkComponent={Link}
+      currentLocale={locale}
+      onLocaleChange={setLocale}
+    >
+      <div className="w-full">
+        <Card className="border border-slate-200/90 dark:border-slate-800 shadow-xl dark:shadow-2xl bg-white dark:bg-slate-900 rounded-2xl overflow-hidden">
+          <CardHeader className="space-y-1.5 pb-4">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-teal-100 text-teal-800 dark:bg-teal-900/50 dark:text-teal-300 w-fit mb-1">
+              <ShieldCheck className="w-3.5 h-3.5" />
+              <span>Initial Installation</span>
             </div>
-            <CardTitle className="text-xl">Create First Super Administrator</CardTitle>
-            <CardDescription>
-              Provide the 256-bit setup token printed to your server terminal via `pnpm admin:bootstrap`.
+            <CardTitle className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+              {completedData ? 'Super Admin Provisioned' : 'Super Admin Bootstrap'}
+            </CardTitle>
+            <CardDescription className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
+              {completedData
+                ? 'Save your offline TOTP authenticator key and 10 master backup codes below.'
+                : 'Initialize the root administrator credentials with master token verification.'}
             </CardDescription>
           </CardHeader>
 
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {error && <Alert variant="danger">{error}</Alert>}
+          <CardContent className="space-y-4">
+            {error && <Alert variant="danger" role="alert">{error}</Alert>}
 
-              <Input
-                id="setup-token"
-                label="256-bit Setup Token"
-                placeholder="64-character hexadecimal token"
-                value={setupToken}
-                onChange={(e) => setSetupToken(e.target.value)}
-                leftIcon={<KeyRound className="w-4 h-4" />}
-                className="font-mono text-xs"
-                required
-              />
+            {completedData ? (
+              <div className="space-y-4 text-xs">
+                <div className="p-4 bg-teal-50 dark:bg-teal-950/40 rounded-2xl border border-teal-200 dark:border-teal-800 space-y-3">
+                  <div className="flex items-center gap-2 text-teal-900 dark:text-teal-100 font-bold">
+                    <Smartphone className="w-4 h-4 text-teal-600" />
+                    <span>Offline TOTP Secret</span>
+                  </div>
+                  <div className="flex items-center gap-2 font-mono text-xs bg-white dark:bg-slate-800 p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 select-all">
+                    <span className="truncate flex-1">{completedData.totpSecret}</span>
+                    <CopyButton textToCopy={completedData.totpSecret} iconOnly />
+                  </div>
+                </div>
 
-              <Input
-                id="setup-name"
-                label="Full Name"
-                placeholder="e.g. Chief Administrator"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                leftIcon={<User className="w-4 h-4" />}
-                required
-              />
+                <div className="space-y-2">
+                  <RecoveryCodesGrid
+                    codes={completedData.backupCodes || []}
+                    isConfirmed={isBackupConfirmed}
+                    onConfirmChange={setIsBackupConfirmed}
+                  />
+                </div>
 
-              <Input
-                id="setup-username"
-                label="Username"
-                placeholder="superadmin"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                leftIcon={<User className="w-4 h-4" />}
-                required
-              />
+                <Button
+                  variant="primary"
+                  size="lg"
+                  disabled={!isBackupConfirmed}
+                  className="w-full text-base font-bold shadow-md shadow-teal-900/10"
+                  onClick={() => router.push('/login')}
+                  rightIcon={<ArrowRight className="w-5 h-5" />}
+                >
+                  Proceed to Sign In
+                </Button>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <TextField
+                  label="Bootstrap Setup Token"
+                  value={setupToken}
+                  onChange={(e) => setSetupToken(e.target.value)}
+                  placeholder="Paste master token from server console"
+                  leftIcon={<Lock className="w-4 h-4" />}
+                  required
+                />
 
-              <Input
-                id="setup-password"
-                label="Password (Minimum 12 characters)"
-                type="password"
-                placeholder="••••••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                leftIcon={<Lock className="w-4 h-4" />}
-                helperText="Must be >= 12 characters, not easily guessed."
-                required
-              />
+                <TextField
+                  label="Administrator Full Name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Dr. Rajesh Varma"
+                  leftIcon={<User className="w-4 h-4" />}
+                  required
+                />
 
-              <Input
-                id="setup-confirm-password"
-                label="Confirm Password"
-                type="password"
-                placeholder="••••••••••••"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                leftIcon={<Lock className="w-4 h-4" />}
-                required
-              />
+                <TextField
+                  label="Username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  leftIcon={<User className="w-4 h-4" />}
+                  required
+                />
 
-              <Button
-                type="submit"
-                variant="primary"
-                className="w-full mt-2"
-                isLoading={isLoading}
-                rightIcon={<ArrowRight className="w-4 h-4" />}
-              >
-                Initialize Super Admin & Enrol TOTP
-              </Button>
-            </form>
+                <PasswordField
+                  label="Master Password (min 12 characters)"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  showStrengthMeter
+                  minStrengthLength={12}
+                  required
+                />
+
+                <PasswordField
+                  label="Confirm Master Password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                />
+
+                <Button
+                  type="submit"
+                  variant="primary"
+                  size="lg"
+                  className="w-full text-base font-bold shadow-md shadow-teal-900/10"
+                  isLoading={isLoading}
+                  rightIcon={<ArrowRight className="w-5 h-5" />}
+                >
+                  Bootstrap System Root
+                </Button>
+              </form>
+            )}
           </CardContent>
         </Card>
       </div>
-    </div>
+    </AuthLayout>
   );
 }
 
 export default function FirstRunSetupPage() {
   return (
-    <React.Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+    <React.Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 text-slate-600">
+          Loading setup...
+        </div>
+      }
+    >
       <FirstRunSetupContent />
     </React.Suspense>
   );

@@ -2,22 +2,35 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, Input, Button, Alert } from '@grievease/ui';
-import { UserCheck, ShieldCheck, Languages, Eye, ArrowRight, Building2 } from 'lucide-react';
+import Link from 'next/link';
+import {
+  AuthLayout,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  TextField,
+  Button,
+  Alert,
+} from '@grievease/ui';
+import { UserCheck, Languages, ArrowRight, Building2, Phone } from 'lucide-react';
 import { api } from '@/lib/api-client';
+import { useAccessibility } from '@/components/AccessibilityProvider';
 
 export default function OnboardingProfilePage() {
   const router = useRouter();
+  const { locale, setLocale } = useAccessibility();
+
   const [society, setSociety] = useState<any | null>(null);
-  const [language, setLanguage] = useState('EN');
-  const [directoryVisible, setDirectoryVisible] = useState(false);
+  const [selectedLang, setSelectedLang] = useState<'en' | 'hi' | 'mr'>(locale);
   const [mobile, setMobile] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [statusMsg, setStatusMsg] = useState<string | null>(null);
 
   useEffect(() => {
-    // Load society info
-    api.getCurrentSociety()
+    api
+      .getCurrentSociety()
       .then((s) => setSociety(s))
       .catch(() => {});
   }, []);
@@ -28,7 +41,7 @@ export default function OnboardingProfilePage() {
     setStatusMsg(null);
 
     try {
-      // Proceed to resident app dashboard
+      await setLocale(selectedLang);
       router.push('/app');
     } catch (err: any) {
       setStatusMsg(err.message || 'Error updating profile');
@@ -37,88 +50,81 @@ export default function OnboardingProfilePage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-slate-50 dark:bg-slate-950">
-      <Card className="max-w-lg w-full">
-        <CardHeader className="text-center">
-          <div className="mx-auto w-12 h-12 bg-teal-50 dark:bg-teal-950/50 text-teal-600 rounded-full flex items-center justify-center mb-2">
-            <UserCheck className="w-6 h-6" />
-          </div>
-          <CardTitle>Welcome to GrievEase</CardTitle>
-          <CardDescription>
-            {society?.name || 'Your Society Community'} • Finalize your preferences before entering your portal.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleComplete} className="space-y-6">
-            {statusMsg && (
-              <Alert variant="info">
-                {statusMsg}
-              </Alert>
-            )}
-
-            {/* Language Selection */}
-            <div>
-              <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 block mb-2 flex items-center gap-2">
-                <Languages className="w-4 h-4 text-teal-600" />
-                Preferred Language
-              </label>
-              <div className="grid grid-cols-3 gap-3">
-                {[
-                  { code: 'EN', label: 'English' },
-                  { code: 'HI', label: 'हिन्दी (Hindi)' },
-                  { code: 'MR', label: 'मराठी (Marathi)' },
-                ].map((l) => (
-                  <button
-                    type="button"
-                    key={l.code}
-                    onClick={() => setLanguage(l.code)}
-                    className={`p-3 rounded-xl border text-sm font-medium transition-all ${
-                      language === l.code
-                        ? 'border-teal-600 bg-teal-50 dark:bg-teal-950/40 text-teal-700 dark:text-teal-300 font-bold'
-                        : 'border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-900'
-                    }`}
-                  >
-                    {l.label}
-                  </button>
-                ))}
-              </div>
+    <AuthLayout
+      LinkComponent={Link}
+      currentLocale={locale}
+      onLocaleChange={setLocale}
+    >
+      <div className="w-full">
+        <Card className="border border-slate-200/90 dark:border-slate-800 shadow-xl dark:shadow-2xl bg-white dark:bg-slate-900 rounded-2xl overflow-hidden">
+          <CardHeader className="text-center pb-3 space-y-2">
+            <div className="w-14 h-14 rounded-2xl bg-teal-50 dark:bg-teal-950/50 text-teal-600 dark:text-teal-400 flex items-center justify-center mx-auto border border-teal-200 dark:border-teal-800 shadow-xs">
+              <UserCheck className="w-7 h-7" />
             </div>
+            <CardTitle className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+              Welcome to GrievEase
+            </CardTitle>
+            <CardDescription className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
+              {society?.name || 'Your Society Community'} &bull; Finalize your preferences before entering your portal.
+            </CardDescription>
+          </CardHeader>
 
-            {/* Privacy / Directory Visibility */}
-            <div className="p-4 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 space-y-2">
-              <div className="flex items-start gap-3">
-                <input
-                  type="checkbox"
-                  id="directoryOptIn"
-                  checked={directoryVisible}
-                  onChange={(e) => setDirectoryVisible(e.target.checked)}
-                  className="mt-1 h-4 w-4 rounded border-slate-300 text-teal-600 focus:ring-teal-500"
-                />
-                <label htmlFor="directoryOptIn" className="text-sm">
-                  <span className="font-semibold text-slate-800 dark:text-slate-200 block">
-                    Show in Society Directory
-                  </span>
-                  <span className="text-xs text-slate-500 dark:text-slate-400 block">
-                    When enabled, neighbors in your society can view your name and flat in the member directory. Your phone number is kept private by default.
-                  </span>
+          <CardContent className="space-y-4">
+            {statusMsg && <Alert variant="info">{statusMsg}</Alert>}
+
+            <form onSubmit={handleComplete} className="space-y-4">
+              {/* Language Selection */}
+              <div className="space-y-2">
+                <label className="text-xs sm:text-sm font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-2">
+                  <Languages className="w-4 h-4 text-teal-600" />
+                  <span>Preferred Interface Language</span>
                 </label>
+                <div className="grid grid-cols-3 gap-2">
+                  {[
+                    { code: 'en', label: 'English' },
+                    { code: 'hi', label: 'हिन्दी' },
+                    { code: 'mr', label: 'मराठी' },
+                  ].map((l) => (
+                    <button
+                      key={l.code}
+                      type="button"
+                      onClick={() => setSelectedLang(l.code as 'en' | 'hi' | 'mr')}
+                      className={`min-h-[44px] p-2.5 rounded-xl border text-xs font-bold transition-all ${
+                        selectedLang === l.code
+                          ? 'border-teal-600 bg-teal-50 dark:bg-teal-950/40 text-teal-700 dark:text-teal-300 shadow-xs'
+                          : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400'
+                      }`}
+                    >
+                      {l.label}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
 
-            {/* Security Notice */}
-            <div className="flex items-center gap-3 p-3 text-xs bg-amber-50 dark:bg-amber-950/30 text-amber-800 dark:text-amber-300 rounded-lg">
-              <ShieldCheck className="w-5 h-5 flex-shrink-0" />
-              <span>
-                Your offline recovery codes and credentials have been verified. In-app notifications will alert you of all account events.
-              </span>
-            </div>
+              {/* Mobile Phone (Optional) */}
+              <TextField
+                label="Emergency Contact Number (Optional)"
+                placeholder="+91 98765 43210"
+                value={mobile}
+                onChange={(e) => setMobile(e.target.value)}
+                leftIcon={<Phone className="w-4 h-4" />}
+                helperText="Used only for urgent emergency council broadcasts."
+              />
 
-            <Button type="submit" className="w-full" isLoading={isSaving}>
-              Complete Onboarding & Enter Portal <ArrowRight className="w-4 h-4 ml-2" />
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
-    </div>
+              <Button
+                type="submit"
+                variant="primary"
+                size="lg"
+                className="w-full text-base font-bold shadow-md shadow-teal-900/10 mt-2"
+                isLoading={isSaving}
+                rightIcon={<ArrowRight className="w-5 h-5" />}
+              >
+                Enter Resident Portal
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
+    </AuthLayout>
   );
 }

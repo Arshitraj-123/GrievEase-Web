@@ -1,12 +1,13 @@
 'use client';
 
 import React, { useState } from 'react';
-import { WifiOff, RefreshCw, ArrowLeft, Shield } from 'lucide-react';
+import Link from 'next/link';
+import { AuthLayout, Card, CardTitle, CardDescription, Button } from '@grievease/ui';
+import { WifiOff, RefreshCw, FileText } from 'lucide-react';
 import { useAccessibility } from '@/components/AccessibilityProvider';
-import { Button } from '@grievease/ui';
 
 export default function OfflinePage() {
-  const { t } = useAccessibility();
+  const { t, locale, setLocale } = useAccessibility();
   const [isRetrying, setIsRetrying] = useState(false);
 
   const handleRetry = () => {
@@ -17,62 +18,71 @@ export default function OfflinePage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col justify-between p-4 sm:p-6 md:p-8">
-      {/* Header */}
-      <header className="flex items-center justify-between py-2">
-        <div className="flex items-center gap-2">
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-teal-600 text-white font-bold text-base">
-            G
-          </span>
-          <span className="font-bold text-xl text-white">
-            Griev<span className="text-teal-400">Ease</span>
-          </span>
-        </div>
-      </header>
+    <AuthLayout
+      LinkComponent={Link}
+      currentLocale={locale}
+      onLocaleChange={setLocale}
+    >
+      <div className="w-full">
+        <Card className="border border-slate-200/90 dark:border-slate-800 shadow-xl dark:shadow-2xl bg-white dark:bg-slate-900 rounded-2xl overflow-hidden text-center p-6 sm:p-8 space-y-4">
+          {/* Friendly Inline SVG Offline Illustration */}
+          <div className="w-20 h-20 rounded-3xl bg-teal-50 dark:bg-teal-950/40 text-teal-600 dark:text-teal-400 flex items-center justify-center mx-auto border border-teal-200 dark:border-teal-800 shadow-sm">
+            <svg
+              className="w-10 h-10 animate-pulse motion-reduce:animate-none"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              aria-hidden="true"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M3 3l18 18M10.5 10.5a5 5 0 017 0m-9.5-2.5a8.5 8.5 0 0112 0M6 18a1 1 0 100-2 1 1 0 000 2z"
+              />
+            </svg>
+          </div>
 
-      {/* Main Content Card (Designed for 360px+) */}
-      <main className="w-full max-w-md mx-auto my-auto text-center py-8">
-        <div className="mx-auto w-20 h-20 rounded-2xl bg-slate-800/80 border border-slate-700/60 flex items-center justify-center mb-6 text-teal-400 shadow-xl">
-          <WifiOff className="w-10 h-10 animate-pulse text-amber-400" />
-        </div>
+          <div className="space-y-1.5">
+            <span className="inline-block px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300">
+              No Network Connection
+            </span>
+            <CardTitle className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+              {t.offline.title}
+            </CardTitle>
+            <CardDescription className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 max-w-sm mx-auto leading-relaxed">
+              {t.offline.description}
+            </CardDescription>
+          </div>
 
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight mb-3">
-          {t.offline.title}
-        </h1>
+          <div className="p-3 bg-slate-100 dark:bg-slate-800/60 rounded-xl text-xs text-slate-600 dark:text-slate-300">
+            {t.offline.cachedNotice}
+          </div>
 
-        <p className="text-slate-300 text-base sm:text-lg mb-8 leading-relaxed max-w-sm mx-auto">
-          {t.offline.description}
-        </p>
-
-        <div className="bg-slate-800/50 border border-slate-700/60 rounded-xl p-4 mb-8 text-xs sm:text-sm text-slate-400">
-          <p>{t.offline.cachedNotice}</p>
-        </div>
-
-        {/* Action Button: Minimum 44px tap target */}
-        <div className="space-y-3">
-          <button
-            onClick={handleRetry}
-            disabled={isRetrying}
-            className="w-full min-h-[48px] px-6 py-3 rounded-xl bg-teal-600 hover:bg-teal-500 active:scale-[0.98] text-white font-semibold text-base flex items-center justify-center gap-2 transition-all shadow-lg shadow-teal-900/30 disabled:opacity-50"
-          >
-            <RefreshCw className={`w-5 h-5 ${isRetrying ? 'animate-spin' : ''}`} />
-            <span>{t.offline.retryButton}</span>
-          </button>
-
-          <a
-            href="/login"
-            className="w-full min-h-[48px] px-6 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 active:scale-[0.98] text-slate-200 font-medium text-base flex items-center justify-center gap-2 transition-all border border-slate-700"
-          >
-            <ArrowLeft className="w-5 h-5" />
-            <span>{t.auth.backToLogin}</span>
-          </a>
-        </div>
-      </main>
-
-      {/* Footer */}
-      <footer className="text-center text-xs text-slate-500 py-4">
-        GrievEase Offline Resilient App Shell • Client-Owned Security
-      </footer>
-    </div>
+          <div className="pt-2 flex flex-col sm:flex-row gap-3">
+            <Button
+              variant="primary"
+              size="lg"
+              className="flex-1 text-xs font-bold shadow-md shadow-teal-900/10"
+              onClick={handleRetry}
+              isLoading={isRetrying}
+              leftIcon={<RefreshCw className="w-4 h-4" />}
+            >
+              {t.offline.retryButton}
+            </Button>
+            <Link href="/app/grievances/drafts" className="flex-1">
+              <Button
+                variant="outline"
+                size="lg"
+                className="w-full text-xs font-bold"
+                leftIcon={<FileText className="w-4 h-4" />}
+              >
+                View Saved Drafts
+              </Button>
+            </Link>
+          </div>
+        </Card>
+      </div>
+    </AuthLayout>
   );
 }
