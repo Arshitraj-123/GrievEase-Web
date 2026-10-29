@@ -11,6 +11,10 @@ import { GovernanceModule } from './modules/governance/governance.module';
 import { EscalationModule } from './modules/escalation/escalation.module';
 import { GrievancesModule } from './modules/grievances/grievances.module';
 import { AnalyticsModule } from './modules/analytics/analytics.module';
+import { NoticesModule } from './modules/notices/notices.module';
+import { PollsModule } from './modules/polls/polls.module';
+import { DirectoryModule } from './modules/directory/directory.module';
+import { StaffModule } from './modules/staff/staff.module';
 
 @Module({
   imports: [
@@ -26,6 +30,10 @@ import { AnalyticsModule } from './modules/analytics/analytics.module';
     EscalationModule,
     GrievancesModule,
     AnalyticsModule,
+    NoticesModule,
+    PollsModule,
+    DirectoryModule,
+    StaffModule,
   ],
 })
 export class AppModule {}

@@ -673,3 +673,496 @@ export const ExportReportQuerySchema = z.object({
 });
 export type ExportReportQueryDto = z.infer<typeof ExportReportQuerySchema>;
 
+// ==============================================================================
+// PHASE 5: COMMUNITY MODULES CONTRACTS
+// ==============================================================================
+
+// --- (A) NOTICEBOARD AND POLLS ---
+
+export const NoticeStatusEnum = z.enum(['DRAFT', 'SCHEDULED', 'PUBLISHED', 'ARCHIVED']);
+export type NoticeStatus = z.infer<typeof NoticeStatusEnum>;
+
+export const NoticePriorityEnum = z.enum(['NORMAL', 'IMPORTANT', 'EMERGENCY']);
+export type NoticePriority = z.infer<typeof NoticePriorityEnum>;
+
+export const NoticeAudienceTypeEnum = z.enum(['ALL', 'WINGS', 'ROLES']);
+export type NoticeAudienceType = z.infer<typeof NoticeAudienceTypeEnum>;
+
+export interface NoticeCategoryDto {
+  id: string;
+  nameEn: string;
+  nameHi: string;
+  nameMr: string;
+  isSystem: boolean;
+  sortOrder: number;
+}
+
+export const CreateNoticeSchema = z.object({
+  categoryId: z.string().uuid(),
+  title: z.string().min(3).max(200),
+  body: z.string().min(5),
+  priority: NoticePriorityEnum.default('NORMAL'),
+  pinned: z.boolean().default(false),
+  pinOrder: z.number().int().min(0).default(0),
+  audienceType: NoticeAudienceTypeEnum.default('ALL'),
+  targetWingIds: z.array(z.string().uuid()).optional(),
+  targetRoles: z.array(z.string()).optional(),
+  publishAt: z.string().optional(),
+  expiresAt: z.string().optional(),
+  requiresAck: z.boolean().default(false),
+  translations: z
+    .object({
+      hi: z.object({ title: z.string(), body: z.string() }).optional(),
+      mr: z.object({ title: z.string(), body: z.string() }).optional(),
+    })
+    .optional(),
+  attachmentKeys: z.array(z.string()).optional(),
+});
+export type CreateNoticeDto = z.infer<typeof CreateNoticeSchema>;
+
+export const UpdateNoticeSchema = CreateNoticeSchema.extend({
+  editReason: z.string().optional(),
+});
+export type UpdateNoticeDto = z.infer<typeof UpdateNoticeSchema>;
+
+export interface NoticeListItemDto {
+  id: string;
+  title: string;
+  bodyPreview: string;
+  categoryId: string;
+  categoryName: string;
+  priority: NoticePriority;
+  status: NoticeStatus;
+  pinned: boolean;
+  pinOrder: number;
+  audienceType: NoticeAudienceType;
+  publishAt: string | null;
+  expiresAt: string | null;
+  requiresAck: boolean;
+  isRead: boolean;
+  isAcknowledged: boolean;
+  publishedAt: string | null;
+  hasEdits: boolean;
+  attachmentCount: number;
+  createdAt: string;
+}
+
+export interface NoticeDetailDto extends NoticeListItemDto {
+  body: string;
+  createdByName: string;
+  translations?: {
+    hi?: { title: string; body: string };
+    mr?: { title: string; body: string };
+  };
+  attachments: {
+    id: string;
+    fileName: string;
+    mime: string;
+    size: number;
+    downloadUrl: string;
+  }[];
+  versions: {
+    versionNum: number;
+    title: string;
+    body: string;
+    editedByName: string;
+    reason: string;
+    createdAt: string;
+  }[];
+  versionHistory?: {
+    versionNum: number;
+    title: string;
+    body: string;
+    editedByName: string;
+    reason: string;
+    createdAt: string;
+  }[];
+}
+
+export interface NoticeReaderStatsDto {
+  noticeId: string;
+  totalTargeted: number;
+  readCount: number;
+  acknowledgedCount: number;
+  unreadFlats: {
+    flatId: string;
+    flatNumber: string;
+    wingName: string;
+  }[];
+  unacknowledgedFlats: {
+    flatId: string;
+    flatNumber: string;
+    wingName: string;
+  }[];
+}
+
+// --- Polls ---
+
+export const PollTypeEnum = z.enum(['SINGLE', 'MULTIPLE']);
+export type PollType = z.infer<typeof PollTypeEnum>;
+
+export const PollEligibilityEnum = z.enum(['ALL_RESIDENTS', 'OWNERS_ONLY', 'ROLES']);
+export type PollEligibility = z.infer<typeof PollEligibilityEnum>;
+
+export const PollVoteUnitEnum = z.enum(['PER_USER', 'PER_FLAT']);
+export type PollVoteUnit = z.infer<typeof PollVoteUnitEnum>;
+
+export const PollBallotTypeEnum = z.enum(['SECRET', 'OPEN']);
+export type PollBallotType = z.infer<typeof PollBallotTypeEnum>;
+
+export const PollResultsVisibilityEnum = z.enum(['AFTER_VOTE', 'AFTER_CLOSE', 'ADMIN_ONLY']);
+export type PollResultsVisibility = z.infer<typeof PollResultsVisibilityEnum>;
+
+export const PollStatusEnum = z.enum(['DRAFT', 'OPEN', 'CLOSED', 'CANCELLED']);
+export type PollStatus = z.infer<typeof PollStatusEnum>;
+
+export const CreatePollSchema = z.object({
+  noticeId: z.string().uuid().optional(),
+  title: z.string().min(3).max(200),
+  description: z.string().optional(),
+  type: PollTypeEnum.default('SINGLE'),
+  maxChoices: z.number().int().min(1).max(10).default(1),
+  eligibility: PollEligibilityEnum.default('ALL_RESIDENTS'),
+  voteUnit: PollVoteUnitEnum.default('PER_USER'),
+  ballot: PollBallotTypeEnum.default('SECRET'),
+  resultsVisibility: PollResultsVisibilityEnum.default('AFTER_VOTE'),
+  quorumPercent: z.number().min(0).max(100).optional(),
+  opensAt: z.string(),
+  closesAt: z.string(),
+  options: z
+    .array(
+      z.object({
+        labelEn: z.string().min(1).max(200),
+        labelHi: z.string().max(200).optional(),
+        labelMr: z.string().max(200).optional(),
+        sortOrder: z.number().int().default(0),
+      })
+    )
+    .min(2),
+});
+export type CreatePollDto = z.infer<typeof CreatePollSchema>;
+
+export const VotePollSchema = z.object({
+  selectedOptionIds: z.array(z.string().uuid()).min(1),
+});
+export type VotePollDto = z.infer<typeof VotePollSchema>;
+
+export interface PollOptionDto {
+  id: string;
+  labelEn: string;
+  labelHi?: string | null;
+  labelMr?: string | null;
+  label?: string;
+  sortOrder: number;
+  voteCount?: number;
+  votePercentage?: number;
+  votes?: number;
+  percentage?: number;
+}
+
+export interface PollListItemDto {
+  id: string;
+  title: string;
+  description?: string | null;
+  type: PollType;
+  status: PollStatus;
+  ballot: PollBallotType;
+  resultsVisibility: PollResultsVisibility;
+  opensAt: string;
+  closesAt: string;
+  hasVoted: boolean;
+  totalVotes: number;
+  quorumReached?: boolean | null;
+  quorumPercent?: number | null;
+  eligibility?: PollEligibility;
+  voteUnit?: PollVoteUnit;
+  turnoutPercent?: number;
+  votesCast?: number;
+  totalEligible?: number;
+  quorumAchieved?: boolean | null;
+  isQuorumMet?: boolean | null;
+  totalTurnout?: number;
+  optionsCount?: number;
+  createdAt?: string;
+}
+
+export interface PollDetailDto extends PollListItemDto {
+  options: PollOptionDto[];
+  isEligible: boolean;
+  userVotedAt?: string | null;
+  userChoices?: string[];
+  resultHash?: string | null;
+  canViewResults: boolean;
+  maxChoices?: number;
+  myVotedOptionIds?: string[];
+}
+
+// --- (B) DIRECTORY AND EMERGENCY CONTACTS ---
+
+export const DirectoryPreferenceSchema = z.object({
+  visible: z.boolean().default(false),
+  showName: z.boolean().default(false),
+  showFlat: z.boolean().default(false),
+  showMobile: z.boolean().default(false),
+  showEmail: z.boolean().default(false),
+  showPhoto: z.boolean().default(false),
+  showResidentType: z.boolean().default(false),
+});
+export type DirectoryPreferenceDto = z.infer<typeof DirectoryPreferenceSchema>;
+
+export const DirectorySearchQuerySchema = z.object({
+  query: z.string().min(3, 'Search query must be at least 3 characters'),
+  wingId: z.string().uuid().optional(),
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(20).default(20),
+});
+export type DirectorySearchQueryDto = z.infer<typeof DirectorySearchQuerySchema>;
+
+export interface DirectoryMemberCardDto {
+  id: string;
+  fullName?: string | null;
+  wingName?: string | null;
+  flatNumber?: string | null;
+  mobile?: string | null;
+  email?: string | null;
+  photoUrl?: string | null;
+  residentType?: string | null;
+  role?: string | null;
+}
+
+export interface OfficeBearerDto {
+  id: string;
+  userId: string;
+  fullName: string;
+  title: string;
+  displayOrder: number;
+  publicToResidents: boolean;
+  mobile?: string | null;
+  email?: string | null;
+  photoUrl?: string | null;
+}
+
+export const EmergencyCategoryEnum = z.enum([
+  'security',
+  'ambulance',
+  'fire',
+  'police',
+  'water_board',
+  'electricity_board',
+  'lift_service',
+  'other',
+]);
+export type EmergencyCategory = z.infer<typeof EmergencyCategoryEnum>;
+
+export const CreateEmergencyContactSchema = z.object({
+  name: z.string().min(2).max(150),
+  category: EmergencyCategoryEnum,
+  phone: z.string().min(3).max(50),
+  notes: z.string().max(500).optional(),
+  sortOrder: z.number().int().default(0),
+});
+export type CreateEmergencyContactDto = z.infer<typeof CreateEmergencyContactSchema>;
+
+export interface EmergencyContactDto {
+  id: string;
+  name: string;
+  category: EmergencyCategory;
+  phone: string;
+  notes?: string | null;
+  sortOrder: number;
+}
+
+export const CreateServiceProviderSchema = z.object({
+  name: z.string().min(2).max(150),
+  category: z.string().min(2).max(100),
+  phone: z.string().min(3).max(50),
+  area: z.string().max(150).optional(),
+  notes: z.string().max(500).optional(),
+});
+export type CreateServiceProviderDto = z.infer<typeof CreateServiceProviderSchema>;
+
+export interface ServiceProviderDto {
+  id: string;
+  name: string;
+  category: string;
+  phone: string;
+  area?: string | null;
+  notes?: string | null;
+  isApproved: boolean;
+  avgStars: number | null;
+  reviewCount: number;
+}
+
+export const CreateServiceReviewSchema = z.object({
+  stars: z.number().int().min(1).max(5),
+  comment: z.string().max(1000).optional(),
+});
+export type CreateServiceReviewDto = z.infer<typeof CreateServiceReviewSchema>;
+
+export interface ServiceProviderReviewDto {
+  id: string;
+  providerId: string;
+  stars: number;
+  comment?: string | null;
+  createdAt: string;
+}
+
+// --- (C) DOMESTIC STAFF MANAGEMENT ---
+
+export const StaffTypeEnum = z.enum(['maid', 'cook', 'driver', 'nanny', 'gardener', 'other']);
+export type StaffType = z.infer<typeof StaffTypeEnum>;
+
+export const StaffStatusEnum = z.enum(['PENDING', 'VERIFIED', 'REJECTED', 'SUSPENDED', 'BLOCKED']);
+export type StaffStatus = z.infer<typeof StaffStatusEnum>;
+
+export const StaffIdProofTypeEnum = z.enum([
+  'AADHAAR',
+  'PAN',
+  'VOTER_ID',
+  'PASSPORT',
+  'DRIVING_LICENSE',
+]);
+export type StaffIdProofType = z.infer<typeof StaffIdProofTypeEnum>;
+
+export const StaffScheduleWindowSchema = z.object({
+  day: z.enum(['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY']),
+  startTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Must be HH:mm format'),
+  endTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Must be HH:mm format'),
+});
+export type StaffScheduleWindow = z.infer<typeof StaffScheduleWindowSchema>;
+
+export const RegisterStaffSchema = z.object({
+  fullName: z.string().min(2).max(150),
+  staffType: StaffTypeEnum,
+  mobile: z.string().regex(/^[0-9]{10}$/, 'Mobile must be 10 digits'),
+  flatId: z.string().uuid(),
+  photoKey: z.string().optional(),
+  idProofKey: z.string().optional(),
+  idProofType: StaffIdProofTypeEnum.optional(),
+  schedule: z.array(StaffScheduleWindowSchema).min(1, 'At least one schedule window required'),
+  consent: z.literal(true, {
+    errorMap: () => ({ message: 'You must confirm consent to share staff details with the society' }),
+  }),
+});
+export type RegisterStaffDto = z.infer<typeof RegisterStaffSchema>;
+
+export const LinkExistingStaffSchema = z.object({
+  staffId: z.string().uuid(),
+  flatId: z.string().uuid(),
+  schedule: z.array(StaffScheduleWindowSchema).min(1),
+  consent: z.literal(true),
+});
+export type LinkExistingStaffDto = z.infer<typeof LinkExistingStaffSchema>;
+
+export interface StaffListItemDto {
+  id: string;
+  fullName: string;
+  staffType: StaffType;
+  status: StaffStatus;
+  photoUrl?: string | null;
+  linkedFlatsCount: number;
+  todayAttendanceStatus: 'PRESENT' | 'ABSENT' | 'CHECKED_IN';
+  inAt?: string | null;
+  outAt?: string | null;
+  hasPass: boolean;
+  passSerial?: string | null;
+  createdAt: string;
+}
+
+export interface StaffDetailDto extends StaffListItemDto {
+  schedule: StaffScheduleWindow[];
+  pass?: {
+    serial: string;
+    token: string;
+    validTo: string;
+    qrData: string;
+  } | null;
+  linkedFlats: {
+    flatId: string;
+    flatNumber: string;
+    wingName: string;
+    entryAllowed: boolean;
+  }[];
+  avgStars: number | null;
+  reviewCount: number;
+  reviews: {
+    id: string;
+    stars: number;
+    comment?: string | null;
+    createdAt: string;
+  }[];
+  idProofStatus?: {
+    type: StaffIdProofType;
+    hasImage: boolean;
+  } | null;
+}
+
+export interface StaffPassVerificationDto {
+  isValid: boolean;
+  staffId?: string;
+  staffName?: string;
+  staffType?: StaffType;
+  status?: StaffStatus;
+  isScheduleAllowed: boolean;
+  reason?: string;
+  allowedFlats: string[];
+}
+
+export const MarkAttendanceSchema = z.object({
+  staffId: z.string().uuid(),
+  flatId: z.string().uuid(),
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  inAt: z.string().optional(),
+  outAt: z.string().optional(),
+  note: z.string().max(255).optional(),
+});
+export type MarkAttendanceDto = z.infer<typeof MarkAttendanceSchema>;
+
+export interface StaffAttendanceItemDto {
+  id: string;
+  staffId: string;
+  staffName: string;
+  flatNumber: string;
+  date: string;
+  inAt?: string | null;
+  outAt?: string | null;
+  source: 'MANUAL' | 'GUARD_SCAN';
+  markedByName: string;
+  note?: string | null;
+  isCorrected: boolean;
+}
+
+export const VerifyStaffSchema = z.object({
+  status: z.enum(['VERIFIED', 'REJECTED']),
+  reason: z.string().optional(),
+});
+export type VerifyStaffDto = z.infer<typeof VerifyStaffSchema>;
+
+export const BlockStaffSchema = z.object({
+  reason: z.string().min(5, 'Block reason must be at least 5 characters'),
+  stepUpToken: z.string().min(1, 'Step-up verification required'),
+});
+export type BlockStaffDto = z.infer<typeof BlockStaffSchema>;
+
+export const MergeStaffSchema = z.object({
+  primaryStaffId: z.string().uuid(),
+  secondaryStaffId: z.string().uuid(),
+  reason: z.string().min(5),
+  stepUpToken: z.string().min(1),
+});
+export type MergeStaffDto = z.infer<typeof MergeStaffSchema>;
+
+export const CreateStaffReviewSchema = z.object({
+  flatId: z.string().uuid(),
+  stars: z.number().int().min(1).max(5),
+  comment: z.string().max(1000).optional(),
+});
+export type CreateStaffReviewDto = z.infer<typeof CreateStaffReviewSchema>;
+
+export const StaffSettingsSchema = z.object({
+  idProofMode: z.enum(['IMAGE_ONLY', 'NONE']).default('IMAGE_ONLY'),
+  retentionDays: z.number().int().min(1).max(365).default(30),
+});
+export type StaffSettingsDto = z.infer<typeof StaffSettingsSchema>;
+
+

@@ -248,4 +248,98 @@ export const api = {
 
   // 10. Escalation Monitor
   getEscalationMonitor: () => request('/escalation/monitor'),
+
+  // 11. (A) Noticeboard
+  getNotices: (params?: { categoryId?: string; search?: string; status?: string }) => {
+    const q = new URLSearchParams();
+    if (params?.categoryId) q.set('categoryId', params.categoryId);
+    if (params?.search) q.set('search', params.search);
+    if (params?.status) q.set('status', params.status);
+    return request(`/notices?${q.toString()}`);
+  },
+  getNoticeDetail: (id: string) => request(`/notices/${id}`),
+  acknowledgeNotice: (id: string) => request(`/notices/${id}/acknowledge`, { method: 'POST' }),
+  getNoticeCategories: () => request('/notices/categories'),
+  getAdminNotices: (status?: string) => {
+    const q = status ? `?status=${encodeURIComponent(status)}` : '';
+    return request(`/admin/notices${q}`);
+  },
+  createNotice: (body: any) => request('/admin/notices', { method: 'POST', body: JSON.stringify(body) }),
+  updateNotice: (id: string, body: any) => request(`/admin/notices/${id}`, { method: 'PUT', body: JSON.stringify(body) }),
+  archiveNotice: (id: string) => request(`/admin/notices/${id}/archive`, { method: 'POST' }),
+  getNoticeReaders: (id: string) => request(`/admin/notices/${id}/readers`),
+
+  // 12. (A) Community Polls
+  getCommunityPolls: () => request('/community/polls'),
+  getPollDetail: (id: string) => request(`/community/polls/${id}`),
+  castPollVote: (id: string, body: { optionIds: string[] }) =>
+    request(`/community/polls/${id}/vote`, { method: 'POST', body: JSON.stringify(body) }),
+  getAdminPolls: () => request('/admin/polls'),
+  createPoll: (body: any) => request('/admin/polls', { method: 'POST', body: JSON.stringify(body) }),
+  closePoll: (id: string) => request(`/admin/polls/${id}/close`, { method: 'POST' }),
+  extendPoll: (id: string, body: { closesAt: string; reason: string }, stepUpToken: string) =>
+    request(`/admin/polls/${id}/extend`, { method: 'POST', body: JSON.stringify(body) }, stepUpToken),
+
+  // 13. (B) Society Directory & Emergency Contacts
+  searchDirectory: (query: string, wingId?: string, page = 1, limit = 20) => {
+    const q = new URLSearchParams({ query, page: page.toString(), limit: limit.toString() });
+    if (wingId) q.set('wingId', wingId);
+    return request(`/directory?${q.toString()}`);
+  },
+  getDirectoryPreference: () => request('/directory/preference'),
+  updateDirectoryPreference: (body: any) =>
+    request('/directory/preference', { method: 'PUT', body: JSON.stringify(body) }),
+  getOfficeBearers: () => request('/directory/office-bearers'),
+  getEmergencyContacts: () => request('/directory/emergency-contacts'),
+  getServiceProviders: (category?: string) => {
+    const q = category ? `?category=${encodeURIComponent(category)}` : '';
+    return request(`/directory/services${q}`);
+  },
+  submitServiceReview: (providerId: string, body: { stars: number; comment?: string }) =>
+    request(`/directory/services/${providerId}/reviews`, { method: 'POST', body: JSON.stringify(body) }),
+  getAdminDirectoryOverview: () => request('/admin/directory/overview'),
+  createEmergencyContact: (body: any) =>
+    request('/admin/emergency-contacts', { method: 'POST', body: JSON.stringify(body) }),
+  deleteEmergencyContact: (id: string) => request(`/admin/emergency-contacts/${id}`, { method: 'DELETE' }),
+  createServiceProvider: (body: any) =>
+    request('/admin/service-providers', { method: 'POST', body: JSON.stringify(body) }),
+  toggleProviderApproval: (id: string, isApproved: boolean) =>
+    request(`/admin/service-providers/${id}/approval`, { method: 'PUT', body: JSON.stringify({ isApproved }) }),
+
+  // 14. (C) Domestic Staff Management
+  getResidentStaff: (flatId?: string) => {
+    const q = flatId ? `?flatId=${encodeURIComponent(flatId)}` : '';
+    return request(`/staff${q}`);
+  },
+  getStaffDetail: (id: string, flatId?: string) => {
+    const q = flatId ? `?flatId=${encodeURIComponent(flatId)}` : '';
+    return request(`/staff/${id}${q}`);
+  },
+  registerStaff: (body: any) => request('/staff', { method: 'POST', body: JSON.stringify(body) }),
+  linkExistingStaff: (body: any) => request('/staff/link', { method: 'POST', body: JSON.stringify(body) }),
+  markStaffAttendance: (id: string, body: any) =>
+    request(`/staff/${id}/attendance`, { method: 'POST', body: JSON.stringify(body) }),
+  getStaffAttendance: (id: string, flatId?: string, month?: string) => {
+    const q = new URLSearchParams();
+    if (flatId) q.set('flatId', flatId);
+    if (month) q.set('month', month);
+    return request(`/staff/${id}/attendance?${q.toString()}`);
+  },
+  submitStaffReview: (id: string, body: { flatId: string; stars: number; comment?: string }) =>
+    request(`/staff/${id}/reviews`, { method: 'POST', body: JSON.stringify(body) }),
+  verifyStaffPass: (token: string) =>
+    request('/staff/verify-pass', { method: 'POST', body: JSON.stringify({ token }) }),
+  getAdminStaffList: (status?: string) => {
+    const q = status ? `?status=${encodeURIComponent(status)}` : '';
+    return request(`/admin/staff${q}`);
+  },
+  verifyStaffMember: (id: string, body: { status: 'VERIFIED' | 'REJECTED'; reason?: string }) =>
+    request(`/admin/staff/${id}/verify`, { method: 'POST', body: JSON.stringify(body) }),
+  blockStaffMember: (id: string, body: { reason: string; stepUpToken: string }, stepUpToken: string) =>
+    request(`/admin/staff/${id}/block`, { method: 'POST', body: JSON.stringify(body) }, stepUpToken),
+  unblockStaffMember: (id: string, reason: string) =>
+    request(`/admin/staff/${id}/unblock`, { method: 'POST', body: JSON.stringify({ reason }) }),
+  getStaffIdProofSignedUrl: (id: string) => request(`/admin/staff/${id}/id-proof`),
+  mergeStaffMembers: (body: any, stepUpToken: string) =>
+    request('/admin/staff/merge', { method: 'POST', body: JSON.stringify(body) }, stepUpToken),
 };

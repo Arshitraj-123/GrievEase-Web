@@ -57,7 +57,7 @@ interface EvidenceFile {
   size: number;
 }
 
-export default function NewGrievancePage() {
+function NewGrievanceForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { t, locale } = useAccessibility();
@@ -616,5 +616,13 @@ export default function NewGrievancePage() {
         )}
       </div>
     </ShellLayout>
+  );
+}
+
+export default function NewGrievancePage() {
+  return (
+    <React.Suspense fallback={<div className="p-8 text-center text-slate-500">Loading form...</div>}>
+      <NewGrievanceForm />
+    </React.Suspense>
   );
 }

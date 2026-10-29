@@ -128,5 +128,11 @@ export class NotificationsGateway implements OnGatewayConnection, OnGatewayDisco
       this.server.to(`grievance:${grievanceId}`).emit(event, payload);
     }
   }
+
+  emitToSociety(societyId: string, event: string, payload: any) {
+    if (this.server) {
+      this.server.to(`society:${societyId}`).emit(event, payload);
+    }
+  }
 }
 

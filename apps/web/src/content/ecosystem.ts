@@ -17,10 +17,10 @@ export const ecosystemContent = {
     {
       id: 'noticeboard',
       icon: 'bell',
-      title: 'Society Noticeboard',
+      title: 'Society Noticeboard & Polls',
       tag: 'Stay Informed',
       description:
-        'Announcements, event notices, meeting minutes, and emergency alerts — broadcasted instantly to every resident’s phone.',
+        'Official announcements, wing-targeted circulars, emergency banners, and secret-ballot community polls in English, Hindi, and Marathi.',
       href: '/features#noticeboard',
       color: '#3B82F6',
       bg: 'bg-[#3B82F6]/10',
@@ -29,9 +29,9 @@ export const ecosystemContent = {
       id: 'staff',
       icon: 'briefcase',
       title: 'Domestic Staff',
-      tag: 'Zero Paperwork',
+      tag: 'Verified Passes',
       description:
-        'Track daily check-in attendance of maids, drivers, cooks, and society maintenance staff with digital verified ID badges.',
+        'Register household staff, issue encrypted signed QR passes with schedule enforcement, and log daily attendance with append-only records.',
       href: '/features#staff',
       color: '#8B5CF6',
       bg: 'bg-[#8B5CF6]/10',

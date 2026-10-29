@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { NotificationBell } from './NotificationBell';
 import { IdleTimer } from './IdleTimer';
@@ -21,30 +21,62 @@ import {
   Bell,
   Home,
   MessageSquare,
+  Megaphone,
+  Vote,
+  BookUser,
+  PhoneCall,
+  UserCheck,
+  BarChart3,
 } from 'lucide-react';
 import { api } from '@/lib/api-client';
 import { useAccessibility } from './AccessibilityProvider';
+import { fallbackNotices } from '@/lib/fallback-community';
 
-// Feature flags: all unlaunched modules are strictly false
+// Feature flags: notices, polls, directory, emergency_contacts, staff default ON
 const FEATURE_FLAGS = {
+  NOTICES: true,
+  POLLS: true,
+  DIRECTORY: true,
+  EMERGENCY_CONTACTS: true,
+  STAFF: true,
   SOS: false,
   VISITORS: false,
   BILLING: false,
   AMENITIES: false,
-  DIRECTORY: false,
 };
 
 export interface ShellLayoutProps {
-  role: 'ADMIN' | 'RESIDENT' | 'GUARD' | 'VENDOR';
+  role?: 'ADMIN' | 'RESIDENT' | 'GUARD' | 'VENDOR';
   children: React.ReactNode;
   userRoleTitle?: string;
 }
 
-export function ShellLayout({ role, children, userRoleTitle }: ShellLayoutProps) {
+export function ShellLayout({ role: propRole, children, userRoleTitle }: ShellLayoutProps) {
   const pathname = usePathname();
+  const role = propRole || (pathname?.startsWith('/admin') ? 'ADMIN' : 'RESIDENT');
   const router = useRouter();
   const { t } = useAccessibility();
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const [emergencyNotice, setEmergencyNotice] = useState<{ id: string; title: string } | null>(null);
+
+  useEffect(() => {
+    if (role === 'RESIDENT') {
+      api.getNotices()
+        .then((res) => {
+          const items = Array.isArray(res) ? res : res?.items || [];
+          const em = items.find((n: any) => n.priority === 'EMERGENCY' && !n.isAcknowledged);
+          if (em) {
+            setEmergencyNotice({ id: em.id, title: em.title });
+          } else {
+            setEmergencyNotice(null);
+          }
+        })
+        .catch(() => {
+          const em = fallbackNotices.find((n) => n.priority === 'EMERGENCY' && !n.isAcknowledged);
+          if (em) setEmergencyNotice({ id: em.id, title: em.title });
+        });
+    }
+  }, [role, pathname]);
 
   const displayRoleTitle = userRoleTitle || (role === 'ADMIN' ? 'Administrator' : t.nav.residentRole);
 
@@ -55,23 +87,30 @@ export function ShellLayout({ role, children, userRoleTitle }: ShellLayoutProps)
     router.push('/login');
   };
 
-  // Scoped navigation:
-  // Resident shell: ONLY Home, Grievances, Notifications, Profile & Security, Help
-  // Admin shell: User Management + Grievances placeholder + Admin Tools
+  // Scoped typed navigation:
+  // Resident shell: Home, Grievances, Notices, Community, My Staff, Directory, Emergency, Notifications, Profile & Security, Help
+  // Admin shell: Matching management modules
   const navItems = {
     ADMIN: [
       { label: 'Overview', href: '/admin', icon: Home },
-      { label: 'User Management', href: '/admin/users', icon: Users },
       { label: 'Grievances', href: '/admin/grievances', icon: MessageSquare },
-      { label: 'Bulk Import', href: '/admin/users/import', icon: FileSpreadsheet },
-      { label: 'Credential Slips', href: '/admin/credentials', icon: FileText },
-      { label: 'Recovery Requests', href: '/admin/recovery-requests', icon: ShieldCheck },
-      { label: 'Handover', href: '/admin/super-admin-transfer', icon: Layers },
+      { label: 'Analytics', href: '/admin/analytics', icon: BarChart3 },
+      { label: 'Notices', href: '/admin/notices', icon: Megaphone },
+      { label: 'Polls', href: '/admin/polls', icon: Vote },
+      { label: 'Domestic Staff', href: '/admin/staff', icon: UserCheck },
+      { label: 'Directory', href: '/admin/directory', icon: BookUser },
+      { label: 'Emergency', href: '/admin/emergency-contacts', icon: PhoneCall },
+      { label: 'User Management', href: '/admin/users', icon: Users },
       { label: 'Security & Profile', href: '/admin/me', icon: Settings },
     ],
     RESIDENT: [
       { label: t.nav.home, href: '/app', icon: Home },
       { label: t.nav.grievances, href: '/app/grievances', icon: MessageSquare },
+      { label: t.nav.notices || 'Notices', href: '/app/notices', icon: Megaphone },
+      { label: t.nav.community || 'Community', href: '/app/community', icon: Vote },
+      { label: t.nav.staff || 'My Staff', href: '/app/staff', icon: UserCheck },
+      { label: t.nav.directory || 'Directory', href: '/app/directory', icon: BookUser },
+      { label: t.nav.emergency || 'Emergency', href: '/app/emergency', icon: PhoneCall },
       { label: t.nav.notifications, href: '/app/notifications', icon: Bell },
       { label: t.nav.security, href: '/app/settings/security', icon: Settings },
       { label: t.nav.help, href: '/account-help', icon: HelpCircle },
@@ -89,6 +128,28 @@ export function ShellLayout({ role, children, userRoleTitle }: ShellLayoutProps)
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col text-slate-900 dark:text-slate-100">
       <IdleTimer />
+
+      {/* Persistent Top Emergency Notice Banner for Residents */}
+      {role === 'RESIDENT' && emergencyNotice && (
+        <aside
+          role="alert"
+          aria-live="assertive"
+          className="sticky top-0 z-50 bg-red-600 text-white px-3 sm:px-6 py-2.5 text-xs sm:text-sm font-semibold flex items-center justify-between gap-3 shadow-lg border-b border-red-700 animate-in fade-in duration-200"
+        >
+          <div className="flex items-center gap-2 max-w-4xl truncate">
+            <AlertOctagon className="w-5 h-5 shrink-0 text-amber-300 animate-pulse" />
+            <span className="truncate">
+              <strong>EMERGENCY ADVISORY:</strong> {emergencyNotice.title}
+            </span>
+          </div>
+          <a
+            href={`/app/notices/${emergencyNotice.id}`}
+            className="shrink-0 bg-white text-red-700 px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-red-50 transition-colors min-h-[36px] inline-flex items-center shadow-xs"
+          >
+            View &amp; Acknowledge
+          </a>
+        </aside>
+      )}
 
       {/* Top Header */}
       <header className="sticky top-0 z-40 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">

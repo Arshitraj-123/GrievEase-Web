@@ -5,6 +5,8 @@ export interface UserPayload {
   societyId: string;
   role: string;
   username: string;
+  flatId?: string;
+  language?: string;
   sessionId?: string;
   isSuperAdmin?: boolean;
   stepUpExpiresAt?: number;

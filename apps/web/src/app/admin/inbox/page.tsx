@@ -42,7 +42,7 @@ interface InboxGrievance {
   };
 }
 
-export default function AdminInboxPage() {
+function AdminInboxContent() {
   const searchParams = useSearchParams();
   const [grievances, setGrievances] = useState<InboxGrievance[]>([]);
   const [loading, setLoading] = useState(true);
@@ -372,5 +372,13 @@ export default function AdminInboxPage() {
         )}
       </div>
     </ShellLayout>
+  );
+}
+
+export default function AdminInboxPage() {
+  return (
+    <React.Suspense fallback={<div className="p-8 text-center text-slate-500 font-medium">Loading...</div>}>
+      <AdminInboxContent />
+    </React.Suspense>
   );
 }

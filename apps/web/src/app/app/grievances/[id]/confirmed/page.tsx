@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 import { useAccessibility } from '@/components/AccessibilityProvider';
 
-export default function GrievanceConfirmedPage() {
+function GrievanceConfirmedContent() {
   const params = useParams();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -194,5 +194,13 @@ export default function GrievanceConfirmedPage() {
         </div>
       </div>
     </ShellLayout>
+  );
+}
+
+export default function GrievanceConfirmedPage() {
+  return (
+    <React.Suspense fallback={<div className="p-8 text-center text-slate-500 font-medium">Loading...</div>}>
+      <GrievanceConfirmedContent />
+    </React.Suspense>
   );
 }
