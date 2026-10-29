@@ -7,23 +7,66 @@ import { getDemoDashboard, DemoDashboard } from '@/lib/api';
 
 export function TransparencyDashboardPreview() {
   const [data, setData] = useState<DemoDashboard | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
-    getDemoDashboard('demo').then(setData);
+    getDemoDashboard('palm-grove')
+      .then((res) => {
+        if (res) {
+          setData(res);
+        } else {
+          // Public dashboard disabled or RESIDENTS_ONLY. Check if user is logged in
+          fetch('/api/v1/app/analytics', { credentials: 'include' })
+            .then((authRes) => {
+              if (authRes.ok) setIsLoggedIn(true);
+            })
+            .catch(() => {});
+        }
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, []);
 
-  if (!data) {
+  if (loading) {
+    return null;
+  }
+
+  // If dashboard is disabled or RESIDENTS_ONLY and user is not logged in, hide completely
+  if (!data && !isLoggedIn) {
+    return null;
+  }
+
+  // Teaser for logged-in users when public view is RESIDENTS_ONLY
+  if (!data && isLoggedIn) {
     return (
-      <section className="py-20 px-6 lg:px-12 bg-white">
-        <div className="max-w-[1300px] mx-auto text-center">
-          <div className="animate-pulse h-96 bg-gray-100 rounded-3xl" />
+      <section id="transparency-preview" className="py-16 px-6 lg:px-12 bg-white border-b border-[#E2E8F0]">
+        <div className="max-w-[1300px] mx-auto bg-slate-50 border border-slate-200 rounded-3xl p-8 sm:p-10 flex flex-col md:flex-row items-center justify-between gap-6">
+          <div>
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-teal-100 rounded-full text-xs font-bold text-teal-800 mb-2.5">
+              RESIDENT TRANSPARENCY
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-[#1A1A2E]">
+              Society Transparency Dashboard
+            </h2>
+            <p className="text-sm text-slate-600 mt-1 max-w-xl">
+              Real-time audit telemetry, SLA compliance tracking, category breakdowns, and governance turnaround times are active for your society.
+            </p>
+          </div>
+          <Link
+            href="/society/palm-grove/transparency"
+            className="px-6 py-3 rounded-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-semibold transition-all flex items-center gap-2 shrink-0 shadow-md"
+          >
+            <span>See live transparency dashboard</span>
+            <ArrowRight className="w-4 h-4" />
+          </Link>
         </div>
       </section>
     );
   }
 
-  const { metrics, categoryBreakdown, escalationLevelTimes, society } = data;
-  const maxCategoryCount = Math.max(...categoryBreakdown.map((c) => c.total));
+  const { metrics, categoryBreakdown, escalationLevelTimes, society } = data!;
+  const maxCategoryCount = Math.max(...categoryBreakdown.map((c) => c.total), 1);
 
   return (
     <section
@@ -52,10 +95,10 @@ export function TransparencyDashboardPreview() {
           </div>
 
           <Link
-            href="/society/demo/transparency"
+            href="/society/palm-grove/transparency"
             className="self-start md:self-auto px-6 py-3 rounded-full bg-gradient-to-r from-[#00B894] to-[#00D4AA] text-white text-sm font-semibold shadow-[0_4px_15px_rgba(0,184,148,0.35)] hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(0,184,148,0.45)] transition-all flex items-center gap-2 shrink-0"
           >
-            <span>Open full dashboard</span>
+            <span>See live transparency dashboard</span>
             <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
@@ -221,7 +264,7 @@ export function TransparencyDashboardPreview() {
 
               <div className="mt-5 pt-3 border-t border-[#F1F5F9] text-center">
                 <Link
-                  href="/society/demo/transparency"
+                  href="/society/palm-grove/transparency"
                   className="text-xs font-bold text-[#00846A] hover:underline"
                 >
                   Explore complete ledger history &amp; audit reports →
