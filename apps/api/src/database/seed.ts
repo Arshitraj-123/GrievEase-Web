@@ -187,6 +187,147 @@ async function seed() {
       });
     }
 
+    // ==========================================
+    // PHASE 3 SEEDING: GRIEVANCE MODULE
+    // ==========================================
+    console.log('[SEED] Seeding Phase 3 Categories, Area Tags, Governance Chain & SLA Configs...');
+
+    // 5. Seed 8 Default Categories (with EN, HI, MR names & icons)
+    const defaultCategories = [
+      { name_en: 'Water Supply', name_hi: 'पानी की आपूर्ति', name_mr: 'पाणी पुरवठा', icon: 'Droplets', requires_photo: false, sort: 1 },
+      { name_en: 'Electricity & Power', name_hi: 'बिजली और बिजली आपूर्ति', name_mr: 'वीज आणि विद्युत पुरवठा', icon: 'Zap', requires_photo: false, sort: 2 },
+      { name_en: 'Cleanliness & Waste', name_hi: 'सफाई और कचरा प्रबंधन', name_mr: 'स्वच्छता आणि कचरा व्यवस्थापन', icon: 'Trash2', requires_photo: true, sort: 3 },
+      { name_en: 'Security & Safety', name_hi: 'सुरक्षा और बचाव', name_mr: 'सुरक्षा आणि दक्षता', icon: 'Shield', requires_photo: false, sort: 4 },
+      { name_en: 'Elevators & Lifts', name_hi: 'लिफ्ट और एलिवेटर', name_mr: 'लिफ्ट आणि एलेव्हेटर', icon: 'ArrowUpDown', requires_photo: false, sort: 5 },
+      { name_en: 'Parking & Vehicles', name_hi: 'पार्किंग और वाहन', name_mr: 'पार्किंग आणि वाहने', icon: 'Car', requires_photo: false, sort: 6 },
+      { name_en: 'Noise & Disturbance', name_hi: 'शोर और अशांति', name_mr: 'आवाज आणि उपद्रव', icon: 'Volume2', requires_photo: false, sort: 7 },
+      { name_en: 'Maintenance & Repairs', name_hi: 'रखरखाव और मरम्मत', name_mr: 'देखभाल आणि दुरुस्ती', icon: 'Wrench', requires_photo: true, sort: 8 },
+    ];
+
+    for (const cat of defaultCategories) {
+      await client.query(`
+        INSERT INTO category (society_id, name_en, name_hi, name_mr, icon, requires_photo, sort, active)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, true)
+        ON CONFLICT DO NOTHING;
+      `, [societyId, cat.name_en, cat.name_hi, cat.name_mr, cat.icon, cat.requires_photo, cat.sort]);
+    }
+
+    // 6. Seed Area Tags with QR Slugs
+    const defaultAreaTags = [
+      { name: 'Main Entrance Gate', qr_slug: 'main-gate' },
+      { name: 'Clubhouse & Gymnasium', qr_slug: 'clubhouse' },
+      { name: 'Wing A Lobby & Lift', qr_slug: 'wing-a-lobby' },
+      { name: 'Wing B Lobby & Lift', qr_slug: 'wing-b-lobby' },
+      { name: 'Basement Parking Level -1', qr_slug: 'parking-b1' },
+      { name: 'Rooftop & Terrace Garden', qr_slug: 'terrace' },
+    ];
+
+    for (const area of defaultAreaTags) {
+      await client.query(`
+        INSERT INTO area_tag (society_id, name, qr_slug)
+        VALUES ($1, $2, $3)
+        ON CONFLICT (society_id, qr_slug) DO NOTHING;
+      `, [societyId, area.name, area.qr_slug]);
+    }
+
+    // 7. Seed 4 Governance Levels (Secretary, Committee, Chairman, Governing Body)
+    const governanceLevels = [
+      { level: 1, label: 'Secretary' },
+      { level: 2, label: 'Executive Committee' },
+      { level: 3, label: 'Society Chairman' },
+      { level: 4, label: 'Governing Body' },
+    ];
+
+    for (const gl of governanceLevels) {
+      await client.query(`
+        INSERT INTO governance_level (society_id, level, label)
+        VALUES ($1, $2, $3)
+        ON CONFLICT (society_id, level) DO UPDATE SET label = EXCLUDED.label;
+      `, [societyId, gl.level, gl.label]);
+    }
+
+    // 8. Assign Phase 2 Demo Users to Governance Levels
+    const demoUserRows = await client.query(`SELECT id, username, role FROM app_user WHERE society_id = $1;`, [societyId]);
+    const userMap = new Map(demoUserRows.rows.map((r: any) => [r.username, r.id]));
+
+    const levelAssignments = [
+      { level: 1, username: 'secretary.gvr', isPrimary: true },
+      { level: 2, username: 'committee1.gvr', isPrimary: true },
+      { level: 3, username: 'chairman.gvr', isPrimary: true },
+      { level: 4, username: 'governing.gvr', isPrimary: true },
+    ];
+
+    for (const la of levelAssignments) {
+      const targetUserId = userMap.get(la.username);
+      if (targetUserId) {
+        await client.query(`
+          INSERT INTO governance_assignment (society_id, level, user_id, is_primary)
+          VALUES ($1, $2, $3, $4)
+          ON CONFLICT DO NOTHING;
+        `, [societyId, la.level, targetUserId, la.isPrimary]);
+      }
+    }
+
+    // 9. Seed Default SLA Config
+    // NORMAL priority: 48 / 72 / 96 / 120 hours
+    // URGENT & EMERGENCY: Proposed placeholders marked "pending client confirmation"
+    const slaMatrix = [
+      { priority: 'NORMAL', level: 1, hours: 48 },
+      { priority: 'NORMAL', level: 2, hours: 72 },
+      { priority: 'NORMAL', level: 3, hours: 96 },
+      { priority: 'NORMAL', level: 4, hours: 120 },
+
+      // PROPOSED: Pending client confirmation
+      { priority: 'URGENT', level: 1, hours: 24 },
+      { priority: 'URGENT', level: 2, hours: 36 },
+      { priority: 'URGENT', level: 3, hours: 48 },
+      { priority: 'URGENT', level: 4, hours: 60 },
+
+      // PROPOSED: Pending client confirmation
+      { priority: 'EMERGENCY', level: 1, hours: 4 },
+      { priority: 'EMERGENCY', level: 2, hours: 8 },
+      { priority: 'EMERGENCY', level: 3, hours: 12 },
+      { priority: 'EMERGENCY', level: 4, hours: 24 },
+    ];
+
+    for (const sla of slaMatrix) {
+      await client.query(`
+        INSERT INTO sla_config (society_id, category_id, priority, level, hours)
+        VALUES ($1, NULL, $2, $3, $4)
+        ON CONFLICT (society_id, category_id, priority, level) DO UPDATE SET hours = EXCLUDED.hours;
+      `, [societyId, sla.priority, sla.level, sla.hours]);
+    }
+
+    // 10. Seed Default Society Settings
+    const defaultSettings = [
+      { key: 'rate_limit_per_24h', value: '5' },
+      { key: 'duplicate_window_days', value: '7' },
+      { key: 'auto_close_hours', value: '48' },
+      { key: 'remind_after_hours', value: '24' },
+      { key: 'warn_before_hours', value: '12' },
+      { key: 'emergency_bypass_to_level', value: '2' }, // Pending client confirmation
+      { key: 'chairman_alert_minutes', value: '30' },     // Pending client confirmation
+      { key: 'rating_required_before_autoclose', value: 'false' }, // Pending client confirmation
+      { key: 'max_evidence', value: '10' },
+    ];
+
+    for (const s of defaultSettings) {
+      await client.query(`
+        INSERT INTO society_setting (society_id, key, value)
+        VALUES ($1, $2, $3)
+        ON CONFLICT (society_id, key) DO UPDATE SET value = EXCLUDED.value;
+      `, [societyId, s.key, s.value]);
+    }
+
+    // 11. Seed Working Hours (0 to 6; default enabled=false -> 24x7)
+    for (let day = 0; day <= 6; day++) {
+      await client.query(`
+        INSERT INTO working_hours (society_id, weekday, start_time, end_time, enabled)
+        VALUES ($1, $2, '09:00', '18:00', false)
+        ON CONFLICT (society_id, weekday) DO NOTHING;
+      `, [societyId, day]);
+    }
+
     await client.query('COMMIT');
 
     console.log('\n========================================================================================');
