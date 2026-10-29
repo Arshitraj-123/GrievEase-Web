@@ -1,8 +1,11 @@
 import {
   WebSocketGateway,
   WebSocketServer,
+  SubscribeMessage,
   OnGatewayConnection,
   OnGatewayDisconnect,
+  ConnectedSocket,
+  MessageBody,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { Logger } from '@nestjs/common';
@@ -41,6 +44,9 @@ export class NotificationsGateway implements OnGatewayConnection, OnGatewayDisco
         return;
       }
 
+      // Attach user data to client socket
+      client.data.user = decoded;
+
       // Join user-specific room and role-specific room
       const userRoom = `user:${decoded.userId}`;
       const roleRoom = `role:${decoded.societyId}:${decoded.role}`;
@@ -59,15 +65,34 @@ export class NotificationsGateway implements OnGatewayConnection, OnGatewayDisco
     this.logger.debug(`Client ${client.id} disconnected`);
   }
 
+  @SubscribeMessage('join_grievance')
+  handleJoinGrievance(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: { grievanceId: string }
+  ) {
+    if (data?.grievanceId) {
+      client.join(`grievance:${data.grievanceId}`);
+      this.logger.debug(`Client ${client.id} joined room [grievance:${data.grievanceId}]`);
+    }
+  }
+
   emitToUser(userId: string, notification: any) {
     if (this.server) {
+      this.server.to(`user:${userId}`).emit('notification.new', notification);
       this.server.to(`user:${userId}`).emit('notification', notification);
     }
   }
 
   emitToRole(societyId: string, role: string, notification: any) {
     if (this.server) {
+      this.server.to(`role:${societyId}:${role}`).emit('notification.new', notification);
       this.server.to(`role:${societyId}:${role}`).emit('notification', notification);
+    }
+  }
+
+  emitToGrievance(grievanceId: string, event: string, payload: any) {
+    if (this.server) {
+      this.server.to(`grievance:${grievanceId}`).emit(event, payload);
     }
   }
 }

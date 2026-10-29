@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { pool } from '../../database/db';
 import { computeAuditHash, verifyChain, VerificationResult } from '../../cli/verify-audit';
+import { stringify } from 'csv-stringify/sync';
 
 export interface AuditAppendParams {
   societyId: string;
@@ -15,6 +16,17 @@ export interface AuditAppendParams {
   device?: string | null;
 }
 
+export interface AuditFilterParams {
+  startDate?: string;
+  endDate?: string;
+  actorId?: string;
+  action?: string;
+  entityType?: string;
+  entityId?: string;
+  page?: number;
+  limit?: number;
+}
+
 @Injectable()
 export class AuditService {
   async append(params: AuditAppendParams): Promise<{ seq: number; hash: string }> {
@@ -22,7 +34,6 @@ export class AuditService {
     try {
       await client.query("SELECT set_config('app.is_super_admin', 'true', true)");
 
-      // Retrieve latest audit block for this society
       const latestRes = await client.query(`
         SELECT seq, hash FROM audit_log
         WHERE society_id = $1
@@ -97,20 +108,54 @@ export class AuditService {
     };
   }
 
-  async list(societyId: string, page: number = 1, limit: number = 20) {
+  async list(societyId: string, filters: AuditFilterParams = {}) {
+    const page = filters.page || 1;
+    const limit = filters.limit || 20;
     const offset = (page - 1) * limit;
+
+    const conditions: string[] = ['a.society_id = $1'];
+    const values: any[] = [societyId];
+    let idx = 2;
+
+    if (filters.startDate) {
+      conditions.push(`a.created_at >= $${idx++}`);
+      values.push(filters.startDate);
+    }
+    if (filters.endDate) {
+      conditions.push(`a.created_at <= $${idx++}`);
+      values.push(filters.endDate);
+    }
+    if (filters.actorId) {
+      conditions.push(`a.actor_id = $${idx++}`);
+      values.push(filters.actorId);
+    }
+    if (filters.action) {
+      conditions.push(`a.action ILIKE $${idx++}`);
+      values.push(`%${filters.action}%`);
+    }
+    if (filters.entityType) {
+      conditions.push(`a.entity_type = $${idx++}`);
+      values.push(filters.entityType);
+    }
+    if (filters.entityId) {
+      conditions.push(`a.entity_id = $${idx++}`);
+      values.push(filters.entityId);
+    }
+
+    const whereClause = conditions.join(' AND ');
+
     const res = await pool.query(`
       SELECT a.*, u.full_name as actor_name, u.username as actor_username
       FROM audit_log a
       LEFT JOIN app_user u ON a.actor_id = u.id
-      WHERE a.society_id = $1
+      WHERE ${whereClause}
       ORDER BY a.seq DESC
-      LIMIT $2 OFFSET $3;
-    `, [societyId, limit, offset]);
+      LIMIT $${idx++} OFFSET $${idx++};
+    `, [...values, limit, offset]);
 
     const countRes = await pool.query(`
-      SELECT COUNT(*) as total FROM audit_log WHERE society_id = $1;
-    `, [societyId]);
+      SELECT COUNT(*) as total FROM audit_log a WHERE ${whereClause};
+    `, values);
 
     return {
       items: res.rows,
@@ -118,5 +163,48 @@ export class AuditService {
       page,
       limit,
     };
+  }
+
+  /**
+   * Escape formula injection characters for CSV export (=, +, -, @, \t, \r)
+   */
+  private escapeFormula(val: any): string {
+    if (val === null || val === undefined) return '';
+    let str = String(val);
+    if (/^[=+\-@\t\r]/.test(str)) {
+      str = `'${str}`;
+    }
+    return str;
+  }
+
+  async exportCsv(societyId: string, filters: AuditFilterParams = {}): Promise<string> {
+    const verification = await this.verify(societyId);
+    const result = await this.list(societyId, { ...filters, page: 1, limit: 10000 });
+
+    const rows = result.items.map((item) => [
+      item.seq,
+      item.created_at,
+      this.escapeFormula(item.actor_name || item.actor_role || 'SYSTEM'),
+      this.escapeFormula(item.action),
+      this.escapeFormula(item.entity_type),
+      this.escapeFormula(item.entity_id || ''),
+      this.escapeFormula(item.prev_hash),
+      this.escapeFormula(item.hash),
+      this.escapeFormula(verification.verified ? 'VERIFIED' : 'TAMPERED'),
+    ]);
+
+    const header = [
+      'Seq',
+      'Timestamp',
+      'Actor',
+      'Action',
+      'EntityType',
+      'EntityID',
+      'PreviousHash',
+      'BlockHash',
+      'ChainIntegrity',
+    ];
+
+    return stringify([header, ...rows]);
   }
 }

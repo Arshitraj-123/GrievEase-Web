@@ -6,6 +6,10 @@ import { SocietiesModule } from './modules/societies/societies.module';
 import { AuditModule } from './modules/audit/audit.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { HealthModule } from './modules/health/health.module';
+import { StorageModule } from './modules/storage/storage.module';
+import { GovernanceModule } from './modules/governance/governance.module';
+import { EscalationModule } from './modules/escalation/escalation.module';
+import { GrievancesModule } from './modules/grievances/grievances.module';
 
 @Module({
   imports: [
@@ -16,6 +20,10 @@ import { HealthModule } from './modules/health/health.module';
     ImportModule,
     SocietiesModule,
     HealthModule,
+    StorageModule,
+    GovernanceModule,
+    EscalationModule,
+    GrievancesModule,
   ],
 })
 export class AppModule {}
