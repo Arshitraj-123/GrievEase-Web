@@ -342,4 +342,91 @@ export const api = {
   getStaffIdProofSignedUrl: (id: string) => request(`/admin/staff/${id}/id-proof`),
   mergeStaffMembers: (body: any, stepUpToken: string) =>
     request('/admin/staff/merge', { method: 'POST', body: JSON.stringify(body) }, stepUpToken),
+
+  // 15. Phase 6 (A) Visitors & Passes
+  createVisitorPass: (body: any) => request('/visitors/passes', { method: 'POST', body: JSON.stringify(body) }),
+  listVisitorPasses: (flatId?: string) => {
+    const q = flatId ? `?flatId=${encodeURIComponent(flatId)}` : '';
+    return request(`/visitors/passes${q}`);
+  },
+  cancelVisitorPass: (id: string) => request(`/visitors/passes/${id}/cancel`, { method: 'PUT' }),
+  verifyPass: (body: { token?: string; code?: string }) =>
+    request('/visitors/verify', { method: 'POST', body: JSON.stringify(body) }),
+  admitPass: (id: string) => request(`/visitors/passes/${id}/admit`, { method: 'POST' }),
+  createWalkin: (body: any) => request('/visitors/walkin', { method: 'POST', body: JSON.stringify(body) }),
+  respondApproval: (body: any) => request('/visitors/approvals/respond', { method: 'POST', body: JSON.stringify(body) }),
+  listVisitLogs: (flatId?: string, onlyInside?: boolean) => {
+    const q = new URLSearchParams();
+    if (flatId) q.set('flatId', flatId);
+    if (onlyInside) q.set('onlyInside', 'true');
+    return request(`/visitors/logs?${q.toString()}`);
+  },
+  markVisitExit: (id: string) => request(`/visitors/logs/${id}/exit`, { method: 'PUT' }),
+  createBlocklist: (body: any) => request('/visitors/blocklist', { method: 'POST', body: JSON.stringify(body) }),
+  listBlocklist: (flatId?: string) => {
+    const q = flatId ? `?flatId=${encodeURIComponent(flatId)}` : '';
+    return request(`/visitors/blocklist${q}`);
+  },
+  createFrequentVisitor: (body: any) => request('/visitors/frequent', { method: 'POST', body: JSON.stringify(body) }),
+  listFrequentVisitors: (flatId?: string) => {
+    const q = flatId ? `?flatId=${encodeURIComponent(flatId)}` : '';
+    return request(`/visitors/frequent${q}`);
+  },
+
+  // 16. Phase 6 (A) Deliveries
+  createExpectedDelivery: (body: any) => request('/visitors/deliveries/expected', { method: 'POST', body: JSON.stringify(body) }),
+  listExpectedDeliveries: (flatId?: string) => {
+    const q = flatId ? `?flatId=${encodeURIComponent(flatId)}` : '';
+    return request(`/visitors/deliveries/expected${q}`);
+  },
+  logDeliveryArrival: (body: any) => request('/visitors/deliveries/arrival', { method: 'POST', body: JSON.stringify(body) }),
+  listDeliveryLogs: (flatId?: string) => {
+    const q = flatId ? `?flatId=${encodeURIComponent(flatId)}` : '';
+    return request(`/visitors/deliveries/logs${q}`);
+  },
+  markDeliveryCollected: (id: string) => request(`/visitors/deliveries/logs/${id}/collect`, { method: 'PUT' }),
+
+  // 17. Phase 6 (B) Guards & Gate Console
+  sendGuardHeartbeat: (deviceId?: string) =>
+    request('/guards/heartbeat', { method: 'POST', body: JSON.stringify({ deviceId }) }),
+  getOnlineGuardsStatus: () => request('/guards/status/online'),
+  setGuardPin: (pin: string) => request('/guards/pin/set', { method: 'POST', body: JSON.stringify({ pin }) }),
+  unlockGuardPin: (pin: string) => request('/guards/pin/unlock', { method: 'POST', body: JSON.stringify({ pin }) }),
+  guardShiftCheckIn: (shiftId?: string, deviceId?: string) =>
+    request('/guards/shift/check-in', { method: 'POST', body: JSON.stringify({ shiftId, deviceId }) }),
+  guardShiftCheckOut: (shiftId?: string) =>
+    request('/guards/shift/check-out', { method: 'POST', body: JSON.stringify({ shiftId }) }),
+  logGuardIncident: (body: any) => request('/guards/incidents', { method: 'POST', body: JSON.stringify(body) }),
+  listGuardIncidents: () => request('/guards/incidents'),
+  listCheckpoints: () => request('/guards/checkpoints'),
+  scanPatrolCheckpoint: (body: any) => request('/guards/patrol/scan', { method: 'POST', body: JSON.stringify(body) }),
+  submitShiftHandover: (body: any) => request('/guards/handover', { method: 'POST', body: JSON.stringify(body) }),
+  verifyStaffScan: (token: string) =>
+    request('/guards/staff/verify-scan', { method: 'POST', body: JSON.stringify({ token }) }),
+  listGuardProfiles: () => request('/guards/profiles'),
+  getMyGuardProfile: () => request('/guards/profile/me'),
+  listGuardShifts: (guardId?: string) => {
+    const q = guardId ? `?guardId=${encodeURIComponent(guardId)}` : '';
+    return request(`/guards/shifts${q}`);
+  },
+  registerGateDevice: (body: any) => request('/guards/devices', { method: 'POST', body: JSON.stringify(body) }),
+  listGateDevices: () => request('/guards/devices'),
+  revokeGateDevice: (id: string) => request(`/guards/devices/${id}/revoke`, { method: 'PUT' }),
+
+  // 18. Phase 6 (C) SOS Emergency
+  raiseSos: (body: any) => request('/sos/raise', { method: 'POST', body: JSON.stringify(body) }),
+  cancelSos: (id: string) => request(`/sos/alerts/${id}/cancel`, { method: 'PUT' }),
+  acknowledgeSos: (id: string) => request(`/sos/alerts/${id}/ack`, { method: 'POST' }),
+  respondSos: (id: string, body: any) => request(`/sos/alerts/${id}/respond`, { method: 'POST', body: JSON.stringify(body) }),
+  resolveSos: (id: string, body: any) => request(`/sos/alerts/${id}/resolve`, { method: 'PUT', body: JSON.stringify(body) }),
+  listSosAlerts: (flatId?: string, activeOnly = false) => {
+    const q = new URLSearchParams();
+    if (flatId) q.set('flatId', flatId);
+    if (activeOnly) q.set('activeOnly', 'true');
+    return request(`/sos/alerts?${q.toString()}`);
+  },
+  getSosResponses: (id: string) => request(`/sos/alerts/${id}/responses`),
+  startSosDrill: (body: any) => request('/sos/drills/start', { method: 'POST', body: JSON.stringify(body) }),
+  getSosSettings: () => request('/sos/settings'),
+  updateSosSetting: (body: any) => request('/sos/settings', { method: 'PUT', body: JSON.stringify(body) }),
 };
