@@ -2,15 +2,38 @@
 
 import React, { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, Input, Button, Alert } from '@grievease/ui';
-import { Lock, ArrowRight, ShieldCheck } from 'lucide-react';
+import Link from 'next/link';
+import {
+  AuthLayout,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  PasswordField,
+  Stepper,
+  Button,
+  Alert,
+} from '@grievease/ui';
+import { ArrowRight, ArrowLeft } from 'lucide-react';
 import { api } from '@/lib/api-client';
+import { useAccessibility } from '@/components/AccessibilityProvider';
+
+const STEPS = [
+  { id: 1, label: 'Code' },
+  { id: 2, label: 'Verify' },
+  { id: 3, label: 'Password' },
+  { id: 4, label: 'Recovery' },
+  { id: 5, label: 'All Set' },
+];
 
 function SetInitialPasswordContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams?.get('token') || '';
   const isAdmin = searchParams?.get('isAdmin') === 'true';
+
+  const { t, locale, setLocale } = useAccessibility();
 
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -53,73 +76,92 @@ function SetInitialPasswordContent() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-slate-50 dark:bg-slate-950">
-      <div className="w-full max-w-md space-y-6">
-        <div className="text-center space-y-2">
-          <div className="inline-flex items-center gap-2 text-2xl font-black text-slate-900 dark:text-white">
-            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-teal-600 text-white font-bold">G</span>
-            <span>Griev<span className="text-teal-600">Ease</span></span>
-          </div>
+    <AuthLayout
+      LinkComponent={Link}
+      currentLocale={locale}
+      onLocaleChange={setLocale}
+    >
+      <div className="w-full">
+        <div className="mb-6">
+          <Stepper steps={STEPS} currentStep={3} />
         </div>
 
-        <Card className="border border-slate-200 dark:border-slate-800 shadow-xl">
-          <CardHeader className="space-y-1 pb-4">
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-teal-100 text-teal-800 dark:bg-teal-900/50 dark:text-teal-300 w-fit mb-1">
-              Step 2 of 3: Create Password
-            </div>
-            <CardTitle className="text-xl">Set your password</CardTitle>
-            <CardDescription>
-              Choose a strong, memorable passphrase. {isAdmin ? 'Admin accounts require at least 12 characters.' : 'Must be at least 10 characters.'}
+        <Card className="border border-slate-200/90 dark:border-slate-800 shadow-xl dark:shadow-2xl bg-white dark:bg-slate-900 rounded-2xl overflow-hidden">
+          <CardHeader className="space-y-1.5 pb-4">
+            <CardTitle className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+              {t.auth.passwordStepTitle}
+            </CardTitle>
+            <CardDescription className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
+              {t.auth.passwordStepSubtitle} &bull;{' '}
+              {isAdmin
+                ? 'Admin accounts require at least 12 characters.'
+                : 'Must be at least 10 characters.'}
             </CardDescription>
           </CardHeader>
 
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {error && <Alert variant="danger">{error}</Alert>}
+          <CardContent className="space-y-4">
+            {error && <Alert variant="danger" role="alert">{error}</Alert>}
 
-              <Input
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <PasswordField
                 id="initial-password"
-                label="New Password"
-                type="password"
+                label={t.auth.newPasswordLabel}
                 placeholder="••••••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                leftIcon={<Lock className="w-4 h-4" />}
-                helperText={`Minimum ${minLength} characters. Avoid dictionary words, birthdays or flat numbers.`}
+                showStrengthMeter
+                minStrengthLength={minLength}
                 required
+                autoFocus
               />
 
-              <Input
+              <PasswordField
                 id="initial-password-confirm"
-                label="Confirm Password"
-                type="password"
+                label={t.auth.confirmPasswordLabel}
                 placeholder="••••••••••••"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                leftIcon={<Lock className="w-4 h-4" />}
                 required
               />
 
-              <Button
-                type="submit"
-                variant="primary"
-                className="w-full mt-2"
-                isLoading={isLoading}
-                rightIcon={<ArrowRight className="w-4 h-4" />}
-              >
-                Save & Proceed to Recovery Setup
-              </Button>
+              <div className="flex items-center gap-3 pt-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="lg"
+                  onClick={() => router.push('/activate')}
+                  leftIcon={<ArrowLeft className="w-4 h-4" />}
+                >
+                  Back
+                </Button>
+                <Button
+                  type="submit"
+                  variant="primary"
+                  size="lg"
+                  className="flex-1 text-base font-bold shadow-md shadow-teal-900/10"
+                  isLoading={isLoading}
+                  rightIcon={<ArrowRight className="w-5 h-5" />}
+                >
+                  {t.auth.setPasswordButton}
+                </Button>
+              </div>
             </form>
           </CardContent>
         </Card>
       </div>
-    </div>
+    </AuthLayout>
   );
 }
 
 export default function SetInitialPasswordPage() {
   return (
-    <React.Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+    <React.Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 text-slate-600">
+          Loading...
+        </div>
+      }
+    >
       <SetInitialPasswordContent />
     </React.Suspense>
   );
