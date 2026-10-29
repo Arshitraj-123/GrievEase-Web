@@ -1165,4 +1165,513 @@ export const StaffSettingsSchema = z.object({
 });
 export type StaffSettingsDto = z.infer<typeof StaffSettingsSchema>;
 
+// ==============================================================================
+// PHASE 6: (A) VISITORS AND DELIVERIES CONTRACTS
+// ==============================================================================
+
+export type VisitorPassType = 'ONE_TIME' | 'RECURRING' | 'GROUP' | 'VEHICLE_ONLY';
+export type VisitorPassStatus = 'ACTIVE' | 'USED' | 'EXPIRED' | 'CANCELLED';
+export type VisitSource = 'PREAPPROVED' | 'WALKIN' | 'DELIVERY' | 'CAB' | 'STAFF' | 'OVERRIDE';
+export type VisitDecision = 'APPROVED' | 'DENIED' | 'TIMEOUT_DEFAULT' | 'GUARD_OVERRIDE';
+export type ApprovalRequestStatus = 'PENDING' | 'APPROVED' | 'DENIED' | 'EXPIRED';
+
+export const CreateVisitorPassSchema = z.object({
+  flatId: z.string().uuid(),
+  type: z.enum(['ONE_TIME', 'RECURRING', 'GROUP', 'VEHICLE_ONLY']).default('ONE_TIME'),
+  visitorName: z.string().min(2, 'Name must be at least 2 characters'),
+  visitorPhone: z.string().optional(),
+  purpose: z.string().min(2, 'Purpose is required'),
+  guestsCount: z.number().int().min(1).default(1),
+  vehicleNo: z.string().optional(),
+  validFrom: z.string(),
+  validTo: z.string(),
+  recurrence: z.object({
+    days: z.array(z.number()),
+    startTime: z.string(),
+    endTime: z.string(),
+  }).optional(),
+  maxEntries: z.number().int().min(1).default(1),
+});
+export type CreateVisitorPassDto = z.infer<typeof CreateVisitorPassSchema>;
+
+export interface VisitorPassItemDto {
+  id: string;
+  type: VisitorPassType;
+  visitorName: string;
+  visitorPhone?: string | null;
+  purpose: string;
+  guestsCount: number;
+  vehicleNo?: string | null;
+  validFrom: string;
+  validTo: string;
+  passCode: string;
+  qrToken: string;
+  status: VisitorPassStatus;
+  entriesUsed: number;
+  maxEntries: number;
+  flatNumber: string;
+  hostName: string;
+  createdAt: string;
+}
+
+export interface VerifyPassResultDto {
+  isValid: boolean;
+  reason?: string;
+  passId?: string;
+  visitorName?: string;
+  flatNumber?: string;
+  flatId?: string;
+  purpose?: string;
+  guestsCount?: number;
+  vehicleNo?: string | null;
+  status?: VisitorPassStatus;
+  type?: VisitorPassType;
+  isExpired?: boolean;
+  isScheduleAllowed?: boolean;
+}
+
+export const CreateWalkinSchema = z.object({
+  flatId: z.string().uuid(),
+  visitorName: z.string().min(2),
+  visitorPhone: z.string().optional(),
+  purpose: z.string().min(2),
+  guestsCount: z.number().int().min(1).default(1),
+  vehicleNo: z.string().optional(),
+  photoKey: z.string().optional(),
+  source: z.enum(['WALKIN', 'CAB', 'DELIVERY', 'OVERRIDE']).default('WALKIN'),
+  notes: z.string().optional(),
+});
+export type CreateWalkinDto = z.infer<typeof CreateWalkinSchema>;
+
+export const RespondApprovalSchema = z.object({
+  requestId: z.string().uuid(),
+  decision: z.enum(['APPROVED', 'DENIED', 'WAIT']),
+});
+export type RespondApprovalDto = z.infer<typeof RespondApprovalSchema>;
+
+export interface VisitLogItemDto {
+  id: string;
+  visitorName: string;
+  purpose: string;
+  vehicleNo?: string | null;
+  guestsCount: number;
+  flatNumber: string;
+  flatId: string;
+  source: VisitSource;
+  decision: VisitDecision;
+  decidedAt?: string | null;
+  inAt: string;
+  outAt?: string | null;
+  guardInName?: string | null;
+  guardOutName?: string | null;
+  gateName?: string | null;
+  notes?: string | null;
+  overstayAlertedAt?: string | null;
+  photoKey?: string | null;
+}
+
+export interface ApprovalRequestItemDto {
+  id: string;
+  visitLogId: string;
+  flatId: string;
+  flatNumber: string;
+  visitorName: string;
+  purpose: string;
+  vehicleNo?: string | null;
+  guestsCount: number;
+  photoKey?: string | null;
+  requestedAt: string;
+  expiresAt: string;
+  status: ApprovalRequestStatus;
+  remainingSeconds: number;
+}
+
+// Deliveries
+export type DeliveryCompany = 'Amazon' | 'Flipkart' | 'Swiggy' | 'Zomato' | 'Other';
+export type DeliveryRule = 'ALLOW_IN' | 'LEAVE_AT_GATE' | 'ASK_ME';
+export type DeliveryStatus = 'EXPECTED' | 'ARRIVED' | 'HANDED_OVER' | 'LEFT_AT_GATE' | 'DENIED' | 'CANCELLED';
+
+export const CreateDeliveryExpectedSchema = z.object({
+  flatId: z.string().uuid(),
+  company: z.enum(['Amazon', 'Flipkart', 'Swiggy', 'Zomato', 'Other']),
+  reference: z.string().optional(),
+  windowFrom: z.string(),
+  windowTo: z.string(),
+  rule: z.enum(['ALLOW_IN', 'LEAVE_AT_GATE', 'ASK_ME']).default('ALLOW_IN'),
+});
+export type CreateDeliveryExpectedDto = z.infer<typeof CreateDeliveryExpectedSchema>;
+
+export interface DeliveryExpectedItemDto {
+  id: string;
+  flatId: string;
+  flatNumber: string;
+  company: DeliveryCompany;
+  reference?: string | null;
+  windowFrom: string;
+  windowTo: string;
+  rule: DeliveryRule;
+  status: DeliveryStatus;
+  createdAt: string;
+}
+
+export const LogDeliveryArrivalSchema = z.object({
+  flatId: z.string().uuid(),
+  expectedId: z.string().uuid().optional(),
+  company: z.enum(['Amazon', 'Flipkart', 'Swiggy', 'Zomato', 'Other']),
+  agentName: z.string().optional(),
+  outcome: z.enum(['HANDED_OVER', 'LEFT_AT_GATE', 'DENIED']),
+  note: z.string().optional(),
+});
+export type LogDeliveryArrivalDto = z.infer<typeof LogDeliveryArrivalSchema>;
+
+export interface DeliveryLogItemDto {
+  id: string;
+  flatId: string;
+  flatNumber: string;
+  company: string;
+  agentName?: string | null;
+  arrivedAt: string;
+  resolvedAt?: string | null;
+  outcome: string;
+  guardName?: string | null;
+  note?: string | null;
+  collectedAt?: string | null;
+}
+
+// Blocklist & Frequent Visitors
+export const CreateBlocklistSchema = z.object({
+  flatId: z.string().uuid().optional().nullable(),
+  personPhone: z.string().optional(),
+  name: z.string().optional(),
+  vehicleNo: z.string().optional(),
+  reason: z.string().min(3),
+});
+export type CreateBlocklistDto = z.infer<typeof CreateBlocklistSchema>;
+
+export interface BlocklistItemDto {
+  id: string;
+  flatNumber?: string | null;
+  name?: string | null;
+  vehicleNo?: string | null;
+  reason: string;
+  active: boolean;
+  createdAt: string;
+}
+
+export const CreateFrequentVisitorSchema = z.object({
+  flatId: z.string().uuid(),
+  name: z.string().min(2),
+  phone: z.string().optional(),
+  label: z.string().min(2),
+});
+export type CreateFrequentVisitorDto = z.infer<typeof CreateFrequentVisitorSchema>;
+
+export interface FrequentVisitorItemDto {
+  id: string;
+  flatId: string;
+  name: string;
+  phone?: string | null;
+  label: string;
+  createdAt: string;
+}
+
+// Gate Settings
+export const GateSettingsSchema = z.object({
+  visitorPhotoMode: z.enum(['OFF', 'OPTIONAL', 'REQUIRED']).default('OFF'),
+  visitorRetentionDays: z.number().int().min(7).max(365).default(90),
+  defaultApprovalTimeoutSeconds: z.number().int().min(30).max(300).default(120),
+  defaultTimeoutAction: z.enum(['DENY', 'ASK_GUARD', 'ALLOW_IF_FREQUENT']).default('DENY'),
+  overstayGraceMinutes: z.number().int().min(5).max(180).default(30),
+  gateOfflineAlertMinutes: z.number().int().min(1).max(60).default(5),
+});
+export type GateSettingsDto = z.infer<typeof GateSettingsSchema>;
+
+// Gate & Devices
+export const RegisterGateDeviceSchema = z.object({
+  gateId: z.string().uuid().optional(),
+  name: z.string().min(2),
+});
+export type RegisterGateDeviceDto = z.infer<typeof RegisterGateDeviceSchema>;
+
+export interface GateDeviceItemDto {
+  id: string;
+  gateId?: string | null;
+  gateName?: string | null;
+  name: string;
+  lastSeenAt?: string | null;
+  isRevoked: boolean;
+  createdAt: string;
+}
+
+// ==============================================================================
+// PHASE 6: (B) GUARD CONSOLE AND GUARD MANAGEMENT CONTRACTS
+// ==============================================================================
+
+export interface GuardProfileDto {
+  id: string;
+  userId: string;
+  username: string;
+  fullName: string;
+  mobile: string;
+  employeeCode: string;
+  agency?: string | null;
+  photoKey?: string | null;
+  emergencyContactName?: string | null;
+  status: 'ACTIVE' | 'SUSPENDED';
+  hasPin: boolean;
+  createdAt: string;
+}
+
+export const CreateGuardProfileSchema = z.object({
+  userId: z.string().uuid(),
+  employeeCode: z.string().min(2),
+  agency: z.string().optional(),
+  photoKey: z.string().optional(),
+  idProofKey: z.string().optional(),
+  emergencyContactName: z.string().optional(),
+  emergencyContactPhone: z.string().optional(),
+});
+export type CreateGuardProfileDto = z.infer<typeof CreateGuardProfileSchema>;
+
+export interface ShiftTemplateDto {
+  id: string;
+  name: string;
+  startTime: string;
+  endTime: string;
+}
+
+export const CreateShiftTemplateSchema = z.object({
+  name: z.string().min(2),
+  startTime: z.string().regex(/^\d{2}:\d{2}$/),
+  endTime: z.string().regex(/^\d{2}:\d{2}$/),
+});
+export type CreateShiftTemplateDto = z.infer<typeof CreateShiftTemplateSchema>;
+
+export interface ShiftItemDto {
+  id: string;
+  guardId: string;
+  guardName: string;
+  gateId?: string | null;
+  gateName?: string | null;
+  startsAt: string;
+  endsAt: string;
+  status: 'SCHEDULED' | 'ACTIVE' | 'COMPLETED' | 'MISSED';
+}
+
+export const CreateShiftSchema = z.object({
+  guardId: z.string().uuid(),
+  gateId: z.string().uuid().optional(),
+  startsAt: z.string(),
+  endsAt: z.string(),
+});
+export type CreateShiftDto = z.infer<typeof CreateShiftSchema>;
+
+export interface GuardAttendanceItemDto {
+  id: string;
+  guardId: string;
+  guardName: string;
+  shiftId?: string | null;
+  checkInAt: string;
+  checkOutAt?: string | null;
+  method: string;
+  deviceName?: string | null;
+}
+
+export interface CheckpointDto {
+  id: string;
+  name: string;
+  qrSlug: string;
+  sortOrder: number;
+}
+
+export const CreateCheckpointSchema = z.object({
+  name: z.string().min(2),
+  qrSlug: z.string().min(3),
+  sortOrder: z.number().int().default(0),
+});
+export type CreateCheckpointDto = z.infer<typeof CreateCheckpointSchema>;
+
+export const ScanCheckpointSchema = z.object({
+  qrSlug: z.string().min(3),
+  shiftId: z.string().uuid().optional(),
+});
+export type ScanCheckpointDto = z.infer<typeof ScanCheckpointSchema>;
+
+export interface PatrolLogItemDto {
+  id: string;
+  guardName: string;
+  checkpointName: string;
+  scannedAt: string;
+  shiftId?: string | null;
+}
+
+export type IncidentSeverity = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+export type IncidentType =
+  | 'suspicious_person'
+  | 'vehicle'
+  | 'fire_hazard'
+  | 'fight'
+  | 'damage'
+  | 'medical'
+  | 'other';
+
+export const CreateIncidentSchema = z.object({
+  type: z.enum([
+    'suspicious_person',
+    'vehicle',
+    'fire_hazard',
+    'fight',
+    'damage',
+    'medical',
+    'other',
+  ]),
+  severity: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).default('MEDIUM'),
+  description: z.string().min(5),
+  photoKeys: z.array(z.string()).optional(),
+  gateId: z.string().uuid().optional(),
+});
+export type CreateIncidentDto = z.infer<typeof CreateIncidentSchema>;
+
+export interface IncidentLogItemDto {
+  id: string;
+  guardName: string;
+  type: IncidentType;
+  severity: IncidentSeverity;
+  description: string;
+  photoKeys: string[];
+  gateName?: string | null;
+  status: 'OPEN' | 'REVIEWED' | 'CLOSED';
+  createdAt: string;
+  reviewedByName?: string | null;
+}
+
+export const ShiftHandoverSchema = z.object({
+  toShiftId: z.string().uuid().optional(),
+  toGuardId: z.string().uuid().optional(),
+  notes: z.string().min(5),
+});
+export type ShiftHandoverDto = z.infer<typeof ShiftHandoverSchema>;
+
+export interface ShiftHandoverItemDto {
+  id: string;
+  fromGuardName: string;
+  toGuardName?: string | null;
+  notes: string;
+  acknowledgedByName?: string | null;
+  acknowledgedAt?: string | null;
+  createdAt: string;
+}
+
+export const SetGuardPinSchema = z.object({
+  pin: z.string().regex(/^\d{4,6}$/, 'PIN must be 4 to 6 numeric digits'),
+});
+export type SetGuardPinDto = z.infer<typeof SetGuardPinSchema>;
+
+export const UnlockGuardPinSchema = z.object({
+  pin: z.string(),
+});
+export type UnlockGuardPinDto = z.infer<typeof UnlockGuardPinSchema>;
+
+// ==============================================================================
+// PHASE 6: (C) SOS EMERGENCY CONTRACTS
+// ==============================================================================
+
+export type SosType = 'MEDICAL' | 'FIRE' | 'THEFT' | 'OTHER' | 'GUARD_DISTRESS';
+export type SosStatus =
+  | 'RAISED'
+  | 'ACKNOWLEDGED'
+  | 'RESPONDING'
+  | 'RESOLVED'
+  | 'FALSE_ALARM'
+  | 'CANCELLED';
+export type SosAction = 'ACK' | 'ON_THE_WAY' | 'ARRIVED' | 'NOTE';
+
+export const RaiseSosSchema = z.object({
+  type: z.enum(['MEDICAL', 'FIRE', 'THEFT', 'OTHER', 'GUARD_DISTRESS']).default('OTHER'),
+  note: z.string().max(200).optional(),
+  locationMode: z.enum(['FLAT_ONLY', 'SHARED']).default('FLAT_ONLY'),
+  lat: z.number().optional(),
+  lng: z.number().optional(),
+  accuracy: z.number().optional(),
+  flatId: z.string().uuid().optional(),
+});
+export type RaiseSosDto = z.infer<typeof RaiseSosSchema>;
+
+export interface SosAlertItemDto {
+  id: string;
+  flatNumber: string;
+  flatId: string;
+  residentName: string;
+  residentPhone?: string | null;
+  type: SosType;
+  note?: string | null;
+  locationMode: 'FLAT_ONLY' | 'SHARED';
+  lat?: number | null;
+  lng?: number | null;
+  accuracy?: number | null;
+  status: SosStatus;
+  raisedAt: string;
+  cancelWindowEndsAt: string;
+  acknowledgedByName?: string | null;
+  acknowledgedAt?: string | null;
+  resolvedByName?: string | null;
+  resolvedAt?: string | null;
+  outcomeNote?: string | null;
+  isDrill: boolean;
+  escalationTier: number;
+  responsesCount: number;
+  remainingCancelSeconds?: number;
+}
+
+export interface SosResponseItemDto {
+  id: string;
+  alertId: string;
+  userName: string;
+  role: string;
+  action: SosAction;
+  note?: string | null;
+  createdAt: string;
+}
+
+export interface SosSettingDto {
+  cancelWindowSeconds: number;
+  ackTimeoutSeconds: number;
+  tier2TimeoutSeconds: number;
+  repeatSound: boolean;
+  drillsEnabled: boolean;
+  gateOfflineAlertMinutes: number;
+}
+
+export const UpdateSosSettingSchema = z.object({
+  cancelWindowSeconds: z.number().int().min(0).max(30).optional(),
+  ackTimeoutSeconds: z.number().int().min(10).max(300).optional(),
+  tier2TimeoutSeconds: z.number().int().min(30).max(600).optional(),
+  repeatSound: z.boolean().optional(),
+  drillsEnabled: z.boolean().optional(),
+  gateOfflineAlertMinutes: z.number().int().min(1).max(60).optional(),
+});
+export type UpdateSosSettingDto = z.infer<typeof UpdateSosSettingSchema>;
+
+export const AckSosSchema = z.object({
+  alertId: z.string().uuid(),
+});
+export type AckSosDto = z.infer<typeof AckSosSchema>;
+
+export const RespondSosSchema = z.object({
+  action: z.enum(['ON_THE_WAY', 'ARRIVED', 'NOTE']),
+  note: z.string().max(255).optional(),
+});
+export type RespondSosDto = z.infer<typeof RespondSosSchema>;
+
+export const ResolveSosSchema = z.object({
+  status: z.enum(['RESOLVED', 'FALSE_ALARM']),
+  outcomeNote: z.string().max(500).optional(),
+});
+export type ResolveSosDto = z.infer<typeof ResolveSosSchema>;
+
+export const StartDrillSchema = z.object({
+  type: z.enum(['MEDICAL', 'FIRE', 'THEFT', 'OTHER']).default('FIRE'),
+});
+export type StartDrillDto = z.infer<typeof StartDrillSchema>;
+
 
