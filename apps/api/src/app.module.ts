@@ -15,6 +15,9 @@ import { NoticesModule } from './modules/notices/notices.module';
 import { PollsModule } from './modules/polls/polls.module';
 import { DirectoryModule } from './modules/directory/directory.module';
 import { StaffModule } from './modules/staff/staff.module';
+import { VisitorsModule } from './modules/visitors/visitors.module';
+import { GuardsModule } from './modules/guards/guards.module';
+import { SosModule } from './modules/sos/sos.module';
 
 @Module({
   imports: [
@@ -34,6 +37,9 @@ import { StaffModule } from './modules/staff/staff.module';
     PollsModule,
     DirectoryModule,
     StaffModule,
+    VisitorsModule,
+    GuardsModule,
+    SosModule,
   ],
 })
 export class AppModule {}
