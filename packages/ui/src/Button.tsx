@@ -1,11 +1,12 @@
 import React, { forwardRef } from 'react';
 import { cn } from './utils';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Check } from 'lucide-react';
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
   size?: 'sm' | 'md' | 'lg';
   isLoading?: boolean;
+  isSuccess?: boolean;
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
 }
@@ -17,6 +18,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       variant = 'primary',
       size = 'md',
       isLoading = false,
+      isSuccess = false,
       leftIcon,
       rightIcon,
       disabled,
@@ -26,11 +28,11 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     ref
   ) => {
     const baseStyles =
-      'inline-flex items-center justify-center font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed select-none';
+      'inline-flex items-center justify-center font-semibold rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed select-none active:scale-[0.98]';
 
     const variants = {
       primary:
-        'bg-teal-600 text-white hover:bg-teal-700 focus:ring-teal-500 shadow-sm',
+        'bg-teal-600 text-white hover:bg-teal-700 focus:ring-teal-500 shadow-sm shadow-teal-900/10',
       secondary:
         'bg-slate-800 text-white hover:bg-slate-900 focus:ring-slate-700 shadow-sm',
       outline:
@@ -42,22 +44,29 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     };
 
     const sizes = {
-      sm: 'px-3 py-1.5 text-xs gap-1.5',
-      md: 'px-4 py-2 text-sm gap-2',
-      lg: 'px-6 py-3 text-base gap-2.5',
+      sm: 'px-3 py-1.5 text-xs min-h-[36px] gap-1.5',
+      md: 'px-4 py-2.5 text-sm min-h-[44px] gap-2',
+      lg: 'px-6 py-3 text-base min-h-[48px] gap-2.5',
     };
 
     return (
       <button
         ref={ref}
-        disabled={disabled || isLoading}
-        className={cn(baseStyles, variants[variant], sizes[size], className)}
+        disabled={disabled || isLoading || isSuccess}
+        aria-busy={isLoading}
+        className={cn(
+          baseStyles,
+          isSuccess ? 'bg-emerald-600 text-white hover:bg-emerald-600 shadow-sm' : variants[variant],
+          sizes[size],
+          className
+        )}
         {...props}
       >
-        {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
-        {!isLoading && leftIcon}
+        {isLoading && <Loader2 className="w-4 h-4 animate-spin shrink-0" />}
+        {isSuccess && <Check className="w-4 h-4 text-white shrink-0 stroke-[3]" />}
+        {!isLoading && !isSuccess && leftIcon}
         <span>{children}</span>
-        {!isLoading && rightIcon}
+        {!isLoading && !isSuccess && rightIcon}
       </button>
     );
   }
