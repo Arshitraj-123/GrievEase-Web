@@ -27,20 +27,30 @@ import {
   PhoneCall,
   UserCheck,
   BarChart3,
+  Truck,
+  Siren,
+  Smartphone,
+  Eye,
+  Lock,
+  Clock,
 } from 'lucide-react';
 import { api } from '@/lib/api-client';
 import { useAccessibility } from './AccessibilityProvider';
 import { fallbackNotices } from '@/lib/fallback-community';
+import { WalkinApprovalPrompt } from './WalkinApprovalPrompt';
+import { SafetyHonestyBanner } from './SafetyHonestyBanner';
 
-// Feature flags: notices, polls, directory, emergency_contacts, staff default ON
+// Feature flags: Phase 6 Visitors, Deliveries, Guards, SOS are ON
 const FEATURE_FLAGS = {
   NOTICES: true,
   POLLS: true,
   DIRECTORY: true,
   EMERGENCY_CONTACTS: true,
   STAFF: true,
-  SOS: false,
-  VISITORS: false,
+  SOS: true,
+  VISITORS: true,
+  DELIVERIES: true,
+  GUARDS: true,
   BILLING: false,
   AMENITIES: false,
 };
@@ -53,11 +63,29 @@ export interface ShellLayoutProps {
 
 export function ShellLayout({ role: propRole, children, userRoleTitle }: ShellLayoutProps) {
   const pathname = usePathname();
-  const role = propRole || (pathname?.startsWith('/admin') ? 'ADMIN' : 'RESIDENT');
+  const role = propRole || (pathname?.startsWith('/admin') ? 'ADMIN' : pathname?.startsWith('/guard') ? 'GUARD' : 'RESIDENT');
   const router = useRouter();
   const { t } = useAccessibility();
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [emergencyNotice, setEmergencyNotice] = useState<{ id: string; title: string } | null>(null);
+  const [onlineGuardsCount, setOnlineGuardsCount] = useState<number>(0);
+
+  useEffect(() => {
+    let isMounted = true;
+    const fetchStatus = () => {
+      api.getOnlineGuardsStatus()
+        .then((data) => {
+          if (isMounted) setOnlineGuardsCount(data.onlineCount || 0);
+        })
+        .catch(() => {});
+    };
+    fetchStatus();
+    const interval = setInterval(fetchStatus, 15000);
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
+  }, []);
 
   useEffect(() => {
     if (role === 'RESIDENT') {
@@ -78,7 +106,7 @@ export function ShellLayout({ role: propRole, children, userRoleTitle }: ShellLa
     }
   }, [role, pathname]);
 
-  const displayRoleTitle = userRoleTitle || (role === 'ADMIN' ? 'Administrator' : t.nav.residentRole);
+  const displayRoleTitle = userRoleTitle || (role === 'ADMIN' ? 'Administrator' : role === 'GUARD' ? 'Security Guard' : t.nav.residentRole);
 
   const handleLogout = async () => {
     try {
@@ -87,17 +115,19 @@ export function ShellLayout({ role: propRole, children, userRoleTitle }: ShellLa
     router.push('/login');
   };
 
-  // Scoped typed navigation:
-  // Resident shell: Home, Grievances, Notices, Community, My Staff, Directory, Emergency, Notifications, Profile & Security, Help
-  // Admin shell: Matching management modules
+  // Typed navigation for Phase 6
   const navItems = {
     ADMIN: [
       { label: 'Overview', href: '/admin', icon: Home },
+      { label: 'Visitors', href: '/admin/visitors', icon: UserCheck },
+      { label: 'Guards', href: '/admin/guards', icon: Shield },
+      { label: 'Gate Devices', href: '/admin/devices', icon: Smartphone },
+      { label: 'SOS Desk', href: '/admin/sos', icon: Siren },
       { label: 'Grievances', href: '/admin/grievances', icon: MessageSquare },
       { label: 'Analytics', href: '/admin/analytics', icon: BarChart3 },
       { label: 'Notices', href: '/admin/notices', icon: Megaphone },
       { label: 'Polls', href: '/admin/polls', icon: Vote },
-      { label: 'Domestic Staff', href: '/admin/staff', icon: UserCheck },
+      { label: 'Domestic Staff', href: '/admin/staff', icon: Users },
       { label: 'Directory', href: '/admin/directory', icon: BookUser },
       { label: 'Emergency', href: '/admin/emergency-contacts', icon: PhoneCall },
       { label: 'User Management', href: '/admin/users', icon: Users },
@@ -105,10 +135,13 @@ export function ShellLayout({ role: propRole, children, userRoleTitle }: ShellLa
     ],
     RESIDENT: [
       { label: t.nav.home, href: '/app', icon: Home },
+      { label: t.nav.visitors || 'Visitors', href: '/app/visitors', icon: UserCheck },
+      { label: t.nav.deliveries || 'Deliveries', href: '/app/deliveries', icon: Truck },
+      { label: t.nav.sos || 'Emergency SOS', href: '/app/sos', icon: Siren },
       { label: t.nav.grievances, href: '/app/grievances', icon: MessageSquare },
       { label: t.nav.notices || 'Notices', href: '/app/notices', icon: Megaphone },
       { label: t.nav.community || 'Community', href: '/app/community', icon: Vote },
-      { label: t.nav.staff || 'My Staff', href: '/app/staff', icon: UserCheck },
+      { label: t.nav.staff || 'My Staff', href: '/app/staff', icon: Users },
       { label: t.nav.directory || 'Directory', href: '/app/directory', icon: BookUser },
       { label: t.nav.emergency || 'Emergency', href: '/app/emergency', icon: PhoneCall },
       { label: t.nav.notifications, href: '/app/notifications', icon: Bell },
@@ -116,7 +149,16 @@ export function ShellLayout({ role: propRole, children, userRoleTitle }: ShellLa
       { label: t.nav.help, href: '/account-help', icon: HelpCircle },
     ],
     GUARD: [
-      { label: 'Gate Operations', href: '/guard', icon: Shield },
+      { label: 'Gate Dashboard', href: '/guard', icon: Shield },
+      { label: 'Check-In & Entry', href: '/guard/entry', icon: UserCheck },
+      { label: 'Inside Now', href: '/guard/inside', icon: Eye },
+      { label: 'Deliveries', href: '/guard/deliveries', icon: Truck },
+      { label: 'Staff Passes', href: '/guard/staff', icon: Users },
+      { label: 'SOS Desk', href: '/guard/sos', icon: Siren },
+      { label: 'Incidents', href: '/guard/incidents', icon: AlertOctagon },
+      { label: 'Patrol', href: '/guard/patrol', icon: ShieldCheck },
+      { label: 'Shift & Handover', href: '/guard/shift', icon: Clock },
+      { label: 'Lock Console', href: '/guard/lock', icon: Lock },
     ],
     VENDOR: [
       { label: 'Assigned Work', href: '/vendor', icon: Layers },
@@ -172,20 +214,36 @@ export function ShellLayout({ role: propRole, children, userRoleTitle }: ShellLa
               <span>{t.nav.societyName}</span>
             </Badge>
 
+            {/* Online Guards Indicator */}
+            <div
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-bold ${
+                onlineGuardsCount > 0
+                  ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
+                  : 'bg-red-50 dark:bg-red-950/60 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800 animate-pulse'
+              }`}
+              title="Console heartbeats every 15s"
+            >
+              <span className={`w-2 h-2 rounded-full ${onlineGuardsCount > 0 ? 'bg-emerald-500 animate-pulse' : 'bg-red-500'}`} />
+              <span className="hidden sm:inline">
+                {onlineGuardsCount > 0 ? `${onlineGuardsCount} Guard(s) Online` : 'Gate Offline'}
+              </span>
+            </div>
+
             <Badge variant="default" className="text-xs font-semibold px-2 py-0.5">
               {displayRoleTitle}
             </Badge>
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3">
-            {/* SOS hidden behind feature flag */}
-            {FEATURE_FLAGS.SOS && role === 'RESIDENT' && (
-              <button
-                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-red-600 text-white text-xs font-bold min-h-[44px]"
+            {/* Persistent SOS Emergency Button for Residents */}
+            {role === 'RESIDENT' && (
+              <a
+                href="/app/sos"
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-red-600 hover:bg-red-700 active:scale-95 text-white text-xs font-black min-h-[44px] shadow-lg shadow-red-500/20 transition-all border border-red-700"
               >
-                <AlertOctagon className="w-4 h-4" />
-                <span>SOS Alert</span>
-              </button>
+                <Siren className="w-4 h-4 animate-bounce" />
+                <span>SOS</span>
+              </a>
             )}
 
             <NotificationBell />
@@ -260,7 +318,9 @@ export function ShellLayout({ role: propRole, children, userRoleTitle }: ShellLa
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-6">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-6 space-y-4">
+        {role === 'RESIDENT' && <WalkinApprovalPrompt />}
+        {role === 'RESIDENT' && onlineGuardsCount === 0 && <SafetyHonestyBanner className="mb-4" />}
         {children}
       </main>
 
