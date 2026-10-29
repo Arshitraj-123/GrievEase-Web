@@ -35,6 +35,13 @@ export default function ResidentDashboardPage() {
   const [notifications, setNotifications] = useState<ActivityItem[]>([]);
   const [unreadCount, setUnreadCount] = useState<number>(0);
   const [lastVisitTime, setLastVisitTime] = useState<string>('');
+  const [grievanceCounts, setGrievanceCounts] = useState({
+    open: 0,
+    inProgress: 0,
+    escalated: 0,
+    resolved: 0,
+    total: 0,
+  });
 
   useEffect(() => {
     // 1. Fetch user profile
@@ -50,7 +57,23 @@ export default function ResidentDashboardPage() {
       })
       .catch(() => {});
 
-    // 3. Track last visit time
+    // 3. Fetch user grievances for status chips
+    api.listMyGrievances()
+      .then((items: any[]) => {
+        if (Array.isArray(items)) {
+          const counts = {
+            open: items.filter((g) => ['SUBMITTED', 'ACKNOWLEDGED'].includes(g.status)).length,
+            inProgress: items.filter((g) => ['IN_PROGRESS', 'PENDING_INFO'].includes(g.status)).length,
+            escalated: items.filter((g) => g.status === 'ESCALATED').length,
+            resolved: items.filter((g) => ['RESOLVED', 'CLOSED'].includes(g.status)).length,
+            total: items.length,
+          };
+          setGrievanceCounts(counts);
+        }
+      })
+      .catch(() => {});
+
+    // 4. Track last visit time
     const storedLastVisit = localStorage.getItem('grievease_last_visit');
     const nowStr = new Date().toISOString();
     if (storedLastVisit) {
@@ -116,6 +139,92 @@ export default function ResidentDashboardPage() {
                 <span>{unreadCount} {t.nav.notifications}</span>
               </Link>
             </div>
+          </div>
+        </div>
+
+        {/* Primary Action & Status Chips (Mobile-First 360px+) */}
+        <div className="space-y-4">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+            <Link
+              href="/app/grievances/new"
+              className="min-h-[52px] px-6 py-3.5 rounded-2xl bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-500 hover:to-emerald-500 active:scale-[0.98] text-white font-bold text-sm sm:text-base inline-flex items-center justify-center gap-3 shadow-lg shadow-teal-900/20 transition-all border border-teal-400/30 group"
+            >
+              <div className="p-1.5 rounded-lg bg-white/20 group-hover:scale-110 transition-transform">
+                <MessageSquare className="w-5 h-5 text-white" />
+              </div>
+              <span>{t.grievances.raiseButton}</span>
+              <ArrowRight className="w-5 h-5 text-white/80 group-hover:translate-x-1 transition-transform" />
+            </Link>
+
+            <Link
+              href="/app/grievances"
+              className="min-h-[44px] px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-semibold inline-flex items-center justify-center gap-2 transition-all"
+            >
+              <span>{t.grievances.myGrievances} ({grievanceCounts.total})</span>
+            </Link>
+          </div>
+
+          {/* 4 Status Chips: Open, In Progress, Escalated, Resolved */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3">
+            <Link
+              href="/app/grievances?status=OPEN"
+              className="p-3 rounded-2xl bg-sky-50/70 hover:bg-sky-100/70 dark:bg-sky-950/40 dark:hover:bg-sky-900/40 border border-sky-200/80 dark:border-sky-800/60 transition-all group min-h-[44px] flex flex-col justify-between"
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-bold text-sky-800 dark:text-sky-300 uppercase tracking-wider">
+                  {t.grievances.open}
+                </span>
+                <span className="w-2 h-2 rounded-full bg-sky-500"></span>
+              </div>
+              <div className="text-xl sm:text-2xl font-extrabold text-sky-950 dark:text-sky-100 mt-1">
+                {grievanceCounts.open}
+              </div>
+            </Link>
+
+            <Link
+              href="/app/grievances?status=IN_PROGRESS"
+              className="p-3 rounded-2xl bg-amber-50/70 hover:bg-amber-100/70 dark:bg-amber-950/40 dark:hover:bg-amber-900/40 border border-amber-200/80 dark:border-amber-800/60 transition-all group min-h-[44px] flex flex-col justify-between"
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-bold text-amber-800 dark:text-amber-300 uppercase tracking-wider">
+                  {t.grievances.inProgress}
+                </span>
+                <span className="w-2 h-2 rounded-full bg-amber-500"></span>
+              </div>
+              <div className="text-xl sm:text-2xl font-extrabold text-amber-950 dark:text-amber-100 mt-1">
+                {grievanceCounts.inProgress}
+              </div>
+            </Link>
+
+            <Link
+              href="/app/grievances?status=ESCALATED"
+              className="p-3 rounded-2xl bg-rose-50/70 hover:bg-rose-100/70 dark:bg-rose-950/40 dark:hover:bg-rose-900/40 border border-rose-200/80 dark:border-rose-800/60 transition-all group min-h-[44px] flex flex-col justify-between"
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-bold text-rose-800 dark:text-rose-300 uppercase tracking-wider">
+                  {t.grievances.escalated}
+                </span>
+                <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>
+              </div>
+              <div className="text-xl sm:text-2xl font-extrabold text-rose-950 dark:text-rose-100 mt-1">
+                {grievanceCounts.escalated}
+              </div>
+            </Link>
+
+            <Link
+              href="/app/grievances?status=RESOLVED"
+              className="p-3 rounded-2xl bg-emerald-50/70 hover:bg-emerald-100/70 dark:bg-emerald-950/40 dark:hover:bg-emerald-900/40 border border-emerald-200/80 dark:border-emerald-800/60 transition-all group min-h-[44px] flex flex-col justify-between"
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-bold text-emerald-800 dark:text-emerald-300 uppercase tracking-wider">
+                  {t.grievances.resolved}
+                </span>
+                <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+              </div>
+              <div className="text-xl sm:text-2xl font-extrabold text-emerald-950 dark:text-emerald-100 mt-1">
+                {grievanceCounts.resolved}
+              </div>
+            </Link>
           </div>
         </div>
 

@@ -1,155 +1,341 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { ShellLayout } from '@/components/ShellLayout';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, Badge } from '@grievease/ui';
 import {
   Users,
-  Building,
-  Home,
-  ShieldCheck,
+  ShieldAlert,
   Clock,
   Layers,
   FileText,
   AlertTriangle,
   Flame,
   CheckCircle2,
+  Inbox,
+  ArrowRight,
+  ShieldCheck,
+  Calendar,
+  Settings,
+  GitCommit,
+  UserCheck,
 } from 'lucide-react';
 import { api } from '@/lib/api-client';
 
 export default function AdminDashboardPage() {
   const [society, setSociety] = useState<any>(null);
+  const [profile, setProfile] = useState<any>(null);
+  const [kpis, setKpis] = useState<{
+    assignedToMe: number;
+    overdue: number;
+    nearBreach: number;
+    resolvedToday: number;
+  }>({
+    assignedToMe: 0,
+    overdue: 0,
+    nearBreach: 0,
+    resolvedToday: 0,
+  });
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    api.getCurrentSociety().then(setSociety).catch(() => {});
+    Promise.all([
+      api.getCurrentSociety().catch(() => null),
+      api.getProfile().catch(() => null),
+      api.getAdminKPIs().catch(() => null),
+    ]).then(([socData, profData, kpiData]) => {
+      if (socData) setSociety(socData);
+      if (profData) setProfile(profData);
+      if (kpiData) {
+        setKpis({
+          assignedToMe: Number(kpiData.assignedToMe || 0),
+          overdue: Number(kpiData.overdue || 0),
+          nearBreach: Number(kpiData.nearBreach || 0),
+          resolvedToday: Number(kpiData.resolvedToday || 0),
+        });
+      }
+      setLoading(false);
+    });
   }, []);
 
-  const phase3Modules = [
-    {
-      title: 'Grievance SLA Escalation',
-      description: 'L1 Secretary (48h) -> L2 Committee (72h) -> L3 Chairman (96h) -> L4 Governing Body automatic SLA breaching.',
-      icon: <Flame className="w-6 h-6 text-orange-500" />,
-      status: 'Coming in Phase 3',
-    },
-    {
-      title: 'Visitor & Delivery Passcodes',
-      description: 'Gate OTP verification, domestic staff entry logs, delivery notifications and intercom rings.',
-      icon: <Users className="w-6 h-6 text-blue-500" />,
-      status: 'Coming in Phase 3',
-    },
-    {
-      title: 'Maintenance Billing & Cash Ledger',
-      description: 'Manual cash payment recording, PDF receipts generation, arrears tracking and expense statements.',
-      icon: <FileText className="w-6 h-6 text-green-500" />,
-      status: 'Coming in Phase 3',
-    },
-    {
-      title: 'Vendor Dispatch & Work Orders',
-      description: 'Work order delegation to electricians, plumbers, lift engineers with completion sign-offs.',
-      icon: <Layers className="w-6 h-6 text-purple-500" />,
-      status: 'Coming in Phase 3',
-    },
-    {
-      title: 'Guard Patrols & QR Checkpoints',
-      description: 'Security guard GPS/QR checkpoint scanning, shift rosters and incident reports.',
-      icon: <ShieldCheck className="w-6 h-6 text-teal-500" />,
-      status: 'Coming in Phase 3',
-    },
-    {
-      title: 'Amenity Booking System',
-      description: 'Clubhouse, tennis court, and banquet hall reservations with deposit records.',
-      icon: <Home className="w-6 h-6 text-amber-500" />,
-      status: 'Coming in Phase 3',
-    },
-  ];
-
   return (
-    <ShellLayout role="ADMIN" userRoleTitle="Super Administrator">
-      <div className="space-y-8">
-        <div>
-          <h1 className="text-2xl font-black text-slate-900 dark:text-white">Society Governance Console</h1>
-          <p className="text-xs text-slate-500 mt-1">
-            Phase 2: Identity, user provisioning, role-based access, and cryptographic audit security.
-          </p>
-        </div>
-
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card className="p-4 flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl bg-teal-100 dark:bg-teal-900/50 text-teal-600 flex items-center justify-center shrink-0">
-              <Users className="w-6 h-6" />
+    <ShellLayout role="ADMIN" userRoleTitle={profile?.role?.replace('_', ' ') || 'Administrator'}>
+      <div className="space-y-6 max-w-5xl mx-auto pb-16">
+        {/* Header */}
+        <div className="p-6 sm:p-7 rounded-3xl bg-slate-900 text-white shadow-xl border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2 flex-wrap">
+              <Badge variant="default" className="bg-teal-500/20 text-teal-300 border border-teal-400/30 text-xs">
+                {society?.name || 'Green Valley Residency'}
+              </Badge>
+              <Badge className="bg-slate-800 text-slate-300 border-slate-700 text-xs">
+                Role: {profile?.role || 'ADMIN'}
+              </Badge>
             </div>
-            <div>
-              <div className="text-2xl font-bold text-slate-900 dark:text-white">
-                {society?.active_members || '7'}
-              </div>
-              <div className="text-xs text-slate-500">Active Members</div>
-            </div>
-          </Card>
-
-          <Card className="p-4 flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-900/50 text-blue-600 flex items-center justify-center shrink-0">
-              <Building className="w-6 h-6" />
-            </div>
-            <div>
-              <div className="text-2xl font-bold text-slate-900 dark:text-white">
-                {society?.total_wings || '2'}
-              </div>
-              <div className="text-xs text-slate-500">Residential Wings (A & B)</div>
-            </div>
-          </Card>
-
-          <Card className="p-4 flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl bg-purple-100 dark:bg-purple-900/50 text-purple-600 flex items-center justify-center shrink-0">
-              <Home className="w-6 h-6" />
-            </div>
-            <div>
-              <div className="text-2xl font-bold text-slate-900 dark:text-white">
-                {society?.total_flats || '20'}
-              </div>
-              <div className="text-xs text-slate-500">Total Registered Flats</div>
-            </div>
-          </Card>
-
-          <Card className="p-4 flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl bg-green-100 dark:bg-green-900/50 text-green-600 flex items-center justify-center shrink-0">
-              <ShieldCheck className="w-6 h-6" />
-            </div>
-            <div>
-              <div className="text-2xl font-bold text-green-600">Active</div>
-              <div className="text-xs text-slate-500">Hash-Chained Audit Trail</div>
-            </div>
-          </Card>
-        </div>
-
-        {/* Phase 3 Module Shells */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-bold text-slate-900 dark:text-white">Upcoming Operational Modules</h2>
-            <Badge variant="outline" className="text-xs font-semibold">
-              Planned for Phase 3
-            </Badge>
+            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
+              Society Operations & Grievance Console
+            </h1>
+            <p className="text-xs sm:text-sm text-slate-300 max-w-xl">
+              Live SLA tracking, 4-tier automated escalation, audit inspection, and governance settings.
+            </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {phase3Modules.map((mod, idx) => (
-              <Card key={idx} className="border border-slate-200 dark:border-slate-800 opacity-90 hover:opacity-100 transition-opacity">
-                <CardHeader className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <div className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800">
-                      {mod.icon}
-                    </div>
-                    <Badge variant="warning" className="text-[10px]">
-                      {mod.status}
-                    </Badge>
-                  </div>
-                  <CardTitle className="text-base">{mod.title}</CardTitle>
-                  <CardDescription className="text-xs leading-relaxed">
-                    {mod.description}
-                  </CardDescription>
-                </CardHeader>
-              </Card>
-            ))}
+          <Link
+            href="/admin/inbox"
+            className="min-h-[48px] px-5 py-2.5 rounded-2xl bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs sm:text-sm inline-flex items-center justify-center gap-2 shadow-lg shadow-teal-900/30 transition-all shrink-0"
+          >
+            <Inbox className="w-4 h-4" />
+            <span>Open Resolver Inbox</span>
+          </Link>
+        </div>
+
+        {/* 1. Role-Aware KPI Cards */}
+        <div>
+          <h2 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">
+            Real-Time Resolution Metrics
+          </h2>
+
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {/* Assigned To Me */}
+            <Link
+              href="/admin/inbox?assignedToMe=true"
+              className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:border-teal-500 transition-all group"
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                  Assigned To Me
+                </span>
+                <UserCheck className="w-4 h-4 text-teal-600 group-hover:scale-110 transition-transform" />
+              </div>
+              <div className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white mt-2">
+                {loading ? '...' : kpis.assignedToMe}
+              </div>
+              <span className="text-[10px] text-slate-400 mt-0.5 block">Requires action</span>
+            </Link>
+
+            {/* Overdue */}
+            <Link
+              href="/admin/inbox?status=ESCALATED"
+              className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:border-rose-500 transition-all group"
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-bold text-rose-600 uppercase tracking-wider">
+                  Overdue
+                </span>
+                <ShieldAlert className="w-4 h-4 text-rose-600 group-hover:scale-110 transition-transform" />
+              </div>
+              <div className="text-2xl sm:text-3xl font-black text-rose-600 mt-2">
+                {loading ? '...' : kpis.overdue}
+              </div>
+              <span className="text-[10px] text-rose-500 mt-0.5 block">SLA Breached</span>
+            </Link>
+
+            {/* Near Breach */}
+            <Link
+              href="/admin/inbox?urgent=true"
+              className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:border-amber-500 transition-all group"
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-bold text-amber-600 uppercase tracking-wider">
+                  Near Breach
+                </span>
+                <Clock className="w-4 h-4 text-amber-600 group-hover:scale-110 transition-transform" />
+              </div>
+              <div className="text-2xl sm:text-3xl font-black text-amber-600 mt-2">
+                {loading ? '...' : kpis.nearBreach}
+              </div>
+              <span className="text-[10px] text-amber-500 mt-0.5 block">&lt; 12 hours remaining</span>
+            </Link>
+
+            {/* Resolved Today */}
+            <Link
+              href="/admin/inbox?status=RESOLVED"
+              className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:border-emerald-500 transition-all group"
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-bold text-emerald-600 uppercase tracking-wider">
+                  Resolved Today
+                </span>
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 group-hover:scale-110 transition-transform" />
+              </div>
+              <div className="text-2xl sm:text-3xl font-black text-emerald-600 mt-2">
+                {loading ? '...' : kpis.resolvedToday}
+              </div>
+              <span className="text-[10px] text-emerald-500 mt-0.5 block">Closed & signed-off</span>
+            </Link>
+          </div>
+        </div>
+
+        {/* 2. Operations & Triage Quick Launch Grid */}
+        <div>
+          <h2 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">
+            Workflow & Monitoring Tools
+          </h2>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <Link
+              href="/admin/inbox"
+              className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-teal-500 transition-all group"
+            >
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 rounded-xl bg-teal-50 dark:bg-teal-950/60 text-teal-600">
+                  <Inbox className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-slate-900 dark:text-white group-hover:text-teal-600">
+                    Resolver Inbox
+                  </h3>
+                  <p className="text-[11px] text-slate-500 mt-0.5">
+                    Filter by status, level, SLA deadlines
+                  </p>
+                </div>
+              </div>
+            </Link>
+
+            <Link
+              href="/admin/escalation"
+              className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-teal-500 transition-all group"
+            >
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 rounded-xl bg-rose-50 dark:bg-rose-950/60 text-rose-600">
+                  <Flame className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-slate-900 dark:text-white group-hover:text-rose-600">
+                    Escalation Monitor
+                  </h3>
+                  <p className="text-[11px] text-slate-500 mt-0.5">
+                    BullMQ queues, hourly sweep, breach stats
+                  </p>
+                </div>
+              </div>
+            </Link>
+
+            <Link
+              href="/admin/audit"
+              className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-teal-500 transition-all group"
+            >
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 rounded-xl bg-purple-50 dark:bg-purple-950/60 text-purple-600">
+                  <GitCommit className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-slate-900 dark:text-white group-hover:text-purple-600">
+                    Audit Trail & Hash Verifier
+                  </h3>
+                  <p className="text-[11px] text-slate-500 mt-0.5">
+                    SHA-256 chain verification & CSV exports
+                  </p>
+                </div>
+              </div>
+            </Link>
+
+            <Link
+              href="/admin/escalated"
+              className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-teal-500 transition-all group"
+            >
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 rounded-xl bg-amber-50 dark:bg-amber-950/60 text-amber-600">
+                  <Layers className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-slate-900 dark:text-white group-hover:text-amber-600">
+                    Executive Review (L3/L4)
+                  </h3>
+                  <p className="text-[11px] text-slate-500 mt-0.5">
+                    Chairman & Governing Body rulings
+                  </p>
+                </div>
+              </div>
+            </Link>
+
+            <Link
+              href="/admin/flagged"
+              className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-teal-500 transition-all group"
+            >
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                  <AlertTriangle className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-slate-900 dark:text-white group-hover:text-teal-600">
+                    Flagged Complaints
+                  </h3>
+                  <p className="text-[11px] text-slate-500 mt-0.5">
+                    Frivolous, abusive, or overdue complaints
+                  </p>
+                </div>
+              </div>
+            </Link>
+
+            <Link
+              href="/admin/leave"
+              className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-teal-500 transition-all group"
+            >
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 rounded-xl bg-sky-50 dark:bg-sky-950/60 text-sky-600">
+                  <Calendar className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-slate-900 dark:text-white group-hover:text-sky-600">
+                    Resolver Leave
+                  </h3>
+                  <p className="text-[11px] text-slate-500 mt-0.5">
+                    Leave recording & auto-reassignment
+                  </p>
+                </div>
+              </div>
+            </Link>
+          </div>
+        </div>
+
+        {/* 3. Governance & System Settings Section */}
+        <div>
+          <h2 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">
+            Governance Configuration
+          </h2>
+
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <Link
+              href="/admin/settings/governance"
+              className="p-3.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-teal-500 transition-all text-center group"
+            >
+              <div className="text-xs font-bold text-slate-900 dark:text-white group-hover:text-teal-600">
+                4-Level Chain
+              </div>
+              <span className="text-[10px] text-slate-400">Assignments & Vacancy</span>
+            </Link>
+
+            <Link
+              href="/admin/settings/sla"
+              className="p-3.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-teal-500 transition-all text-center group"
+            >
+              <div className="text-xs font-bold text-slate-900 dark:text-white group-hover:text-teal-600">
+                SLA Config
+              </div>
+              <span className="text-[10px] text-slate-400">Category & Level Matrix</span>
+            </Link>
+
+            <Link
+              href="/admin/settings/categories"
+              className="p-3.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-teal-500 transition-all text-center group"
+            >
+              <div className="text-xs font-bold text-slate-900 dark:text-white group-hover:text-teal-600">
+                Categories
+              </div>
+              <span className="text-[10px] text-slate-400">EN/HI/MR Names</span>
+            </Link>
+
+            <Link
+              href="/admin/settings/society"
+              className="p-3.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-teal-500 transition-all text-center group"
+            >
+              <div className="text-xs font-bold text-slate-900 dark:text-white group-hover:text-teal-600">
+                Society Settings
+              </div>
+              <span className="text-[10px] text-slate-400">Rate limits & Auto-close</span>
+            </Link>
           </div>
         </div>
       </div>

@@ -137,11 +137,115 @@ export const api = {
 
   // 5. Audit & Verification
   getAuditLogs: (page: number = 1, limit: number = 20) => request(`/audit?page=${page}&limit=${limit}`),
+  getFilteredAuditLogs: (query: { page?: number; limit?: number; actorId?: string; action?: string; entityType?: string; fromDate?: string; toDate?: string }) => {
+    const params = new URLSearchParams();
+    if (query.page) params.set('page', query.page.toString());
+    if (query.limit) params.set('limit', query.limit.toString());
+    if (query.actorId) params.set('actorId', query.actorId);
+    if (query.action) params.set('action', query.action);
+    if (query.entityType) params.set('entityType', query.entityType);
+    if (query.fromDate) params.set('fromDate', query.fromDate);
+    if (query.toDate) params.set('toDate', query.toDate);
+    return request(`/audit?${params.toString()}`);
+  },
   verifyAuditChain: () => request('/audit/verify'),
   getLatestAuditHash: () => request('/audit/latest-hash'),
+  exportAuditCsvUrl: (fromDate?: string, toDate?: string) => {
+    const params = new URLSearchParams();
+    if (fromDate) params.set('fromDate', fromDate);
+    if (toDate) params.set('toDate', toDate);
+    return `${API_URL}/audit/export?${params.toString()}`;
+  },
 
   // 6. In-App Notifications
   getNotifications: () => request<{ items: any[]; unreadCount: number }>('/notifications'),
   markNotificationRead: (id: string) => request(`/notifications/${id}/read`, { method: 'PATCH' }),
   markAllNotificationsRead: () => request('/notifications/read-all', { method: 'POST' }),
+
+  // 7. Grievances (Resident)
+  submitGrievance: (body: any) => request('/grievances', { method: 'POST', body: JSON.stringify(body) }),
+  listMyGrievances: (statusFilter?: string) =>
+    request(`/grievances${statusFilter ? `?status=${encodeURIComponent(statusFilter)}` : ''}`),
+  getGrievance: (id: string) => request(`/grievances/${id}`),
+  addGrievanceNote: (id: string, body: { note: string }) =>
+    request(`/grievances/${id}/notes`, { method: 'POST', body: JSON.stringify(body) }),
+  remindResolver: (id: string) => request(`/grievances/${id}/remind`, { method: 'POST' }),
+  markGrievanceResolved: (id: string) => request(`/grievances/${id}/mark-resolved`, { method: 'POST' }),
+  appealGrievance: (id: string, body: { reason: string }) =>
+    request(`/grievances/${id}/appeal`, { method: 'POST', body: JSON.stringify(body) }),
+  reopenGrievance: (id: string) => request(`/grievances/${id}/reopen`, { method: 'POST' }),
+  rateGrievance: (id: string, body: { stars: number; comment?: string; tags?: string[] }) =>
+    request(`/grievances/${id}/rate`, { method: 'POST', body: JSON.stringify(body) }),
+  saveDraft: (payload: any) => request('/grievances/drafts', { method: 'PUT', body: JSON.stringify(payload) }),
+  getDraft: () => request('/grievances/drafts'),
+  cancelDraft: () => request('/grievances/drafts', { method: 'DELETE' }),
+  uploadEvidence: async (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return request('/evidence/upload', {
+      method: 'POST',
+      body: formData,
+    });
+  },
+  trackPublic: (publicId: string, code: string) =>
+    request(`/grievances/public/track?publicId=${encodeURIComponent(publicId)}&code=${encodeURIComponent(code)}`),
+
+  // 8. Grievances (Admin / Resolver)
+  getAdminKPIs: () => request('/admin/grievances/kpis'),
+  getAdminInbox: (query: { status?: string; level?: number; urgent?: boolean; assignedToMe?: boolean }) => {
+    const params = new URLSearchParams();
+    if (query.status) params.set('status', query.status);
+    if (query.level) params.set('level', query.level.toString());
+    if (query.urgent) params.set('urgent', 'true');
+    if (query.assignedToMe) params.set('assignedToMe', 'true');
+    return request(`/admin/grievances/inbox?${params.toString()}`);
+  },
+  getAdminGrievance: (id: string) => request(`/admin/grievances/${id}`),
+  acknowledgeGrievance: (id: string) => request(`/admin/grievances/${id}/acknowledge`, { method: 'POST' }),
+  updateGrievanceStatus: (id: string, body: { status: string; closureNote?: string }) =>
+    request(`/admin/grievances/${id}/status`, { method: 'POST', body: JSON.stringify(body) }),
+  addAdminInternalNote: (id: string, body: { note: string }) =>
+    request(`/admin/grievances/${id}/internal-note`, { method: 'POST', body: JSON.stringify(body) }),
+  requestGrievanceInfo: (id: string, body: { question: string }) =>
+    request(`/admin/grievances/${id}/request-info`, { method: 'POST', body: JSON.stringify(body) }),
+  manualEscalateGrievance: (id: string, body: { reason: string }) =>
+    request(`/admin/grievances/${id}/escalate`, { method: 'POST', body: JSON.stringify(body) }),
+  assignGrievance: (id: string, body: { assignedTo: string; reason?: string }) =>
+    request(`/admin/grievances/${id}/assign`, { method: 'POST', body: JSON.stringify(body) }),
+  flagGrievance: (id: string, body: { flagged: boolean; reason: string }) =>
+    request(`/admin/grievances/${id}/flag`, { method: 'POST', body: JSON.stringify(body) }),
+  createOnBehalf: (body: any) => request('/admin/grievances/on-behalf', { method: 'POST', body: JSON.stringify(body) }),
+  revealIdentity: (id: string, body: { reason: string }, stepUpToken: string) =>
+    request(`/admin/grievances/${id}/reveal-identity`, { method: 'POST', body: JSON.stringify(body) }, stepUpToken),
+
+  // 9. Governance & Settings
+  getCategories: () => request('/governance/categories'),
+  createCategory: (body: any) => request('/governance/categories', { method: 'POST', body: JSON.stringify(body) }),
+  updateCategory: (id: string, body: any) => request(`/governance/categories/${id}`, { method: 'PUT', body: JSON.stringify(body) }),
+  deleteCategory: (id: string) => request(`/governance/categories/${id}`, { method: 'DELETE' }),
+
+  getAreaTags: () => request('/governance/area-tags'),
+  createAreaTag: (body: any) => request('/governance/area-tags', { method: 'POST', body: JSON.stringify(body) }),
+
+  getGovernanceChain: () => request('/governance/chain'),
+  updateGovernanceAssignment: (body: any, stepUpToken: string) =>
+    request('/governance/chain', { method: 'POST', body: JSON.stringify(body) }, stepUpToken),
+
+  getSlaMatrix: () => request('/governance/sla'),
+  updateSlaConfig: (body: any, stepUpToken: string) =>
+    request('/governance/sla', { method: 'POST', body: JSON.stringify(body) }, stepUpToken),
+
+  getWorkingHours: () => request('/governance/working-hours'),
+  updateWorkingHours: (body: any) => request('/governance/working-hours', { method: 'PUT', body: JSON.stringify(body) }),
+
+  getSocietySettings: () => request('/governance/settings'),
+  updateSocietySetting: (key: string, value: string) =>
+    request(`/governance/settings/${encodeURIComponent(key)}`, { method: 'PUT', body: JSON.stringify({ value }) }),
+
+  listLeaves: () => request('/governance/leaves'),
+  createLeave: (body: any) => request('/governance/leaves', { method: 'POST', body: JSON.stringify(body) }),
+  cancelLeave: (id: string) => request(`/governance/leaves/${id}`, { method: 'DELETE' }),
+
+  // 10. Escalation Monitor
+  getEscalationMonitor: () => request('/escalation/monitor'),
 };
