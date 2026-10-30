@@ -429,4 +429,103 @@ export const api = {
   startSosDrill: (body: any) => request('/sos/drills/start', { method: 'POST', body: JSON.stringify(body) }),
   getSosSettings: () => request('/sos/settings'),
   updateSosSetting: (body: any) => request('/sos/settings', { method: 'PUT', body: JSON.stringify(body) }),
+
+  // 19. Phase 7 (A) Amenities
+  listAmenities: () => request('/amenities'),
+  getAmenities: () => request('/amenities'),
+  getAmenity: (id: string) => request(`/amenities/${id}`),
+  getAmenityAvailability: (id: string, from?: string, to?: string) => {
+    const q = new URLSearchParams();
+    if (from) q.set('from', from);
+    if (to) q.set('to', to);
+    return request(`/amenities/${id}/availability?${q.toString()}`);
+  },
+  createAmenityBooking: (body: any) => request('/amenities/bookings', { method: 'POST', body: JSON.stringify(body) }),
+  getMyAmenityBookings: () => request('/amenities/my-bookings'),
+  getAmenityBooking: (id: string) => request(`/amenities/bookings/${id}`),
+  cancelAmenityBooking: (id: string, reason: string) =>
+    request(`/amenities/bookings/${id}/cancel`, { method: 'POST', body: JSON.stringify({ reason }) }),
+
+  // Admin Amenities
+  createAdminAmenity: (body: any) => request('/admin/amenities', { method: 'POST', body: JSON.stringify(body) }),
+  updateAdminAmenity: (id: string, body: any) => request(`/admin/amenities/${id}`, { method: 'PUT', body: JSON.stringify(body) }),
+  addAmenityBlackout: (id: string, body: any) => request(`/admin/amenities/${id}/blackouts`, { method: 'POST', body: JSON.stringify(body) }),
+  getAdminAmenityBookings: (params: any = {}) => {
+    const q = new URLSearchParams();
+    for (const [k, v] of Object.entries(params)) {
+      if (v) q.set(k, String(v));
+    }
+    return request(`/admin/amenities/bookings?${q.toString()}`);
+  },
+  approveAmenityBooking: (id: string) => request(`/admin/amenities/bookings/${id}/approve`, { method: 'POST' }),
+  rejectAmenityBooking: (id: string, reason: string) =>
+    request(`/admin/amenities/bookings/${id}/reject`, { method: 'POST', body: JSON.stringify({ reason }) }),
+  markAmenityNoShow: (id: string) => request(`/admin/amenities/bookings/${id}/no-show`, { method: 'POST' }),
+  getAmenityReports: (from?: string, to?: string) => {
+    const q = new URLSearchParams();
+    if (from) q.set('from', from);
+    if (to) q.set('to', to);
+    return request(`/admin/amenities/reports?${q.toString()}`);
+  },
+  getAmenitySettings: () => request('/admin/amenities/settings'),
+  updateAmenitySettings: (body: any) => request('/admin/amenities/settings', { method: 'PUT', body: JSON.stringify(body) }),
+
+  // Guard Amenities
+  getGuardTodaysBookings: () => request('/guard/amenities/today'),
+  guardCheckInAmenity: (bookingId: string, passToken?: string) =>
+    request('/guard/amenities/check-in', { method: 'POST', body: JSON.stringify({ bookingId, passToken }) }),
+  guardMarkNoShow: (bookingId: string) =>
+    request('/guard/amenities/no-show', { method: 'POST', body: JSON.stringify({ bookingId }) }),
+
+  // 20. Phase 7 (B) Maintenance Billing
+  getMyBills: () => request('/billing/bills'),
+  getBillDetail: (id: string) => request(`/billing/bills/${id}`),
+  getMyPayments: () => request('/billing/payments'),
+  getPaymentReceipt: (id: string) => request(`/billing/payments/${id}`),
+  verifyReceipt: (q: string) => request(`/billing/receipts/verify?q=${encodeURIComponent(q)}`),
+  getMyStatement: () => request('/billing/statement'),
+  getMyDisputes: () => request('/billing/disputes'),
+  createDispute: (body: any) => request('/billing/disputes', { method: 'POST', body: JSON.stringify(body) }),
+  getHowToPay: () => request('/billing/how-to-pay'),
+
+  // Admin Billing
+  getBillingOverview: () => request('/admin/billing/overview'),
+  listBillHeads: () => request('/admin/billing/heads'),
+  createBillHead: (body: any) => request('/admin/billing/heads', { method: 'POST', body: JSON.stringify(body) }),
+  updateBillHead: (id: string, body: any) => request(`/admin/billing/heads/${id}`, { method: 'PUT', body: JSON.stringify(body) }),
+  listBillCycles: () => request('/admin/billing/cycles'),
+  previewBillCycle: (body: any) => request('/admin/billing/cycles/preview', { method: 'POST', body: JSON.stringify(body) }),
+  commitBillCycle: (id: string) => request(`/admin/billing/cycles/${id}/commit`, { method: 'POST' }),
+  recordCashPayment: (body: any) => request('/admin/billing/payments', { method: 'POST', body: JSON.stringify(body) }),
+  listAdminPayments: (params?: { flatId?: string; limit?: number }) => {
+    const q = new URLSearchParams();
+    if (params?.flatId) q.set('flatId', params.flatId);
+    if (params?.limit) q.set('limit', String(params.limit));
+    return request(`/admin/billing/payments?${q.toString()}`);
+  },
+  getCurrentCashSession: () => request('/admin/billing/sessions/current'),
+  openCashSession: () => request('/admin/billing/sessions/open', { method: 'POST' }),
+  closeCashSession: (body: any) => request('/admin/billing/sessions/close', { method: 'POST', body: JSON.stringify(body) }),
+  reconcileCashSession: (id: string) => request(`/admin/billing/sessions/${id}/reconcile`, { method: 'POST' }),
+  listAdjustments: (status?: string) => {
+    const q = status ? `?status=${encodeURIComponent(status)}` : '';
+    return request(`/admin/billing/adjustments${q}`);
+  },
+  createAdjustmentRequest: (body: any) => request('/admin/billing/adjustments', { method: 'POST', body: JSON.stringify(body) }),
+  decideAdjustment: (id: string, decision: 'APPROVED' | 'REJECTED', decisionNote?: string) =>
+    request(`/admin/billing/adjustments/${id}/decide`, { method: 'POST', body: JSON.stringify({ decision, decisionNote }) }),
+  listBillingDisputes: (status?: string) => {
+    const q = status ? `?status=${encodeURIComponent(status)}` : '';
+    return request(`/admin/billing/disputes${q}`);
+  },
+  resolveBillingDispute: (id: string, status: 'RESOLVED' | 'REJECTED', outcomeNote: string) =>
+    request(`/admin/billing/disputes/${id}/resolve`, { method: 'POST', body: JSON.stringify({ status, outcomeNote }) }),
+  getDefaultersReport: () => request('/admin/billing/defaulters'),
+  getFlatLedger: (flatId: string) => request(`/admin/billing/ledger/${flatId}`),
+  verifyFlatLedger: (flatId: string) => request(`/admin/billing/ledger/${flatId}/verify`, { method: 'POST' }),
+  previewOpeningBalances: (rows: any[]) => request('/admin/billing/opening-balances/preview', { method: 'POST', body: JSON.stringify({ rows }) }),
+  commitOpeningBalances: (body: { items: any[]; creatorId: string }) =>
+    request('/admin/billing/opening-balances/commit', { method: 'POST', body: JSON.stringify(body) }),
+  getBillingSettings: () => request('/admin/billing/settings'),
+  updateBillingSettings: (body: any) => request('/admin/billing/settings', { method: 'PUT', body: JSON.stringify(body) }),
 };

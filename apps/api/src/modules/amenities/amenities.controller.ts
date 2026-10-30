@@ -21,7 +21,7 @@ import {
   isAdminRole,
 } from '@grievease/contracts';
 
-@Controller('api/amenities')
+@Controller(['amenities', 'api/amenities'])
 @UseGuards(JwtGuard, RolesGuard)
 export class AmenitiesController {
   constructor(
@@ -110,7 +110,7 @@ export class AmenitiesController {
   }
 }
 
-@Controller('api/admin/amenities')
+@Controller(['admin/amenities', 'api/admin/amenities'])
 @UseGuards(JwtGuard, RolesGuard)
 @Roles('SUPER_ADMIN', 'SECRETARY', 'COMMITTEE', 'CHAIRMAN')
 export class AdminAmenitiesController {
@@ -187,7 +187,7 @@ export class AdminAmenitiesController {
   }
 }
 
-@Controller('api/guard/amenities')
+@Controller(['guard/amenities', 'api/guard/amenities'])
 @UseGuards(JwtGuard, RolesGuard)
 @Roles('GUARD', 'SUPER_ADMIN', 'SECRETARY', 'COMMITTEE', 'CHAIRMAN')
 export class GuardAmenitiesController {

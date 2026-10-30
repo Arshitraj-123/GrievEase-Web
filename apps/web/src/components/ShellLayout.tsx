@@ -33,6 +33,11 @@ import {
   Eye,
   Lock,
   Clock,
+  Calendar,
+  CalendarCheck,
+  CreditCard,
+  Receipt,
+  Landmark,
 } from 'lucide-react';
 import { api } from '@/lib/api-client';
 import { useAccessibility } from './AccessibilityProvider';
@@ -51,14 +56,15 @@ const FEATURE_FLAGS = {
   VISITORS: true,
   DELIVERIES: true,
   GUARDS: true,
-  BILLING: false,
-  AMENITIES: false,
+  BILLING: true,
+  AMENITIES: true,
 };
 
 export interface ShellLayoutProps {
   role?: 'ADMIN' | 'RESIDENT' | 'GUARD' | 'VENDOR';
   children: React.ReactNode;
   userRoleTitle?: string;
+  activeNav?: string;
 }
 
 export function ShellLayout({ role: propRole, children, userRoleTitle }: ShellLayoutProps) {
@@ -119,6 +125,9 @@ export function ShellLayout({ role: propRole, children, userRoleTitle }: ShellLa
   const navItems = {
     ADMIN: [
       { label: 'Overview', href: '/admin', icon: Home },
+      { label: 'Billing Desk', href: '/admin/billing', icon: Receipt },
+      { label: 'Amenities', href: '/admin/amenities', icon: Calendar },
+      { label: 'Amenity Bookings', href: '/admin/bookings', icon: CalendarCheck },
       { label: 'Visitors', href: '/admin/visitors', icon: UserCheck },
       { label: 'Guards', href: '/admin/guards', icon: Shield },
       { label: 'Gate Devices', href: '/admin/devices', icon: Smartphone },
@@ -135,6 +144,11 @@ export function ShellLayout({ role: propRole, children, userRoleTitle }: ShellLa
     ],
     RESIDENT: [
       { label: t.nav.home, href: '/app', icon: Home },
+      { label: t.nav.amenities || 'Amenities', href: '/app/amenities', icon: Calendar },
+      { label: t.nav.bookings || 'Bookings', href: '/app/bookings', icon: CalendarCheck },
+      { label: t.nav.bills || 'Bills', href: '/app/bills', icon: Receipt },
+      { label: t.nav.payments || 'Payments', href: '/app/payments', icon: CreditCard },
+      { label: t.nav.statement || 'Statement', href: '/app/statement', icon: FileText },
       { label: t.nav.visitors || 'Visitors', href: '/app/visitors', icon: UserCheck },
       { label: t.nav.deliveries || 'Deliveries', href: '/app/deliveries', icon: Truck },
       { label: t.nav.sos || 'Emergency SOS', href: '/app/sos', icon: Siren },
@@ -151,6 +165,7 @@ export function ShellLayout({ role: propRole, children, userRoleTitle }: ShellLa
     GUARD: [
       { label: 'Gate Dashboard', href: '/guard', icon: Shield },
       { label: 'Check-In & Entry', href: '/guard/entry', icon: UserCheck },
+      { label: 'Amenities Check-In', href: '/guard/amenities', icon: CalendarCheck },
       { label: 'Inside Now', href: '/guard/inside', icon: Eye },
       { label: 'Deliveries', href: '/guard/deliveries', icon: Truck },
       { label: 'Staff Passes', href: '/guard/staff', icon: Users },

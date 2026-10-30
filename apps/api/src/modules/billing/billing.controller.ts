@@ -24,7 +24,7 @@ import {
 } from '@grievease/contracts';
 import { pool } from '../../database/db';
 
-@Controller('api/billing')
+@Controller(['billing', 'api/billing'])
 @UseGuards(JwtGuard, RolesGuard)
 export class BillingController {
   constructor(private readonly billingService: BillingService) {}
@@ -179,7 +179,7 @@ export class BillingController {
   }
 }
 
-@Controller('api/admin/billing')
+@Controller(['admin/billing', 'api/admin/billing'])
 @UseGuards(JwtGuard, RolesGuard)
 @Roles('SUPER_ADMIN', 'SECRETARY', 'COMMITTEE', 'CHAIRMAN', 'GOVERNING_BODY')
 export class AdminBillingController {
@@ -241,6 +241,18 @@ export class AdminBillingController {
   ) {
     const validated = RecordPaymentSchema.parse(body);
     return this.billingService.recordPayment(user.societyId, user.userId, validated, req.ip);
+  }
+
+  @Get('payments')
+  async listPayments(
+    @CurrentUser() user: any,
+    @Query('flatId') flatId?: string,
+    @Query('limit') limit?: number,
+  ) {
+    return this.billingService.listPayments(user.societyId, {
+      flatId,
+      limit: limit ? Number(limit) : undefined,
+    });
   }
 
   @Get('receipts/verify')

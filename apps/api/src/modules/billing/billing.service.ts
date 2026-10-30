@@ -1080,6 +1080,37 @@ export class BillingService implements OnModuleInit, OnModuleDestroy {
     }
   }
 
+  async listPayments(societyId: string, filter: { flatId?: string; limit?: number } = {}) {
+    const client = await pool.connect();
+    try {
+      await client.query("SELECT set_config('app.is_super_admin', 'true', true)");
+      let query = `
+        SELECT p.*, f.flat_number, w.name AS wing_name, u.full_name AS collector_name
+        FROM payment p
+        JOIN flat f ON p.flat_id = f.id
+        JOIN wing w ON f.wing_id = w.id
+        JOIN app_user u ON p.received_by = u.id
+        WHERE p.society_id = $1
+      `;
+      const params: any[] = [societyId];
+      if (filter.flatId) {
+        params.push(filter.flatId);
+        query += ` AND p.flat_id = $${params.length}`;
+      }
+      query += ` ORDER BY p.received_on DESC, p.created_at DESC`;
+      if (filter.limit) {
+        params.push(filter.limit);
+        query += ` LIMIT $${params.length}`;
+      } else {
+        query += ` LIMIT 100`;
+      }
+      const res = await client.query(query, params);
+      return res.rows;
+    } finally {
+      client.release();
+    }
+  }
+
   // ─── Daily Cash Sessions & Day Close ─────────────────────────────────────────
 
   async getSessionStatus(societyId: string, collectorId: string) {
