@@ -5,27 +5,33 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Building2, Menu, X, Globe, ChevronDown } from 'lucide-react';
 import { siteConfig } from '@/config/site';
+import { useAccessibility } from '@/components/AccessibilityProvider';
+import { Locale } from '@/lib/i18n';
 
 const LANGUAGES = [
   { code: 'EN', name: 'English' },
   { code: 'HI', name: 'हिंदी' },
-  { code: 'MR', name: 'मराठी' },
 ];
+
+const NAV_LABELS_HI: Record<string, string> = {
+  '/': 'होम',
+  '/features': 'सुविधाएं',
+  '/how-it-works': 'कार्यप्रणाली',
+  '/transparency': 'पारदर्शिता',
+  '/download': 'डाउनलोड',
+  '/faq': 'एफएक्यू',
+  '/contact': 'संपर्क',
+};
 
 export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [currentLang, setCurrentLang] = useState('EN');
+  const { locale, setLocale } = useAccessibility();
+  const currentLang = locale ? locale.toUpperCase() : 'EN';
   const [langDropdownOpen, setLangDropdownOpen] = useState(false);
   const pathname = usePathname();
 
   useEffect(() => {
-    // Read saved locale cookie on mount
-    const match = document.cookie.match(/(?:^|; )grievease_locale=([^;]*)/);
-    if (match && match[1]) {
-      setCurrentLang(match[1]);
-    }
-
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
     };
@@ -35,17 +41,18 @@ export function Navbar() {
   }, []);
 
   const changeLanguage = (code: string) => {
-    setCurrentLang(code);
-    document.cookie = `grievease_locale=${code}; path=/; max-age=31536000; SameSite=Lax`;
+    const loc = code.toLowerCase() as Locale;
+    setLocale(loc);
     setLangDropdownOpen(false);
   };
 
   const isNavActive = (href: string) => {
     if (!pathname) return false;
+    const stripped = pathname === '/hi' ? '/' : pathname.startsWith('/hi/') ? pathname.slice(3) : pathname;
     if (href === '/') {
-      return pathname === '/';
+      return stripped === '/';
     }
-    return pathname.startsWith(href);
+    return stripped.startsWith(href);
   };
 
   if (
@@ -75,7 +82,7 @@ export function Navbar() {
     >
       {/* Brand Logo */}
       <Link
-        href="/"
+        href={locale === 'hi' ? '/hi' : '/'}
         className="flex items-center gap-2.5 group focus:outline-none focus-visible:ring-2 focus-visible:ring-[#00B894] rounded-lg"
         aria-label="GrievEase Home"
       >
@@ -101,17 +108,19 @@ export function Navbar() {
       >
         {siteConfig.navItems.map((item) => {
           const active = isNavActive(item.href);
+          const localizedHref = locale === 'hi' ? (item.href === '/' ? '/hi' : `/hi${item.href}`) : item.href;
+          const displayLabel = locale === 'hi' ? (NAV_LABELS_HI[item.href] || item.label) : item.label;
           return (
             <Link
               key={item.href}
-              href={item.href}
+              href={localizedHref}
               className={`relative py-1 transition-colors hover:text-[#00B894] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#00B894] rounded ${
                 active
                   ? 'text-[#00B894] font-semibold after:content-[\'\'] after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-[#00B894] after:rounded-full'
                   : ''
               }`}
             >
-              {item.label}
+              {displayLabel}
             </Link>
           );
         })}
@@ -159,7 +168,7 @@ export function Navbar() {
           href="/login"
           className="px-5 py-2 rounded-full border-[1.5px] border-[#00B894] text-[#00B894] bg-transparent text-[14px] font-semibold hover:bg-[#00B894] hover:text-white transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#00B894]"
         >
-          Login
+          {locale === 'hi' ? 'लॉगिन' : 'Login'}
         </Link>
 
         {/* Get Started Button */}
@@ -167,7 +176,7 @@ export function Navbar() {
           href="/join"
           className="px-5 py-2 rounded-full bg-gradient-to-r from-[#00B894] to-[#00D4AA] text-white text-[14px] font-semibold shadow-[0_4px_15px_rgba(0,184,148,0.35)] hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(0,184,148,0.45)] transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#00B894]"
         >
-          Get Started
+          {locale === 'hi' ? 'शुरू करें' : 'Get Started'}
         </Link>
       </div>
 
@@ -207,16 +216,18 @@ export function Navbar() {
           <nav className="flex flex-col gap-3.5 text-[15px] font-medium text-[#4A5568]">
             {siteConfig.navItems.map((item) => {
               const active = isNavActive(item.href);
+              const localizedHref = locale === 'hi' ? (item.href === '/' ? '/hi' : `/hi${item.href}`) : item.href;
+              const displayLabel = locale === 'hi' ? (NAV_LABELS_HI[item.href] || item.label) : item.label;
               return (
                 <Link
                   key={item.href}
-                  href={item.href}
+                  href={localizedHref}
                   onClick={() => setMobileMenuOpen(false)}
                   className={`py-1.5 px-2 rounded-lg transition-colors ${
                     active ? 'text-[#00B894] font-bold bg-[#F0FAF7]' : 'hover:text-[#00B894] hover:bg-gray-50'
                   }`}
                 >
-                  {item.label}
+                  {displayLabel}
                 </Link>
               );
             })}
@@ -227,14 +238,14 @@ export function Navbar() {
                 onClick={() => setMobileMenuOpen(false)}
                 className="w-full text-center py-2.5 rounded-full border-[1.5px] border-[#00B894] text-[#00B894] font-semibold hover:bg-[#F0FAF7] transition-colors"
               >
-                Login
+                {locale === 'hi' ? 'लॉगिन' : 'Login'}
               </Link>
               <Link
                 href="/join"
                 onClick={() => setMobileMenuOpen(false)}
                 className="w-full text-center py-2.5 rounded-full bg-gradient-to-r from-[#00B894] to-[#00D4AA] text-white font-semibold shadow-[0_4px_15px_rgba(0,184,148,0.35)]"
               >
-                Get Started
+                {locale === 'hi' ? 'शुरू करें' : 'Get Started'}
               </Link>
             </div>
           </nav>

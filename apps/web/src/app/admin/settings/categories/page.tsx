@@ -12,7 +12,6 @@ export default function CategoriesSettingsPage() {
   const [loading, setLoading] = useState(true);
   const [nameEn, setNameEn] = useState('');
   const [nameHi, setNameHi] = useState('');
-  const [nameMr, setNameMr] = useState('');
   const [icon, setIcon] = useState('water-supply');
   const [requiresPhoto, setRequiresPhoto] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
@@ -36,21 +35,19 @@ export default function CategoriesSettingsPage() {
 
   const handleCreateCategory = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!nameEn.trim() || !nameHi.trim() || !nameMr.trim()) return;
+    if (!nameEn.trim() || !nameHi.trim()) return;
 
     setSaving(true);
     try {
       await api.createCategory({
         name_en: nameEn.trim(),
         name_hi: nameHi.trim(),
-        name_mr: nameMr.trim(),
         icon,
         requires_photo: requiresPhoto,
         sort: categories.length + 1,
       });
       setNameEn('');
       setNameHi('');
-      setNameMr('');
       setShowAddForm(false);
       fetchCategories();
     } catch (err: any) {
@@ -132,18 +129,6 @@ export default function CategoriesSettingsPage() {
                     className="w-full px-3 py-2 rounded-xl border text-xs"
                   />
                 </div>
-
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-700">Marathi Name *</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="उदा. बाग देखभाल"
-                    value={nameMr}
-                    onChange={(e) => setNameMr(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl border text-xs"
-                  />
-                </div>
               </div>
 
               <div className="flex items-center justify-between gap-4 pt-2">
@@ -187,7 +172,6 @@ export default function CategoriesSettingsPage() {
                 </div>
                 <div className="text-xs text-slate-500 flex items-center gap-3">
                   <span>HI: {c.name_hi}</span>
-                  <span>MR: {c.name_mr}</span>
                   <span>Icon: <code>{c.icon}</code></span>
                 </div>
               </div>

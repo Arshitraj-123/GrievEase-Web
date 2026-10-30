@@ -169,17 +169,17 @@ export default function FeaturesPage() {
     },
     {
       id: 'bills',
-      title: 'Maintenance Billing & UPI Payments',
-      subtitle: 'Instant tax-compliant receipts, zero paper accounting',
+      title: 'Maintenance Billing & Manual Cash Recording',
+      subtitle: 'Official cash vouchers and tamper-evident append-only ledger',
       icon: CreditCard,
       color: '#10B981',
       description:
-        'Pay society maintenance fees, water charges, and utility bills online via UPI/cards with instant tax-compliant digital receipts.',
+        'Track maintenance dues, record authorized in-office cash collections with dual maker-checker separation of duties, and generate digitally stamped receipts.',
       bullets: [
-        'UPI, NetBanking, Debit/Credit card payment gateway integration',
-        'Instant digital GST invoices and automated receipt downloads',
-        'Automated reminder notifications before payment deadlines',
-        'Exportable bank reconciliation for society chartered accountants',
+        'Manual cash collection recorded by authorized society officials (zero online payment gateway dependencies)',
+        'Tamper-evident running balance with SHA-256 cryptographic hash verification',
+        'In-app overdue reminder notifications before payment deadlines',
+        'Official accounting ledger exports for society chartered accountants (confirm GST applicability with CA)',
       ],
     },
     {
@@ -233,29 +233,29 @@ export default function FeaturesPage() {
   ];
 
   return (
-    <div className="py-16 px-6 lg:px-12 bg-white">
-      <div className="max-w-[1300px] mx-auto">
+    <div className="section-fluid bg-white">
+      <div className="container-fluid">
         {/* Header */}
-        <div className="text-center max-w-[760px] mx-auto mb-16">
-          <span className="text-[12px] font-bold tracking-[1.5px] uppercase text-[#00846A] mb-2.5 block">
+        <div className="text-center max-w-[840px] mx-auto mb-16">
+          <span className="text-[13px] font-bold tracking-[1.5px] uppercase text-[#00846A] mb-2.5 block">
             THE PLATFORM
           </span>
-          <h1 className="text-[36px] sm:text-[46px] font-extrabold text-[#1A1A2E] leading-tight mb-4">
+          <h1 className="fluid-h1 font-extrabold text-[#1A1A2E] leading-tight mb-4">
             Everything a Gated Community Needs
           </h1>
-          <p className="text-[16px] text-[#4A5568] leading-relaxed">
+          <p className="fluid-lead text-[#4A5568] leading-relaxed">
             From automated grievance escalations with guaranteed deadlines to seamless visitor gate
-            check-ins and financial transparency.
+            check-ins, cash maintenance ledgers, and live transparency dashboards.
           </p>
         </div>
 
         {/* Quick Nav Anchors */}
-        <div className="mb-14 p-4 bg-[#F8FAFC] rounded-2xl border border-[#E2E8F0] flex flex-wrap gap-2 justify-center">
+        <div className="mb-14 p-5 bg-[#F8FAFC] rounded-2xl border border-[#E2E8F0] flex flex-wrap gap-2.5 justify-center">
           {modules.map((m) => (
             <a
               key={m.id}
               href={`#${m.id}`}
-              className="px-3.5 py-1.5 rounded-full bg-white hover:bg-[#F0FAF7] text-xs font-semibold text-[#4A5568] hover:text-[#00846A] border border-[#E2E8F0] transition-colors"
+              className="px-4 py-2 rounded-full bg-white hover:bg-[#F0FAF7] text-xs sm:text-sm font-semibold text-[#4A5568] hover:text-[#00846A] border border-[#E2E8F0] transition-colors"
             >
               {m.title}
             </a>
@@ -274,33 +274,33 @@ export default function FeaturesPage() {
               >
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
                   <div className="lg:col-span-7">
-                    <div className="flex items-center gap-3 mb-4">
+                    <div className="flex items-center gap-3.5 mb-4">
                       <div
-                        className="w-12 h-12 rounded-xl flex items-center justify-center text-white shadow-xs"
+                        className="w-14 h-14 rounded-2xl flex items-center justify-center text-white shadow-xs"
                         style={{ backgroundColor: mod.color }}
                       >
-                        <Icon className="w-6 h-6" />
+                        <Icon className="w-7 h-7" />
                       </div>
                       <div>
-                        <span className="text-[11px] font-bold uppercase tracking-wider text-[#718096]">
+                        <span className="text-[12px] font-bold uppercase tracking-wider text-[#718096]">
                           Module #{idx + 1}
                         </span>
-                        <h2 className="text-[24px] sm:text-[28px] font-bold text-[#1A1A2E] leading-tight">
+                        <h2 className="fluid-card-title font-bold text-[#1A1A2E] leading-tight">
                           {mod.title}
                         </h2>
                       </div>
                     </div>
 
-                    <p className="text-sm font-semibold text-[#00846A] mb-3">{mod.subtitle}</p>
-                    <p className="text-[15px] text-[#4A5568] leading-relaxed mb-6">
+                    <p className="text-sm sm:text-base font-semibold text-[#00846A] mb-3">{mod.subtitle}</p>
+                    <p className="fluid-body text-[#4A5568] leading-relaxed mb-6">
                       {mod.description}
                     </p>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 mb-8">
                       {mod.bullets.map((b, i) => (
-                        <div key={i} className="flex items-start gap-2.5 text-xs text-[#1A1A2E]">
+                        <div key={i} className="flex items-start gap-2.5 text-xs sm:text-sm text-[#1A1A2E]">
                           <CheckCircle2
-                            className="w-4 h-4 shrink-0 mt-0.5"
+                            className="w-4.5 h-4.5 shrink-0 mt-0.5"
                             style={{ color: mod.color }}
                           />
                           <span>{b}</span>
@@ -308,17 +308,17 @@ export default function FeaturesPage() {
                       ))}
                     </div>
 
-                    <div className="flex items-center gap-4 pt-4 border-t border-gray-200">
+                    <div className="flex items-center gap-4 pt-5 border-t border-gray-200">
                       <Link
                         href="/join"
-                        className="px-5 py-2.5 rounded-full bg-[#00B894] hover:bg-[#00A383] text-white text-xs font-semibold shadow-xs transition-colors flex items-center gap-1.5"
+                        className="h-[52px] px-6 rounded-full bg-[#00B894] hover:bg-[#00A383] text-white text-sm font-semibold shadow-xs transition-colors flex items-center gap-2"
                       >
                         <span>Activate for your society</span>
-                        <ArrowRight className="w-3.5 h-3.5" />
+                        <ArrowRight className="w-4 h-4" />
                       </Link>
                       <Link
                         href="/contact?type=demo"
-                        className="text-xs font-bold text-[#4A5568] hover:text-[#00846A]"
+                        className="text-sm font-bold text-[#4A5568] hover:text-[#00846A]"
                       >
                         Schedule a walkthrough →
                       </Link>
@@ -326,11 +326,11 @@ export default function FeaturesPage() {
                   </div>
 
                   <div className="lg:col-span-5 flex justify-center">
-                    <div className="bg-white rounded-2xl p-6 border border-[#E2E8F0] shadow-sm w-full max-w-sm">
-                      <div className="flex justify-between items-center mb-4 pb-3 border-b border-gray-100">
-                        <span className="text-xs font-bold text-[#1A1A2E]">GrievEase Core Engine</span>
+                    <div className="bg-white rounded-2xl p-7 border border-[#E2E8F0] shadow-sm w-full max-w-sm">
+                      <div className="flex justify-between items-center mb-5 pb-3.5 border-b border-gray-100">
+                        <span className="text-xs sm:text-sm font-bold text-[#1A1A2E]">GrievEase Core Engine</span>
                         <span
-                          className="text-[10px] font-bold px-2 py-0.5 rounded-full"
+                          className="text-[11px] font-bold px-2.5 py-0.5 rounded-full"
                           style={{
                             backgroundColor: `${mod.color}15`,
                             color: mod.color,
@@ -339,18 +339,18 @@ export default function FeaturesPage() {
                           Verified Active
                         </span>
                       </div>
-                      <div className="space-y-2.5 text-xs">
-                        <div className="p-3 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-between">
+                      <div className="space-y-3 text-xs sm:text-sm">
+                        <div className="p-3.5 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-between">
                           <span className="text-gray-500">Security Standard</span>
                           <span className="font-semibold text-gray-800">ISO 27001 / SOC-2</span>
                         </div>
-                        <div className="p-3 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-between">
+                        <div className="p-3.5 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-between">
                           <span className="text-gray-500">Audit Compliance</span>
                           <span className="font-semibold text-gray-800">Immutable SHA-256</span>
                         </div>
-                        <div className="p-3 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-between">
+                        <div className="p-3.5 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-between">
                           <span className="text-gray-500">Multi-lingual UI</span>
-                          <span className="font-semibold text-gray-800">EN / HI / MR</span>
+                          <span className="font-semibold text-gray-800">EN / HI</span>
                         </div>
                       </div>
                     </div>

@@ -3,7 +3,7 @@
 import { cn } from './utils';
 import { Globe } from 'lucide-react';
 
-export type SupportedLocale = 'en' | 'hi' | 'mr';
+export type SupportedLocale = 'en' | 'hi';
 
 export interface LanguageSwitcherProps {
   currentLocale: SupportedLocale;
@@ -15,7 +15,6 @@ export interface LanguageSwitcherProps {
 const LOCALES: { code: SupportedLocale; label: string; ariaLabel: string }[] = [
   { code: 'en', label: 'EN', ariaLabel: 'English language' },
   { code: 'hi', label: 'हिन्दी', ariaLabel: 'हिंदी भाषा' },
-  { code: 'mr', label: 'मराठी', ariaLabel: 'मराठी भाषा' },
 ];
 
 export function LanguageSwitcher({
@@ -48,16 +47,17 @@ export function LanguageSwitcher({
               type="button"
               role="radio"
               aria-checked={isSelected}
+              aria-pressed={isSelected}
               aria-label={loc.ariaLabel}
               onClick={() => onLocaleChange(loc.code)}
               className={cn(
-                'min-h-[44px] min-w-[44px] px-3 py-2 rounded-xl text-xs font-semibold transition-all select-none flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-1',
+                'min-h-[44px] min-w-[44px] px-3.5 py-2 rounded-xl text-sm font-semibold transition-all select-none flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-1',
                 isSelected
                   ? 'bg-white dark:bg-slate-900 text-teal-700 dark:text-teal-400 font-bold shadow-xs border border-slate-200/60 dark:border-slate-700'
                   : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
               )}
             >
-              {loc.label}
+              <span lang={loc.code === 'hi' ? 'hi' : 'en'}>{loc.label}</span>
             </button>
           );
         })}

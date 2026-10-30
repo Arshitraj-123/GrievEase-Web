@@ -23,7 +23,14 @@
     "audit:verify": "pnpm --filter @grievease/api audit:verify",
     "analytics:rebuild": "pnpm --filter @grievease/api analytics:rebuild",
     "seed:analytics": "pnpm --filter @grievease/api seed:analytics",
-    "secret-scan": "node scripts/secret-scan.js"
+    "secret-scan": "node scripts/secret-scan.js",
+    "claims:audit": "node scripts/claims-audit.js",
+    "routes:report": "node scripts/routes-report.js",
+    "backup:verify": "node scripts/backup-verify.js",
+    "smoke": "node scripts/smoke-test.js",
+    "guard:no-marathi": "node scripts/guard-no-marathi.js",
+    "i18n:import-review": "node scripts/import-review.js",
+    "preflight": "node scripts/preflight.js"
   },
   "devDependencies": {
     "typescript": "^5.7.3"

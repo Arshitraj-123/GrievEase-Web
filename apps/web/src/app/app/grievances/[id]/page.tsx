@@ -45,12 +45,24 @@ export default function ResidentGrievanceDetailPage() {
   const [submittingAppeal, setSubmittingAppeal] = useState(false);
   const [actionMessage, setActionMessage] = useState<{ text: string; isError?: boolean } | null>(null);
 
+  // Phase 8 Vendor Task Integration
+  const [vendorTask, setVendorTask] = useState<any | null>(null);
+  const [taskRating, setTaskRating] = useState(5);
+  const [taskComment, setTaskComment] = useState('');
+  const [confirmingTask, setConfirmingTask] = useState(false);
+  const [togglingContact, setTogglingContact] = useState(false);
+
   const fetchDetail = async () => {
     try {
       setLoading(true);
       setError(null);
       const res = await api.getGrievance(grievanceId);
       setData(res);
+
+      try {
+        const vt = await api.getGrievanceVendorTask(grievanceId);
+        setVendorTask(vt);
+      } catch {}
     } catch (err: any) {
       setError(err.message || 'Failed to load grievance details.');
     } finally {
@@ -150,6 +162,47 @@ export default function ResidentGrievanceDetailPage() {
       fetchDetail();
     } catch (err: any) {
       setActionMessage({ text: err.message || 'Failed to reopen grievance', isError: true });
+    }
+  };
+
+  const handleConfirmVendorTask = async (confirmation: 'CONFIRMED' | 'NOT_FIXED') => {
+    if (!vendorTask) return;
+    setConfirmingTask(true);
+    try {
+      await api.confirmVendorTaskResident(vendorTask.id, {
+        confirmation,
+        rating: confirmation === 'CONFIRMED' ? taskRating : undefined,
+        comment: taskComment || undefined,
+        reopenReason: confirmation === 'NOT_FIXED' ? (taskComment || 'Issue not resolved after vendor visit') : undefined,
+      });
+      setActionMessage({
+        text: confirmation === 'CONFIRMED'
+          ? 'Thank you! Vendor work confirmed and service rating recorded.'
+          : 'Task marked as Not Fixed. Assigned committee resolver has been notified to follow up.',
+      });
+      fetchDetail();
+    } catch (err: any) {
+      setActionMessage({ text: err.message || 'Failed to submit response', isError: true });
+    } finally {
+      setConfirmingTask(false);
+    }
+  };
+
+  const handleToggleContactShare = async (share: boolean) => {
+    if (!vendorTask) return;
+    setTogglingContact(true);
+    try {
+      await api.toggleVendorContactShare(vendorTask.id, share);
+      setVendorTask((prev: any) => ({ ...prev, share_contact_with_vendor: share }));
+      setActionMessage({
+        text: share
+          ? 'Phone number will be shared with the vendor for this task only.'
+          : 'Phone number sharing turned off.',
+      });
+    } catch (err: any) {
+      setActionMessage({ text: err.message || 'Failed to update contact sharing', isError: true });
+    } finally {
+      setTogglingContact(false);
     }
   };
 
@@ -353,6 +406,131 @@ export default function ResidentGrievanceDetailPage() {
             <p className="text-xs text-emerald-800 dark:text-emerald-300 leading-relaxed font-medium">
               "{data.closureNote}"
             </p>
+          </div>
+        )}
+
+        {/* 5.5 Phase 8 Vendor Assignment & Confirmation */}
+        {vendorTask && (
+          <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-3">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b pb-3">
+              <div>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-teal-600 dark:text-teal-400">
+                  Assigned Maintenance Partner
+                </span>
+                <h4 className="text-sm font-bold text-slate-900 dark:text-white">
+                  {vendorTask.company_name} ({vendorTask.category})
+                </h4>
+              </div>
+              <Badge variant="outline" className="text-xs font-semibold">
+                Status: {vendorTask.status}
+              </Badge>
+            </div>
+
+            {vendorTask.expected_visit_from && (
+              <div className="p-2.5 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900/50 rounded-xl text-xs text-blue-900 dark:text-blue-200 flex items-center gap-2">
+                <Clock className="w-4 h-4 text-blue-600 shrink-0" />
+                <span>
+                  Technician visit scheduled for:{' '}
+                  <strong>
+                    {new Date(vendorTask.expected_visit_from).toLocaleDateString()} &bull;{' '}
+                    {new Date(vendorTask.expected_visit_from).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </strong>
+                </span>
+              </div>
+            )}
+
+            {/* Contact Sharing Toggle */}
+            <div className="flex items-center justify-between p-2.5 bg-slate-50 dark:bg-slate-800/50 rounded-xl text-xs">
+              <span className="text-slate-600 dark:text-slate-300">
+                Share my contact number with the vendor for this task
+              </span>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={vendorTask.share_contact_with_vendor}
+                  disabled={togglingContact}
+                  onChange={(e) => handleToggleContactShare(e.target.checked)}
+                  className="sr-only peer"
+                />
+                <div className="w-9 h-5 bg-slate-300 peer-focus:outline-hidden rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-teal-600"></div>
+              </label>
+            </div>
+
+            {/* Resident Confirmation Prompt (when COMPLETED) */}
+            {vendorTask.status === 'COMPLETED' && (
+              <div className="p-4 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-800 rounded-xl space-y-3">
+                <div className="space-y-1">
+                  <h5 className="text-xs font-bold text-emerald-900 dark:text-emerald-200 flex items-center gap-1.5">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                    <span>Vendor Marked Work Completed - Please Confirm</span>
+                  </h5>
+                  <p className="text-[11px] text-emerald-800 dark:text-emerald-300">
+                    Did the technician resolve this issue to your satisfaction?
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-xs">
+                    <span className="font-semibold text-slate-700 dark:text-slate-300">Rate Service:</span>
+                    <div className="flex items-center gap-1">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <button
+                          key={star}
+                          type="button"
+                          onClick={() => setTaskRating(star)}
+                          className="p-1 text-amber-500 hover:scale-110 transition-transform"
+                        >
+                          <Star
+                            className={`w-4 h-4 ${
+                              star <= taskRating ? 'fill-current' : 'text-slate-300'
+                            }`}
+                          />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <input
+                    type="text"
+                    value={taskComment}
+                    onChange={(e) => setTaskComment(e.target.value)}
+                    placeholder="Optional feedback comment or completion remarks..."
+                    className="w-full text-xs p-2 rounded-lg border bg-white dark:bg-slate-900"
+                  />
+
+                  <div className="flex items-center gap-2 pt-1">
+                    <Button
+                      size="sm"
+                      className="bg-emerald-600 hover:bg-emerald-700 text-xs flex-1"
+                      onClick={() => handleConfirmVendorTask('CONFIRMED')}
+                      disabled={confirmingTask}
+                    >
+                      <Check className="w-3.5 h-3.5 mr-1" />
+                      <span>Fixed &amp; Satisfied</span>
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="text-red-600 hover:text-red-700 text-xs flex-1"
+                      onClick={() => handleConfirmVendorTask('NOT_FIXED')}
+                      disabled={confirmingTask}
+                    >
+                      <RotateCcw className="w-3.5 h-3.5 mr-1" />
+                      <span>Not Fixed (Reopen)</span>
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {vendorTask.resident_confirmation === 'CONFIRMED' && (
+              <div className="p-3 bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800 rounded-xl text-xs text-emerald-900 dark:text-emerald-200 flex items-center justify-between">
+                <span>You confirmed this task as resolved. Thank you!</span>
+                <Badge variant="success" className="text-[10px]">
+                  VERIFIED FIXED
+                </Badge>
+              </div>
+            )}
           </div>
         )}
 

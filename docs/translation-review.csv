@@ -1,0 +1,37 @@
+key,en,hi,context,status
+nav.home,Home,होम,Top navigation link,APPROVED
+nav.features,Features,सुविधाएं,Top navigation link,APPROVED
+nav.howItWorks,How It Works,कार्यप्रणाली,Top navigation link,APPROVED
+nav.about,About,हमारे बारे में,Top navigation link,APPROVED
+nav.faq,FAQ,अक्सर पूछे जाने वाले सवाल,Top navigation link,APPROVED
+nav.contact,Contact,संपर्क करें,Top navigation link,APPROVED
+nav.login,Login,लॉग इन,Top navigation action,APPROVED
+nav.activate,Activate Account,खाता सक्रिय करें,Top navigation primary CTA,APPROVED
+hero.badge,Smarter Communities Happier Living,बेहतर समुदाय सुखी जीवन,Hero badge label,APPROVED
+hero.headline1,Raise. Track.,शिकायत दर्ज करें. ट्रैक करें.,Hero main headline part 1,APPROVED
+hero.headlineAccent,Resolve.,समाधान पाएं.,Hero main headline accent,APPROVED
+hero.description,"GrievEase is a modern, self-hosted society governance platform that ensures resident complaints get resolved with strict turnaround SLAs. Residents report issues with photo proof or file sensitive matters anonymously, track progress through 4 automated escalation levels, and manage cash maintenance payments with immutable audit receipts — all with zero third-party tracking.","ग्रीवईज़ एक आधुनिक, स्व-होस्टेड आवासीय सोसायटी प्रबंधन मंच है जो समय-सीमा (SLA) के साथ शिकायतों का त्वरित समाधान सुनिश्चित करता है। निवासी फोटो प्रमाण के साथ समस्या दर्ज कर सकते हैं या गोपनीय रूप से शिकायत कर सकते हैं, 4-स्तरीय स्वचालित अग्रेषण पर नज़र रख सकते हैं, और पारदर्शी रसीदों के साथ नकद रखरखाव भुगतान प्रबंधित कर सकते हैं — पूरी तरह बिना किसी तीसरे पक्ष के ट्रैकर के।",Hero description lead,APPROVED
+hero.ctaPrimary,Activate your account,अपना खाता सक्रिय करें,Hero primary CTA button,APPROVED
+hero.ctaSecondary,Watch Demo,डेमो वीडियो देखें,Hero secondary CTA button,APPROVED
+hero.ctaTrack,Track a complaint,शिकायत ट्रैक करें,Hero tertiary CTA button,APPROVED
+hero.h1,100% Privacy & In-App Alerts,१००% गोपनीयता और इन-ऐप सूचनाएं,Hero feature highlight 1,APPROVED
+hero.h2,4-Level Auto-Escalation SLAs,४-स्तरीय स्वचालित अग्रेषण समय-सीमा,Hero feature highlight 2,APPROVED
+hero.h3,Immutable Cryptographic Audit Trail,अपरिवर्तनीय क्रिप्टोग्राफ़िक ऑडिट लॉग,Hero feature highlight 3,APPROVED
+hero.h4,Cash Maintenance with Verified Receipts,सत्यापित रसीदों के साथ नकद रखरखाव,Hero feature highlight 4,APPROVED
+escalation.title,What Happens If a Deadline Is Missed?,यदि समय-सीमा चूक जाए तो क्या होगा?,Escalation section heading,APPROVED
+escalation.l1,Level 1 - Secretary (48h),स्तर १ - सचिव (४८ घंटे),Escalation tier 1 title,APPROVED
+escalation.l2,Level 2 - Managing Committee (72h),स्तर २ - प्रबंध समिति (७२ घंटे),Escalation tier 2 title,APPROVED
+escalation.l3,Level 3 - Chairman (96h),स्तर ३ - अध्यक्ष (९६ घंटे),Escalation tier 3 title,APPROVED
+escalation.l4,Level 4 - Governing Body (120h),स्तर ४ - शासी निकाय (१२० घंटे),Escalation tier 4 title,APPROVED
+billing.cashTitle,Cash Maintenance Ledger,नकद रखरखाव बहीखाता,Billing module title,APPROVED
+billing.receipt,Official Payment Receipt,आधिकारिक भुगतान रसीद,Billing receipt heading,APPROVED
+billing.makerChecker,Maker-Checker Security Enforced,निर्माता-जांचकर्ता सुरक्षा नियम लागू,Billing audit note,APPROVED
+visitors.gatePass,Visitor Gate Pass,आगंतुक गेट पास,Visitor module title,APPROVED
+sos.emergency,Emergency SOS Broadcast,आपातकालीन एसओएस प्रसारण,SOS module title,APPROVED
+transparency.title,Society Transparency Dashboard,सोसायटी पारदर्शिता डैशबोर्ड,Public telemetry title,APPROVED
+roles.resident,Resident / Tenant,निवासी / किरायेदार,Role switcher resident,APPROVED
+roles.committee,Managing Committee,प्रबंध समिति,Role switcher committee,APPROVED
+roles.guard,Security Guard,सुरक्षा गार्ड,Role switcher guard,APPROVED
+roles.vendor,Maintenance Vendor,रखरखाव सेवा प्रदाता,Role switcher vendor,APPROVED
+footer.copyright,All rights reserved. Self-hosted residential governance.,सर्वाधिकार सुरक्षित। स्व-होस्टेड आवासीय सोसायटी प्रबंधन।,Footer legal note,APPROVED
+

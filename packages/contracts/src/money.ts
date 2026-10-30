@@ -4,7 +4,7 @@
  * RULE: All monetary amounts stored as integer paise (BIGINT). Never use floats.
  * ROUNDING: round-half-up to the nearest paisa (0.5 rounds UP, symmetric towards +∞).
  *           e.g. 0.5p → 1p, -0.5p → 0p (not -1p).
- * FORMATTING: Indian digit grouping (1,23,456.00) for EN/HI/MR locales.
+ * FORMATTING: Indian digit grouping (1,23,456.00) for EN/HI locales.
  * RECEIPTS: English amount-in-words only (e.g. "Rupees Five Hundred Twenty-Three and 50 paise Only").
  */
 
@@ -46,7 +46,7 @@ export function cancellationFee(depositPaise: Paise, percentRetained: number): P
 /**
  * Format paise as Indian rupee string with Indian digit grouping.
  * 12345600 → "1,23,456.00"
- * Works for EN, HI, MR (same digit grouping).
+ * Works for EN and HI (same digit grouping).
  */
 export function formatPaise(paise: Paise, currencySymbol = '₹'): string {
   if (!Number.isInteger(paise)) {

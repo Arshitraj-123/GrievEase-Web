@@ -22,31 +22,31 @@ export function RoleTabs() {
     <section
       id="roles"
       aria-labelledby="roles-heading"
-      className="py-20 px-6 lg:px-12 bg-[#F8FAFC] border-b border-[#E2E8F0]"
+      className="section-fluid px-6 lg:px-12 bg-[#F8FAFC] border-b border-[#E2E8F0]/80"
     >
-      <div className="max-w-[1300px] mx-auto">
+      <div className="container-fluid">
         {/* Header */}
-        <div className="text-center max-w-[700px] mx-auto mb-12">
-          <span className="text-[12px] font-bold tracking-[1.5px] uppercase text-[#00846A] mb-2.5 block">
+        <div className="text-center max-w-[850px] mx-auto mb-12">
+          <span className="text-[13px] font-bold tracking-[1.5px] uppercase text-[#00846A] mb-2.5 block">
             {roleTabsContent.tag}
           </span>
           <h2
             id="roles-heading"
-            className="text-[32px] sm:text-[40px] font-extrabold text-[#1A1A2E] leading-tight mb-4"
+            className="text-[clamp(2rem,1.2rem+2.4vw,3.5rem)] font-extrabold text-[#1A1A2E] leading-tight mb-4"
           >
             {roleTabsContent.heading}
           </h2>
-          <p className="text-[15.5px] text-[#4A5568] leading-relaxed">
+          <p className="text-[clamp(1.0625rem,1rem+0.3125vw,1.125rem)] text-[#4A5568] leading-relaxed">
             {roleTabsContent.subtitle}
           </p>
         </div>
 
-        {/* Tab Buttons Container */}
+        {/* Tab Buttons Container (Min 44px touch targets) */}
         <div className="flex justify-center mb-10">
           <div
             role="tablist"
             aria-label="Stakeholder Roles"
-            className="inline-flex p-1.5 bg-white border border-[#E2E8F0] rounded-2xl shadow-2xs max-w-full overflow-x-auto"
+            className="inline-flex p-1.5 bg-white border border-[#E2E8F0] rounded-2xl shadow-xs max-w-full overflow-x-auto gap-1"
           >
             {roleTabsContent.roles.map((role) => {
               const Icon = roleIcons[role.id] || Home;
@@ -54,14 +54,15 @@ export function RoleTabs() {
               return (
                 <button
                   key={role.id}
+                  type="button"
                   role="tab"
                   id={`tab-${role.id}`}
                   aria-selected={isActive}
                   aria-controls={`panel-${role.id}`}
                   onClick={() => setActiveTab(role.id)}
-                  className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all cursor-pointer whitespace-nowrap focus:outline-none focus-visible:ring-2 focus-visible:ring-[#00B894] ${
+                  className={`flex items-center gap-2 min-h-[44px] px-6 py-2.5 rounded-xl text-sm font-semibold transition-all cursor-pointer whitespace-nowrap focus:outline-none focus-visible:ring-2 focus-visible:ring-[#00B894] ${
                     isActive
-                      ? 'bg-gradient-to-r from-[#00B894] to-[#00D4AA] text-white shadow-xs'
+                      ? 'bg-gradient-to-r from-[#00B894] to-[#00D4AA] text-white shadow-xs font-bold'
                       : 'text-[#4A5568] hover:text-[#00B894] hover:bg-[#F0FAF7]'
                   }`}
                 >
@@ -78,20 +79,20 @@ export function RoleTabs() {
           role="tabpanel"
           id={`panel-${currentRole.id}`}
           aria-labelledby={`tab-${currentRole.id}`}
-          className="bg-white rounded-3xl p-8 sm:p-12 border border-[#E2E8F0] shadow-sm max-w-4xl mx-auto"
+          className="bg-white rounded-3xl p-8 sm:p-12 border border-[#E2E8F0] shadow-sm max-w-5xl mx-auto"
         >
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 pb-6 border-b border-[#F1F5F9]">
             <div>
-              <span className="inline-block text-[11px] font-bold text-[#00846A] bg-[#00B894]/10 px-3 py-1 rounded-full uppercase tracking-wider mb-2">
+              <span className="inline-block text-[11px] font-bold text-[#00846A] bg-[#00B894]/10 px-3.5 py-1 rounded-full uppercase tracking-wider mb-2">
                 {currentRole.badge}
               </span>
-              <h3 className="text-[24px] sm:text-[28px] font-bold text-[#1A1A2E] leading-snug">
+              <h3 className="text-[clamp(1.5rem,1.2rem+1vw,2rem)] font-bold text-[#1A1A2E] leading-snug">
                 {currentRole.title}
               </h3>
             </div>
           </div>
 
-          <p className="text-[15px] text-[#4A5568] leading-relaxed mb-8">
+          <p className="text-[clamp(1.0625rem,1rem+0.3125vw,1.125rem)] text-[#4A5568] leading-relaxed mb-8">
             {currentRole.description}
           </p>
 
@@ -100,16 +101,16 @@ export function RoleTabs() {
             {currentRole.bullets.map((bullet, idx) => (
               <div
                 key={idx}
-                className="p-4 rounded-2xl bg-[#F8FAFC] border border-[#E2E8F0] flex items-start gap-3.5 hover:border-[#00B894]/40 transition-colors"
+                className="p-5 rounded-2xl bg-[#F8FAFC] border border-[#E2E8F0] flex items-start gap-3.5 hover:border-[#00B894]/40 transition-colors"
               >
                 <div className="w-6 h-6 rounded-full bg-[#00B894]/15 text-[#00846A] flex items-center justify-center shrink-0 mt-0.5">
                   <CheckCircle2 className="w-4 h-4 text-[#00846A]" />
                 </div>
                 <div>
-                  <h4 className="text-[14px] font-bold text-[#1A1A2E] leading-snug mb-1">
+                  <h4 className="text-[15px] font-bold text-[#1A1A2E] leading-snug mb-1">
                     {bullet.title}
                   </h4>
-                  <p className="text-[12.5px] text-[#718096] leading-relaxed">
+                  <p className="text-[13px] text-[#718096] leading-relaxed">
                     {bullet.description}
                   </p>
                 </div>
@@ -117,11 +118,11 @@ export function RoleTabs() {
             ))}
           </div>
 
-          {/* CTAs */}
-          <div className="flex flex-wrap items-center gap-4 pt-4 border-t border-[#F1F5F9]">
+          {/* CTAs (56px high) */}
+          <div className="flex flex-wrap items-center gap-4 pt-6 border-t border-[#F1F5F9]">
             <Link
               href={currentRole.ctaJoin.href}
-              className="px-6 py-3 rounded-full bg-gradient-to-r from-[#00B894] to-[#00D4AA] text-white text-sm font-semibold shadow-[0_4px_15px_rgba(0,184,148,0.35)] hover:-translate-y-0.5 transition-all flex items-center gap-2"
+              className="btn-fluid-primary bg-gradient-to-r from-[#00B894] to-[#00D4AA] text-white shadow-[0_4px_15px_rgba(0,184,148,0.35)] hover:-translate-y-0.5 transition-all flex items-center gap-2"
             >
               <span>{currentRole.ctaJoin.label}</span>
               <ArrowRight className="w-4 h-4" />
@@ -129,7 +130,7 @@ export function RoleTabs() {
 
             <Link
               href={currentRole.ctaDemo.href}
-              className="px-6 py-3 rounded-full bg-white border border-[#E2E8F0] text-[#1A1A2E] text-sm font-semibold hover:border-[#00B894] hover:bg-[#F0FAF7]/50 transition-all"
+              className="btn-fluid-secondary bg-white border border-[#E2E8F0] text-[#1A1A2E] hover:border-[#00B894] hover:bg-[#F0FAF7]/50 transition-all"
             >
               {currentRole.ctaDemo.label}
             </Link>

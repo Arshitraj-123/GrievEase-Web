@@ -31,13 +31,13 @@ test.describe('Role-Based Shell Navigation and Protection Boundaries', () => {
     const passwordInput = page.locator('#login-password');
     await expect(passwordInput).toBeVisible();
 
-    const submitBtn = page.getByRole('button', { name: /Sign In|साइन इन|साइन करा/i });
+    const submitBtn = page.getByRole('button', { name: /Sign In|साइन इन/i });
     await expect(submitBtn).toBeVisible();
 
-    // Check language switcher buttons exist
+    // Check language switcher buttons exist (EN & हिन्दी only, no Marathi)
     await expect(page.getByRole('button', { name: 'EN' })).toBeVisible();
     await expect(page.getByRole('button', { name: 'हिन्दी' })).toBeVisible();
-    await expect(page.getByRole('button', { name: 'मराठी' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'मराठी' })).toHaveCount(0);
   });
 
   test('session expired page shows return to login action', async ({ page }) => {

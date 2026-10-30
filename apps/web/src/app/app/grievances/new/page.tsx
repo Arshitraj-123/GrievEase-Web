@@ -45,7 +45,6 @@ interface CategoryOption {
   id: string;
   name_en: string;
   name_hi: string;
-  name_mr: string;
   icon: string;
   requires_photo: boolean;
 }
@@ -290,7 +289,6 @@ function NewGrievanceForm() {
 
   const getCategoryName = (c: CategoryOption) => {
     if (locale === 'hi' && c.name_hi) return c.name_hi;
-    if (locale === 'mr' && c.name_mr) return c.name_mr;
     return c.name_en;
   };
 

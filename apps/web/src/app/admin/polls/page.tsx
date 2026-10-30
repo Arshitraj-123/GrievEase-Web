@@ -39,9 +39,9 @@ export default function AdminPollsPage() {
   const [quorumPercent, setQuorumPercent] = useState<number>(50);
   const [opensAt, setOpensAt] = useState('');
   const [closesAt, setClosesAt] = useState('');
-  const [options, setOptions] = useState<Array<{ labelEn: string; labelHi: string; labelMr: string }>>([
-    { labelEn: 'Approve Proposal', labelHi: 'प्रस्ताव स्वीकारें', labelMr: 'प्रस्ताव मंजूर करा' },
-    { labelEn: 'Reject Proposal', labelHi: 'प्रस्ताव अस्वीकार करें', labelMr: 'प्रस्ताव नाकारा' },
+  const [options, setOptions] = useState<Array<{ labelEn: string; labelHi: string }>>([
+    { labelEn: 'Approve Proposal', labelHi: 'प्रस्ताव स्वीकारें' },
+    { labelEn: 'Reject Proposal', labelHi: 'प्रस्ताव अस्वीकार करें' },
   ]);
 
   // Extension Modal
@@ -75,7 +75,7 @@ export default function AdminPollsPage() {
   });
 
   const handleAddOption = () => {
-    setOptions([...options, { labelEn: '', labelHi: '', labelMr: '' }]);
+    setOptions([...options, { labelEn: '', labelHi: '' }]);
   };
 
   const handleCreatePoll = async (e: React.FormEvent) => {
@@ -577,7 +577,7 @@ export default function AdminPollsPage() {
 
                   <div className="space-y-2">
                     {options.map((opt, i) => (
-                      <div key={i} className="grid grid-cols-3 gap-2">
+                      <div key={i} className="grid grid-cols-2 gap-2">
                         <input
                           type="text"
                           required
@@ -597,17 +597,6 @@ export default function AdminPollsPage() {
                           onChange={(e) => {
                             const copy = [...options];
                             copy[i]!.labelHi = e.target.value;
-                            setOptions(copy);
-                          }}
-                          className="px-3 py-1.5 rounded-lg border border-slate-300 text-xs"
-                        />
-                        <input
-                          type="text"
-                          placeholder="मराठी"
-                          value={opt.labelMr}
-                          onChange={(e) => {
-                            const copy = [...options];
-                            copy[i]!.labelMr = e.target.value;
                             setOptions(copy);
                           }}
                           className="px-3 py-1.5 rounded-lg border border-slate-300 text-xs"

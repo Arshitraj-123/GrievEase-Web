@@ -41,8 +41,28 @@ module.exports = {
         }
       },
       fontFamily: {
-        sans: ['Inter', 'sans-serif'],
+        sans: ['Inter', 'Noto Sans Devanagari', 'sans-serif'],
+        devanagari: ['Noto Sans Devanagari', 'sans-serif'],
         caveat: ['Caveat', 'cursive'],
+      },
+      fontSize: {
+        'fluid-h1': ['clamp(2.75rem, 1.2rem + 4.6vw, 5.5rem)', { lineHeight: '1.08', letterSpacing: '-0.02em' }],
+        'fluid-h2': ['clamp(2rem, 1.2rem + 2.4vw, 3.5rem)', { lineHeight: '1.18', letterSpacing: '-0.015em' }],
+        'fluid-lead': ['clamp(1.25rem, 1.15rem + 0.5vw, 1.375rem)', { lineHeight: '1.65' }],
+        'fluid-body': ['clamp(1.0625rem, 1rem + 0.3125vw, 1.125rem)', { lineHeight: '1.6' }],
+        'fluid-card-title': ['clamp(1.25rem, 1.15rem + 0.35vw, 1.375rem)', { lineHeight: '1.3' }],
+        'fluid-card-text': ['clamp(1rem, 0.95rem + 0.25vw, 1.0625rem)', { lineHeight: '1.55' }],
+        'fluid-nav': ['clamp(1rem, 0.95rem + 0.25vw, 1.0625rem)', { lineHeight: '1.4' }],
+        'fluid-btn': ['1.125rem', { lineHeight: '1.2' }],
+        'fluid-label': ['0.875rem', { lineHeight: '1.3' }],
+      },
+      lineHeight: {
+        'devanagari-body': '1.7',
+        'devanagari-heading': '1.35',
+      },
+      maxWidth: {
+        'fluid-container': '1440px',
+        'fluid-container-2xl': '1600px',
       },
       boxShadow: {
         'card': '0 4px 20px rgba(0,0,0,0.08)',

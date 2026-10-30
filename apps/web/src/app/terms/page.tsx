@@ -13,16 +13,16 @@ export const metadata: Metadata = {
 
 export default function TermsPage() {
   return (
-    <div className="py-16 px-6 lg:px-12 bg-white">
-      <div className="max-w-[850px] mx-auto">
-        <h1 className="text-3xl sm:text-4xl font-extrabold text-[#1A1A2E] mb-3">
+    <div className="section-fluid bg-white">
+      <div className="container-fluid max-w-[1040px]">
+        <h1 className="fluid-h1 font-extrabold text-[#1A1A2E] mb-3">
           Terms of Service
         </h1>
-        <p className="text-xs text-[#718096] mb-8">Effective Date: October 21, 2026</p>
+        <p className="text-sm text-[#718096] mb-10">Effective Date: October 30, 2026</p>
 
-        <div className="space-y-6 text-sm text-[#4A5568] leading-relaxed">
+        <div className="space-y-8 fluid-body text-[#4A5568] leading-relaxed">
           <section>
-            <h2 className="text-lg font-bold text-[#1A1A2E] mb-2">1. Acceptance of Terms</h2>
+            <h2 className="fluid-h2 font-bold text-[#1A1A2E] mb-3">1. Acceptance of Terms</h2>
             <p>
               By accessing or using GrievEase platforms (web or mobile apps), you agree to be bound
               by these Terms of Service. If you are registering on behalf of a Housing Society Managing

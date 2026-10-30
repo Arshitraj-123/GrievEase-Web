@@ -32,7 +32,7 @@ export const differentiatorsContent = {
       learnMoreHref: '/features#realtime',
       badge: 'Instant Sync',
       snippetType: 'notifications',
-      stats: 'Under 250ms notification dispatch across push, SMS & in-app',
+      stats: 'Real-time WebSocket event dispatch across in-app alert feeds',
     },
     {
       id: 'performance',

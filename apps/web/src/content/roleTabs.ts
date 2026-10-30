@@ -91,7 +91,7 @@ export const roleTabsContent: {
       badge: 'Main Gate & Patrol Staff',
       title: 'Fast, fool-proof security at every gate',
       description:
-        'A super-fast tablet and mobile interface in Hindi, Marathi, and English that makes gate logging instantaneous.',
+        'A super-fast tablet and mobile interface in Hindi and English that makes gate logging instantaneous.',
       bullets: [
         {
           title: 'Instant QR guest verification',

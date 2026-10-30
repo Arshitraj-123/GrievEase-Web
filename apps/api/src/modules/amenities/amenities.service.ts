@@ -79,8 +79,8 @@ export class AmenitiesService implements OnModuleInit, OnModuleDestroy {
       await client.query("SELECT set_config('app.is_super_admin', 'true', true)");
       const res = await client.query(
         `SELECT a.*,
-          CASE $2 WHEN 'hi' THEN a.name_hi WHEN 'mr' THEN a.name_mr ELSE a.name_en END AS name,
-          CASE $2 WHEN 'hi' THEN a.description_hi WHEN 'mr' THEN a.description_mr ELSE a.description_en END AS description
+          CASE $2 WHEN 'hi' THEN a.name_hi ELSE a.name_en END AS name,
+          CASE $2 WHEN 'hi' THEN a.description_hi ELSE a.description_en END AS description
          FROM amenity a
          WHERE a.society_id = $1 AND a.active = TRUE
          ORDER BY a.type, a.name_en`,
@@ -98,9 +98,9 @@ export class AmenitiesService implements OnModuleInit, OnModuleDestroy {
       await client.query("SELECT set_config('app.is_super_admin', 'true', true)");
       const res = await client.query(
         `SELECT a.*,
-          CASE $3 WHEN 'hi' THEN a.name_hi WHEN 'mr' THEN a.name_mr ELSE a.name_en END AS name,
-          CASE $3 WHEN 'hi' THEN a.description_hi WHEN 'mr' THEN a.description_mr ELSE a.description_en END AS description,
-          CASE $3 WHEN 'hi' THEN a.rules_hi WHEN 'mr' THEN a.rules_mr ELSE a.rules_en END AS rules
+          CASE $3 WHEN 'hi' THEN a.name_hi ELSE a.name_en END AS name,
+          CASE $3 WHEN 'hi' THEN a.description_hi ELSE a.description_en END AS description,
+          CASE $3 WHEN 'hi' THEN a.rules_hi ELSE a.rules_en END AS rules
          FROM amenity a
          WHERE a.id = $1 AND a.society_id = $2`,
         [amenityId, societyId, lang],
@@ -118,19 +118,19 @@ export class AmenitiesService implements OnModuleInit, OnModuleDestroy {
       await client.query("SELECT set_config('app.is_super_admin', 'true', true)");
       const res = await client.query(
         `INSERT INTO amenity (
-          society_id, type, name_en, name_hi, name_mr,
-          description_en, description_hi, description_mr,
-          rules_en, rules_hi, rules_mr, photo_keys,
+          society_id, type, name_en, name_hi,
+          description_en, description_hi,
+          rules_en, rules_hi, photo_keys,
           capacity_total, mode, open_hours, slot_minutes, min_slots, max_slots,
           advance_days_max, min_notice_hours, max_bookings_per_flat_per_week, max_guests,
           fee_mode, fee_paise, deposit_paise, fee_collection,
           hold_hours, requires_approval, cancellation_free_hours, cancellation_fee_percent, active
-        ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28,$29,$30,$31)
+        ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28)
         RETURNING id`,
         [
-          societyId, dto.type, dto.nameEn, dto.nameHi, dto.nameMr,
-          dto.descriptionEn || null, dto.descriptionHi || null, dto.descriptionMr || null,
-          dto.rulesEn || null, dto.rulesHi || null, dto.rulesMr || null,
+          societyId, dto.type, dto.nameEn, dto.nameHi,
+          dto.descriptionEn || null, dto.descriptionHi || null,
+          dto.rulesEn || null, dto.rulesHi || null,
           JSON.stringify(dto.photoKeys || []),
           dto.capacityTotal, dto.mode, dto.openHours ? JSON.stringify(dto.openHours) : null,
           dto.slotMinutes, dto.minSlots, dto.maxSlots,
@@ -163,21 +163,21 @@ export class AmenitiesService implements OnModuleInit, OnModuleDestroy {
 
       await client.query(
         `UPDATE amenity SET
-          type=$3, name_en=$4, name_hi=$5, name_mr=$6,
-          description_en=$7, description_hi=$8, description_mr=$9,
-          rules_en=$10, rules_hi=$11, rules_mr=$12, photo_keys=$13,
-          capacity_total=$14, mode=$15, open_hours=$16,
-          slot_minutes=$17, min_slots=$18, max_slots=$19,
-          advance_days_max=$20, min_notice_hours=$21, max_bookings_per_flat_per_week=$22, max_guests=$23,
-          fee_mode=$24, fee_paise=$25, deposit_paise=$26, fee_collection=$27,
-          hold_hours=$28, requires_approval=$29, cancellation_free_hours=$30,
-          cancellation_fee_percent=$31, active=$32, updated_at=NOW()
+          type=$3, name_en=$4, name_hi=$5,
+          description_en=$6, description_hi=$7,
+          rules_en=$8, rules_hi=$9, photo_keys=$10,
+          capacity_total=$11, mode=$12, open_hours=$13,
+          slot_minutes=$14, min_slots=$15, max_slots=$16,
+          advance_days_max=$17, min_notice_hours=$18, max_bookings_per_flat_per_week=$19, max_guests=$20,
+          fee_mode=$21, fee_paise=$22, deposit_paise=$23, fee_collection=$24,
+          hold_hours=$25, requires_approval=$26, cancellation_free_hours=$27,
+          cancellation_fee_percent=$28, active=$29, updated_at=NOW()
          WHERE id=$1 AND society_id=$2`,
         [
           amenityId, societyId,
-          dto.type, dto.nameEn, dto.nameHi, dto.nameMr,
-          dto.descriptionEn || null, dto.descriptionHi || null, dto.descriptionMr || null,
-          dto.rulesEn || null, dto.rulesHi || null, dto.rulesMr || null,
+          dto.type, dto.nameEn, dto.nameHi,
+          dto.descriptionEn || null, dto.descriptionHi || null,
+          dto.rulesEn || null, dto.rulesHi || null,
           JSON.stringify(dto.photoKeys || []),
           dto.capacityTotal, dto.mode, dto.openHours ? JSON.stringify(dto.openHours) : null,
           dto.slotMinutes, dto.minSlots, dto.maxSlots,
@@ -944,7 +944,7 @@ export class AmenitiesService implements OnModuleInit, OnModuleDestroy {
                 b.checked_in_at, b.cancel_reason, b.created_at,
                 lower(b.during)::text AS slot_start, upper(b.during)::text AS slot_end,
                 b.slot_count, b.people_count, b.guests_count, b.purpose,
-                CASE $3 WHEN 'hi' THEN a.name_hi WHEN 'mr' THEN a.name_mr ELSE a.name_en END AS amenity_name,
+                CASE $3 WHEN 'hi' THEN a.name_hi ELSE a.name_en END AS amenity_name,
                 a.type AS amenity_type
          FROM booking b
          JOIN amenity a ON b.amenity_id = a.id

@@ -264,6 +264,86 @@ export default function PrivacySettingsPage() {
             </button>
           </div>
         </form>
+
+        {/* Phase 8 DPDP Act 2023 Statutory Data Rights */}
+        <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-sm space-y-6">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-2xl bg-teal-50 dark:bg-teal-950/60 text-teal-600 shrink-0">
+              <Shield className="w-5 h-5" />
+            </div>
+            <div>
+              <h2 className="text-base font-bold text-slate-900 dark:text-white">
+                DPDP Act 2023 Statutory Data Rights
+              </h2>
+              <p className="text-xs text-slate-500">
+                Exercise your statutory right to access or erase your personal data archive.
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+            {/* Download Data */}
+            <div className="p-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/40 space-y-3 flex flex-col justify-between">
+              <div className="space-y-1">
+                <h3 className="font-bold text-slate-900 dark:text-white">
+                  Download My Data Archive (JSON)
+                </h3>
+                <p className="text-slate-600 dark:text-slate-400 leading-relaxed text-[11px]">
+                  Export a portable machine-readable archive of your user profile, visitor passes, amenity bookings, and ledger statement.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={async () => {
+                  try {
+                    const data = await api.downloadMyData();
+                    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `grievease_my_data_${new Date().toISOString().slice(0, 10)}.json`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                  } catch (err: any) {
+                    alert(err.message || 'Failed to download data');
+                  }
+                }}
+                className="w-full py-2.5 px-4 rounded-xl border border-teal-600 text-teal-600 hover:bg-teal-50 dark:hover:bg-teal-950/30 font-bold text-xs transition-colors"
+              >
+                Export JSON Archive
+              </button>
+            </div>
+
+            {/* Request Erasure */}
+            <div className="p-4 rounded-2xl border border-rose-200 dark:border-rose-900/50 bg-rose-50/40 dark:bg-rose-950/20 space-y-3 flex flex-col justify-between">
+              <div className="space-y-1">
+                <h3 className="font-bold text-rose-900 dark:text-rose-200">
+                  Request Account Erasure
+                </h3>
+                <p className="text-rose-800 dark:text-rose-300 leading-relaxed text-[11px]">
+                  Submit an erasure request under DPDP Act 2023. Requires physical in-person committee verification to maintain immutable ledger compliance.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={async () => {
+                  const reason = prompt('Please state the reason for your account deletion request:');
+                  if (!reason) return;
+                  try {
+                    await api.requestAccountDeletion(reason);
+                    alert('Data erasure request registered. The society secretary will contact you for mandatory in-person identity verification.');
+                  } catch (err: any) {
+                    alert(err.message || 'Failed to submit erasure request');
+                  }
+                }}
+                className="w-full py-2.5 px-4 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs transition-colors shadow-sm"
+              >
+                Request Erasure
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </ShellLayout>
   );

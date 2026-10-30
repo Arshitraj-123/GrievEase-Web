@@ -13,16 +13,16 @@ export const metadata: Metadata = {
 
 export default function PrivacyPage() {
   return (
-    <div className="py-16 px-6 lg:px-12 bg-white">
-      <div className="max-w-[850px] mx-auto">
-        <h1 className="text-3xl sm:text-4xl font-extrabold text-[#1A1A2E] mb-3">
+    <div className="section-fluid bg-white">
+      <div className="container-fluid max-w-[1040px]">
+        <h1 className="fluid-h1 font-extrabold text-[#1A1A2E] mb-3">
           Privacy Policy
         </h1>
-        <p className="text-xs text-[#718096] mb-8">Last Updated: October 21, 2026</p>
+        <p className="text-sm text-[#718096] mb-10">Last Updated: October 30, 2026</p>
 
-        <div className="prose prose-slate max-w-none space-y-6 text-sm text-[#4A5568] leading-relaxed">
+        <div className="prose prose-slate max-w-none space-y-8 fluid-body text-[#4A5568] leading-relaxed">
           <section>
-            <h2 className="text-lg font-bold text-[#1A1A2E] mb-2">1. Introduction</h2>
+            <h2 className="fluid-h2 font-bold text-[#1A1A2E] mb-3">1. Introduction</h2>
             <p>
               At GrievEase (&ldquo;we&rdquo;, &ldquo;our&rdquo;, or &ldquo;us&rdquo;), we take the privacy of residents,
               housing societies, committee members, and service providers seriously. This policy describes

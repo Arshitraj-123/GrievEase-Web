@@ -22,28 +22,28 @@ export default function DownloadPage() {
   const hasAndroid = Boolean(siteConfig.storeUrls.android);
 
   return (
-    <div className="py-16 px-6 lg:px-12 bg-white">
-      <div className="max-w-[1100px] mx-auto">
-        <div className="text-center max-w-[650px] mx-auto mb-14">
-          <span className="text-[12px] font-bold tracking-[1.5px] uppercase text-[#00846A] mb-2.5 block">
+    <div className="section-fluid bg-white">
+      <div className="container-fluid">
+        <div className="text-center max-w-[840px] mx-auto mb-14">
+          <span className="text-[13px] font-bold tracking-[1.5px] uppercase text-[#00846A] mb-2.5 block">
             OFFICIAL MOBILE APP
           </span>
-          <h1 className="text-[34px] sm:text-[44px] font-extrabold text-[#1A1A2E] leading-tight mb-4">
+          <h1 className="fluid-h1 font-extrabold text-[#1A1A2E] leading-tight mb-4">
             Get GrievEase on iOS &amp; Android
           </h1>
-          <p className="text-[15.5px] text-[#4A5568]">
+          <p className="fluid-lead text-[#4A5568]">
             Raise grievances, track SLA countdowns, pre-approve visitors, and receive emergency alerts
             directly on your smartphone.
           </p>
         </div>
 
-        <div className="bg-[#F0FAF7] rounded-3xl p-8 sm:p-14 border border-[#B0EBDC]/70 grid grid-cols-1 md:grid-cols-12 gap-10 items-center">
+        <div className="bg-[#F0FAF7] rounded-3xl p-8 sm:p-14 border border-[#B0EBDC]/80 grid grid-cols-1 md:grid-cols-12 gap-10 items-center max-w-5xl mx-auto shadow-xs">
           <div className="md:col-span-7 space-y-6">
-            <h2 className="text-2xl sm:text-3xl font-bold text-[#1A1A2E]">
+            <h2 className="fluid-h2 font-bold text-[#1A1A2E]">
               Everything you need, right in your pocket
             </h2>
 
-            <div className="space-y-3 text-sm text-[#4A5568]">
+            <div className="space-y-3.5 fluid-body text-[#4A5568]">
               <div className="flex items-center gap-2.5">
                 <CheckCircle2 className="w-5 h-5 text-[#00846A]" />
                 <span>Instant photo &amp; audio complaint submission</span>

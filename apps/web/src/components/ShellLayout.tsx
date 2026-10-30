@@ -45,7 +45,7 @@ import { fallbackNotices } from '@/lib/fallback-community';
 import { WalkinApprovalPrompt } from './WalkinApprovalPrompt';
 import { SafetyHonestyBanner } from './SafetyHonestyBanner';
 
-// Feature flags: Phase 6 Visitors, Deliveries, Guards, SOS are ON
+// Feature flags: Phase 8 Vendors, Billing, Amenities, Ops are ON
 const FEATURE_FLAGS = {
   NOTICES: true,
   POLLS: true,
@@ -58,6 +58,7 @@ const FEATURE_FLAGS = {
   GUARDS: true,
   BILLING: true,
   AMENITIES: true,
+  VENDORS: true,
 };
 
 export interface ShellLayoutProps {
@@ -69,7 +70,7 @@ export interface ShellLayoutProps {
 
 export function ShellLayout({ role: propRole, children, userRoleTitle }: ShellLayoutProps) {
   const pathname = usePathname();
-  const role = propRole || (pathname?.startsWith('/admin') ? 'ADMIN' : pathname?.startsWith('/guard') ? 'GUARD' : 'RESIDENT');
+  const role = propRole || (pathname?.startsWith('/vendor') ? 'VENDOR' : pathname?.startsWith('/admin') ? 'ADMIN' : pathname?.startsWith('/guard') ? 'GUARD' : 'RESIDENT');
   const router = useRouter();
   const { t } = useAccessibility();
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
@@ -112,7 +113,7 @@ export function ShellLayout({ role: propRole, children, userRoleTitle }: ShellLa
     }
   }, [role, pathname]);
 
-  const displayRoleTitle = userRoleTitle || (role === 'ADMIN' ? 'Administrator' : role === 'GUARD' ? 'Security Guard' : t.nav.residentRole);
+  const displayRoleTitle = userRoleTitle || (role === 'ADMIN' ? 'Administrator' : role === 'GUARD' ? 'Security Guard' : role === 'VENDOR' ? 'Vendor Partner' : t.nav.residentRole);
 
   const handleLogout = async () => {
     try {
@@ -121,19 +122,27 @@ export function ShellLayout({ role: propRole, children, userRoleTitle }: ShellLa
     router.push('/login');
   };
 
-  // Typed navigation for Phase 6
+  // Typed navigation for Phase 8
   const navItems = {
     ADMIN: [
       { label: 'Overview', href: '/admin', icon: Home },
       { label: 'Billing Desk', href: '/admin/billing', icon: Receipt },
       { label: 'Amenities', href: '/admin/amenities', icon: Calendar },
       { label: 'Amenity Bookings', href: '/admin/bookings', icon: CalendarCheck },
+      { label: 'Vendors', href: '/admin/vendors', icon: Truck },
+      { label: 'Vendor Tasks', href: '/admin/vendor-tasks', icon: Layers },
       { label: 'Visitors', href: '/admin/visitors', icon: UserCheck },
       { label: 'Guards', href: '/admin/guards', icon: Shield },
       { label: 'Gate Devices', href: '/admin/devices', icon: Smartphone },
       { label: 'SOS Desk', href: '/admin/sos', icon: Siren },
       { label: 'Grievances', href: '/admin/grievances', icon: MessageSquare },
-      { label: 'Analytics', href: '/admin/analytics', icon: BarChart3 },
+      { label: 'Analytics & Reports', href: '/admin/analytics', icon: BarChart3 },
+      { label: 'CMS Content', href: '/admin/cms', icon: FileText },
+      { label: 'Support & Tickets', href: '/admin/support', icon: HelpCircle },
+      { label: 'Contact Inbox', href: '/admin/contact-requests', icon: MessageSquare },
+      { label: 'Privacy & DPDP', href: '/admin/privacy-requests', icon: ShieldCheck },
+      { label: 'Sensitive Access', href: '/admin/audit/sensitive-access', icon: Eye },
+      { label: 'System & Health', href: '/admin/system', icon: Settings },
       { label: 'Notices', href: '/admin/notices', icon: Megaphone },
       { label: 'Polls', href: '/admin/polls', icon: Vote },
       { label: 'Domestic Staff', href: '/admin/staff', icon: Users },
@@ -149,6 +158,7 @@ export function ShellLayout({ role: propRole, children, userRoleTitle }: ShellLa
       { label: t.nav.bills || 'Bills', href: '/app/bills', icon: Receipt },
       { label: t.nav.payments || 'Payments', href: '/app/payments', icon: CreditCard },
       { label: t.nav.statement || 'Statement', href: '/app/statement', icon: FileText },
+      { label: t.nav.messages || 'Office Messages', href: '/app/messages', icon: MessageSquare },
       { label: t.nav.visitors || 'Visitors', href: '/app/visitors', icon: UserCheck },
       { label: t.nav.deliveries || 'Deliveries', href: '/app/deliveries', icon: Truck },
       { label: t.nav.sos || 'Emergency SOS', href: '/app/sos', icon: Siren },
@@ -176,7 +186,9 @@ export function ShellLayout({ role: propRole, children, userRoleTitle }: ShellLa
       { label: 'Lock Console', href: '/guard/lock', icon: Lock },
     ],
     VENDOR: [
-      { label: 'Assigned Work', href: '/vendor', icon: Layers },
+      { label: 'My Tasks', href: '/vendor', icon: Layers },
+      { label: 'Completed History', href: '/vendor/history', icon: CalendarCheck },
+      { label: 'Vendor Profile', href: '/vendor/profile', icon: User },
     ],
   };
 

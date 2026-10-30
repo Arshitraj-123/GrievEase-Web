@@ -114,13 +114,13 @@ export class NoticesService implements OnModuleInit, OnModuleDestroy {
    */
   async ensureDefaultCategories(societyId: string): Promise<NoticeCategoryDto[]> {
     const defaultCategories = [
-      { en: 'General', hi: 'सामान्य', mr: 'सामान्य' },
-      { en: 'Maintenance', hi: 'रखरखाव', mr: 'देखभाल' },
-      { en: 'Meeting / AGM', hi: 'बैठक / एजीएम', mr: 'बैठक / एजीएम' },
-      { en: 'Water & Power Shutoff', hi: 'पानी और बिजली कटौती', mr: 'पाणी आणि वीज खंडित' },
-      { en: 'Community Events', hi: 'सामुदायिक कार्यक्रम', mr: 'सामुदायिक कार्यक्रम' },
-      { en: 'Society Rules', hi: 'सोसायटी नियम', mr: 'सोसायटीचे नियम' },
-      { en: 'Emergency Notices', hi: 'आपातकालीन सूचना', mr: 'तातडीच्या सूचना' },
+      { en: 'General', hi: 'सामान्य' },
+      { en: 'Maintenance', hi: 'रखरखाव' },
+      { en: 'Meeting / AGM', hi: 'बैठक / एजीएम' },
+      { en: 'Water & Power Shutoff', hi: 'पानी और बिजली कटौती' },
+      { en: 'Community Events', hi: 'सामुदायिक कार्यक्रम' },
+      { en: 'Society Rules', hi: 'सोसायटी नियम' },
+      { en: 'Emergency Notices', hi: 'आपातकालीन सूचना' },
     ];
 
     const client = await pool.connect();
@@ -130,14 +130,14 @@ export class NoticesService implements OnModuleInit, OnModuleDestroy {
       for (const [i, c] of defaultCategories.entries()) {
         if (!c) continue;
         await client.query(`
-          INSERT INTO notice_category (society_id, name_en, name_hi, name_mr, is_system, sort_order)
-          VALUES ($1, $2, $3, $4, true, $5)
+          INSERT INTO notice_category (society_id, name_en, name_hi, is_system, sort_order)
+          VALUES ($1, $2, $3, true, $4)
           ON CONFLICT (society_id, name_en) DO NOTHING;
-        `, [societyId, c.en, c.hi, c.mr, i]);
+        `, [societyId, c.en, c.hi, i]);
       }
 
       const res = await client.query(`
-        SELECT id, name_en as "nameEn", name_hi as "nameHi", name_mr as "nameMr",
+        SELECT id, name_en as "nameEn", name_hi as "nameHi",
                is_system as "isSystem", sort_order as "sortOrder"
         FROM notice_category
         WHERE society_id = $1
@@ -220,13 +220,6 @@ export class NoticesService implements OnModuleInit, OnModuleDestroy {
           VALUES ($1, 'hi', $2, $3)
           ON CONFLICT (notice_id, lang) DO UPDATE SET title = EXCLUDED.title, body = EXCLUDED.body;
         `, [noticeId, dto.translations.hi.title.trim(), sanitizeNoticeHtml(dto.translations.hi.body)]);
-      }
-      if (dto.translations?.mr) {
-        await client.query(`
-          INSERT INTO notice_translation (notice_id, lang, title, body)
-          VALUES ($1, 'mr', $2, $3)
-          ON CONFLICT (notice_id, lang) DO UPDATE SET title = EXCLUDED.title, body = EXCLUDED.body;
-        `, [noticeId, dto.translations.mr.title.trim(), sanitizeNoticeHtml(dto.translations.mr.body)]);
       }
 
       // Audience targeting
@@ -358,13 +351,6 @@ export class NoticesService implements OnModuleInit, OnModuleDestroy {
           VALUES ($1, 'hi', $2, $3)
           ON CONFLICT (notice_id, lang) DO UPDATE SET title = EXCLUDED.title, body = EXCLUDED.body;
         `, [noticeId, dto.translations.hi.title.trim(), sanitizeNoticeHtml(dto.translations.hi.body)]);
-      }
-      if (dto.translations?.mr) {
-        await client.query(`
-          INSERT INTO notice_translation (notice_id, lang, title, body)
-          VALUES ($1, 'mr', $2, $3)
-          ON CONFLICT (notice_id, lang) DO UPDATE SET title = EXCLUDED.title, body = EXCLUDED.body;
-        `, [noticeId, dto.translations.mr.title.trim(), sanitizeNoticeHtml(dto.translations.mr.body)]);
       }
 
       // Audit Log

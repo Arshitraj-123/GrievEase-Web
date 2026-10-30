@@ -21,28 +21,28 @@ export function FinalCta() {
     <section
       id="cta"
       aria-labelledby="cta-heading"
-      className="py-20 px-6 lg:px-12 bg-gradient-to-r from-[#00A383] to-[#00846A] text-white text-center relative overflow-hidden"
+      className="section-fluid bg-gradient-to-r from-[#00A383] to-[#00846A] text-white text-center relative overflow-hidden"
     >
-      <div className="max-w-[840px] mx-auto relative z-10">
-        <h2 id="cta-heading" className="text-[34px] sm:text-[44px] font-extrabold leading-tight mb-4">
+      <div className="container-fluid max-w-[1040px] relative z-10">
+        <h2 id="cta-heading" className="fluid-h2 font-extrabold leading-tight mb-4">
           {ctaContent.heading}
         </h2>
-        <p className="text-[16px] sm:text-[17px] text-white/95 leading-relaxed max-w-[620px] mx-auto mb-9">
+        <p className="fluid-lead text-white/95 leading-relaxed max-w-[700px] mx-auto mb-10">
           {descriptionCopy}
         </p>
 
         {/* CTA Buttons Row */}
-        <div className="flex flex-wrap items-center justify-center gap-4 mb-8">
+        <div className="flex flex-wrap items-center justify-center gap-4 mb-10">
           <Link
             href={ctaContent.buttonJoin.href}
-            className="px-8 py-3.5 rounded-full bg-white text-[#006653] hover:text-[#004D3F] text-[15px] font-bold shadow-[0_8px_25px_rgba(0,0,0,0.18)] hover:bg-[#F8FAFC] hover:-translate-y-0.5 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-white flex items-center gap-2"
+            className="h-[56px] px-8 rounded-full bg-white text-[#006653] hover:text-[#004D3F] text-[17px] font-bold shadow-[0_8px_25px_rgba(0,0,0,0.18)] hover:bg-[#F8FAFC] hover:-translate-y-0.5 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-white flex items-center gap-2"
           >
             <span>{ctaContent.buttonJoin.label}</span>
-            <ArrowRight className="w-4 h-4" />
+            <ArrowRight className="w-5 h-5" />
           </Link>
           <Link
             href={ctaContent.buttonDemo.href}
-            className="px-8 py-3.5 rounded-full bg-black/20 hover:bg-black/30 border-2 border-white/80 text-white text-[15px] font-semibold transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+            className="h-[56px] px-8 rounded-full bg-black/20 hover:bg-black/30 border-2 border-white/80 text-white text-[17px] font-semibold transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-white flex items-center justify-center"
           >
             {ctaContent.buttonDemo.label}
           </Link>
@@ -50,10 +50,10 @@ export function FinalCta() {
 
         {/* Trust Guarantees: Config-driven */}
         {visibleGuarantees.length > 0 && (
-          <div className="flex flex-wrap items-center justify-center gap-6 text-[13px] text-white/90 font-medium">
+          <div className="flex flex-wrap items-center justify-center gap-8 text-[14px] text-white/95 font-medium">
             {visibleGuarantees.map((item) => (
-              <span key={item.key} className="flex items-center gap-1.5">
-                <Check className="w-4 h-4 text-emerald-200 stroke-[3]" />
+              <span key={item.key} className="flex items-center gap-2">
+                <Check className="w-4.5 h-4.5 text-emerald-200 stroke-[3]" />
                 <span>{item.label}</span>
               </span>
             ))}

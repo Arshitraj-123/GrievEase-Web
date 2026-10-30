@@ -34,11 +34,10 @@ export default function AdminBillHeadsPage() {
   const [editingHead, setEditingHead] = useState<any | null>(null);
 
   // Form
-  const [langTab, setLangTab] = useState<'en' | 'hi' | 'mr'>('en');
+  const [langTab, setLangTab] = useState<'en' | 'hi'>('en');
   const [formData, setFormData] = useState({
     name_en: '',
     name_hi: '',
-    name_mr: '',
     calc_method: 'FIXED_PER_FLAT',
     rate_rupees: '0',
     tax_percent: 0,
@@ -71,7 +70,6 @@ export default function AdminBillHeadsPage() {
     setFormData({
       name_en: '',
       name_hi: '',
-      name_mr: '',
       calc_method: 'FIXED_PER_FLAT',
       rate_rupees: '1500',
       tax_percent: 0,
@@ -87,7 +85,6 @@ export default function AdminBillHeadsPage() {
     setFormData({
       name_en: h.name_en || h.name || '',
       name_hi: h.name_hi || '',
-      name_mr: h.name_mr || '',
       calc_method: h.calc_method || 'FIXED_PER_FLAT',
       rate_rupees: String((h.rate_paise || 0) / 100),
       tax_percent: Number(h.tax_percent || 0),
@@ -107,7 +104,6 @@ export default function AdminBillHeadsPage() {
     const payload = {
       name_en: formData.name_en,
       name_hi: formData.name_hi || undefined,
-      name_mr: formData.name_mr || undefined,
       calc_method: formData.calc_method,
       rate_paise: Math.round(Number(formData.rate_rupees || 0) * 100),
       tax_percent: Number(formData.tax_percent || 0),
@@ -231,10 +227,7 @@ export default function AdminBillHeadsPage() {
                         {h.name_en || h.name}
                       </span>
                       {h.name_hi && (
-                        <span className="text-[11px] text-slate-400 mr-2">HI: {h.name_hi}</span>
-                      )}
-                      {h.name_mr && (
-                        <span className="text-[11px] text-slate-400">MR: {h.name_mr}</span>
+                        <span className="text-[11px] text-slate-400">HI: {h.name_hi}</span>
                       )}
                     </td>
                     <td className="px-5 py-4">
@@ -303,7 +296,7 @@ export default function AdminBillHeadsPage() {
               <form onSubmit={handleSave} className="space-y-4">
                 {/* Language Switch Tabs */}
                 <div className="bg-slate-100 p-1 rounded-xl flex gap-1">
-                  {(['en', 'hi', 'mr'] as const).map((lang) => (
+                  {(['en', 'hi'] as const).map((lang) => (
                     <button
                       key={lang}
                       type="button"
@@ -314,7 +307,7 @@ export default function AdminBillHeadsPage() {
                           : 'text-slate-600 hover:text-slate-900'
                       }`}
                     >
-                      {lang === 'en' ? 'English (EN)' : lang === 'hi' ? 'Hindi (HI)' : 'Marathi (MR)'}
+                      {lang === 'en' ? 'English (EN)' : 'Hindi (HI)'}
                     </button>
                   ))}
                 </div>

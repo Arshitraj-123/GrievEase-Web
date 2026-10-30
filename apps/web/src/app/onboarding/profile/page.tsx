@@ -23,7 +23,7 @@ export default function OnboardingProfilePage() {
   const { locale, setLocale } = useAccessibility();
 
   const [society, setSociety] = useState<any | null>(null);
-  const [selectedLang, setSelectedLang] = useState<'en' | 'hi' | 'mr'>(locale);
+  const [selectedLang, setSelectedLang] = useState<'en' | 'hi'>(locale);
   const [mobile, setMobile] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [statusMsg, setStatusMsg] = useState<string | null>(null);
@@ -79,16 +79,15 @@ export default function OnboardingProfilePage() {
                   <Languages className="w-4 h-4 text-teal-600" />
                   <span>Preferred Interface Language</span>
                 </label>
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-2 gap-2">
                   {[
                     { code: 'en', label: 'English' },
                     { code: 'hi', label: 'हिन्दी' },
-                    { code: 'mr', label: 'मराठी' },
                   ].map((l) => (
                     <button
                       key={l.code}
                       type="button"
-                      onClick={() => setSelectedLang(l.code as 'en' | 'hi' | 'mr')}
+                      onClick={() => setSelectedLang(l.code as 'en' | 'hi')}
                       className={`min-h-[44px] p-2.5 rounded-xl border text-xs font-bold transition-all ${
                         selectedLang === l.code
                           ? 'border-teal-600 bg-teal-50 dark:bg-teal-950/40 text-teal-700 dark:text-teal-300 shadow-xs'

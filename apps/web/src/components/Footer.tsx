@@ -1,19 +1,21 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Building2, ArrowUp, Globe } from 'lucide-react';
 import { siteConfig } from '@/config/site';
+import { useAccessibility } from '@/components/AccessibilityProvider';
+import { Locale } from '@/lib/i18n';
 
 const LANGUAGES = [
   { code: 'EN', name: 'English' },
   { code: 'HI', name: 'हिंदी' },
-  { code: 'MR', name: 'मराठी' },
 ];
 
 export function Footer() {
-  const [currentLang, setCurrentLang] = useState('EN');
+  const { locale, setLocale } = useAccessibility();
+  const currentLang = locale ? locale.toUpperCase() : 'EN';
   const pathname = usePathname();
 
   const scrollToTop = () => {
@@ -21,8 +23,16 @@ export function Footer() {
   };
 
   const handleLangChange = (code: string) => {
-    setCurrentLang(code);
-    document.cookie = `grievease_locale=${code}; path=/; max-age=31536000; SameSite=Lax`;
+    const loc = code.toLowerCase() as Locale;
+    setLocale(loc);
+  };
+
+  const getLocalizedHref = (href: string) => {
+    if (locale === 'hi') {
+      if (href.startsWith('#') || href.startsWith('http')) return href;
+      return href === '/' ? '/hi' : `/hi${href}`;
+    }
+    return href;
   };
 
   if (
@@ -51,7 +61,7 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-10 mb-14">
           {/* Col 1: Brand Info & Socials */}
           <div className="lg:col-span-2">
-            <Link href="/" className="inline-flex items-center gap-2.5 mb-4 group">
+            <Link href={getLocalizedHref('/')} className="inline-flex items-center gap-2.5 mb-4 group">
               <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#00B894] to-[#00D4AA] flex items-center justify-center text-white shadow-[0_4px_12px_rgba(0,184,148,0.3)]">
                 <Building2 className="w-4.5 h-4.5" />
               </div>
@@ -123,27 +133,27 @@ export function Footer() {
             <div className="text-[13px] font-bold text-white uppercase tracking-wider mb-4">Product</div>
             <ul className="space-y-2.5 text-[13px]">
               <li>
-                <Link href="/features" className="hover:text-[#00B894] transition-colors">
+                <Link href={getLocalizedHref('/features')} className="hover:text-[#00B894] transition-colors">
                   Features
                 </Link>
               </li>
               <li>
-                <Link href="/how-it-works" className="hover:text-[#00B894] transition-colors">
+                <Link href={getLocalizedHref('/how-it-works')} className="hover:text-[#00B894] transition-colors">
                   How It Works
                 </Link>
               </li>
               <li>
-                <Link href="/transparency" className="hover:text-[#00B894] transition-colors">
+                <Link href={getLocalizedHref('/transparency')} className="hover:text-[#00B894] transition-colors">
                   Transparency Dashboard
                 </Link>
               </li>
               <li>
-                <Link href="/track" className="hover:text-[#00B894] transition-colors">
+                <Link href={getLocalizedHref('/track')} className="hover:text-[#00B894] transition-colors">
                   Track a Complaint
                 </Link>
               </li>
               <li>
-                <Link href="/download" className="hover:text-[#00B894] transition-colors">
+                <Link href={getLocalizedHref('/download')} className="hover:text-[#00B894] transition-colors">
                   Download App
                 </Link>
               </li>
@@ -169,47 +179,47 @@ export function Footer() {
             <div className="text-[13px] font-bold text-white uppercase tracking-wider mb-4">Modules</div>
             <ul className="space-y-2 text-[12.5px]">
               <li>
-                <Link href="/features#grievances" className="hover:text-[#00B894] transition-colors">
+                <Link href={getLocalizedHref('/features#grievances')} className="hover:text-[#00B894] transition-colors">
                   Grievances &amp; SLA
                 </Link>
               </li>
               <li>
-                <Link href="/features#visitors" className="hover:text-[#00B894] transition-colors">
+                <Link href={getLocalizedHref('/features#visitors')} className="hover:text-[#00B894] transition-colors">
                   Visitors &amp; Cabs
                 </Link>
               </li>
               <li>
-                <Link href="/features#noticeboard" className="hover:text-[#00B894] transition-colors">
+                <Link href={getLocalizedHref('/features#noticeboard')} className="hover:text-[#00B894] transition-colors">
                   Noticeboard
                 </Link>
               </li>
               <li>
-                <Link href="/features#staff" className="hover:text-[#00B894] transition-colors">
+                <Link href={getLocalizedHref('/features#staff')} className="hover:text-[#00B894] transition-colors">
                   Domestic Staff
                 </Link>
               </li>
               <li>
-                <Link href="/features#amenities" className="hover:text-[#00B894] transition-colors">
+                <Link href={getLocalizedHref('/features#amenities')} className="hover:text-[#00B894] transition-colors">
                   Amenity Booking
                 </Link>
               </li>
               <li>
-                <Link href="/features#bills" className="hover:text-[#00B894] transition-colors">
+                <Link href={getLocalizedHref('/features#bills')} className="hover:text-[#00B894] transition-colors">
                   Maintenance Bills
                 </Link>
               </li>
               <li>
-                <Link href="/features#sos" className="hover:text-[#00B894] transition-colors">
+                <Link href={getLocalizedHref('/features#sos')} className="hover:text-[#00B894] transition-colors">
                   Emergency SOS
                 </Link>
               </li>
               <li>
-                <Link href="/features#guards" className="hover:text-[#00B894] transition-colors">
+                <Link href={getLocalizedHref('/features#guards')} className="hover:text-[#00B894] transition-colors">
                   Security Guards
                 </Link>
               </li>
               <li>
-                <Link href="/features#directory" className="hover:text-[#00B894] transition-colors">
+                <Link href={getLocalizedHref('/features#directory')} className="hover:text-[#00B894] transition-colors">
                   Society Directory
                 </Link>
               </li>
@@ -221,17 +231,17 @@ export function Footer() {
             <div className="text-[13px] font-bold text-white uppercase tracking-wider mb-4">Support</div>
             <ul className="space-y-2.5 text-[13px]">
               <li>
-                <Link href="/faq" className="hover:text-[#00B894] transition-colors">
+                <Link href={getLocalizedHref('/faq')} className="hover:text-[#00B894] transition-colors">
                   FAQ
                 </Link>
               </li>
               <li>
-                <Link href="/contact" className="hover:text-[#00B894] transition-colors">
+                <Link href={getLocalizedHref('/contact')} className="hover:text-[#00B894] transition-colors">
                   Contact Us
                 </Link>
               </li>
               <li>
-                <Link href="/contact?type=demo" className="hover:text-[#00B894] transition-colors">
+                <Link href={getLocalizedHref('/contact?type=demo')} className="hover:text-[#00B894] transition-colors">
                   Request Demo
                 </Link>
               </li>
@@ -248,12 +258,12 @@ export function Footer() {
             <div className="text-[13px] font-bold text-white uppercase tracking-wider mb-4">Company</div>
             <ul className="space-y-2.5 text-[13px] mb-6">
               <li>
-                <Link href="/about" className="hover:text-[#00B894] transition-colors">
+                <Link href={getLocalizedHref('/about')} className="hover:text-[#00B894] transition-colors">
                   About Us
                 </Link>
               </li>
               <li>
-                <Link href="/testimonials" className="hover:text-[#00B894] transition-colors">
+                <Link href={getLocalizedHref('/testimonials')} className="hover:text-[#00B894] transition-colors">
                   Testimonials
                 </Link>
               </li>
@@ -283,27 +293,27 @@ export function Footer() {
             <div className="text-[13px] font-bold text-white uppercase tracking-wider mb-3">Legal</div>
             <ul className="space-y-2 text-[12.5px]">
               <li>
-                <Link href="/privacy" className="hover:text-[#00B894] transition-colors">
+                <Link href={getLocalizedHref('/privacy')} className="hover:text-[#00B894] transition-colors">
                   Privacy Policy
                 </Link>
               </li>
               <li>
-                <Link href="/terms" className="hover:text-[#00B894] transition-colors">
+                <Link href={getLocalizedHref('/terms')} className="hover:text-[#00B894] transition-colors">
                   Terms of Service
                 </Link>
               </li>
               <li>
-                <Link href="/cookies" className="hover:text-[#00B894] transition-colors">
+                <Link href={getLocalizedHref('/cookies')} className="hover:text-[#00B894] transition-colors">
                   Cookie Policy
                 </Link>
               </li>
               <li>
-                <Link href="/security" className="hover:text-[#00B894] transition-colors">
+                <Link href={getLocalizedHref('/security')} className="hover:text-[#00B894] transition-colors">
                   Security
                 </Link>
               </li>
               <li>
-                <Link href="/data-deletion" className="hover:text-[#00B894] transition-colors">
+                <Link href={getLocalizedHref('/data-deletion')} className="hover:text-[#00B894] transition-colors">
                   Data Deletion
                 </Link>
               </li>

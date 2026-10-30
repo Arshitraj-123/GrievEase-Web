@@ -3,9 +3,9 @@ const fs = require('fs');
 const path = require('path');
 
 const localesDir = path.resolve(__dirname, '../apps/web/src/i18n/locales');
-const requiredLocales = ['en', 'hi', 'mr'];
+const requiredLocales = ['en', 'hi'];
 
-console.log('🔍 Running GrievEase i18n key parity and validation check...');
+console.log('🔍 Running GrievEase i18n key parity and validation check (EN & HI)...');
 
 function getFlattenedKeys(obj, prefix = '') {
   let keys = [];
@@ -44,7 +44,7 @@ let hasErrors = false;
 
 console.log(`ℹ️  Base dictionary ('en') contains ${baseKeys.size} distinct translation keys.`);
 
-for (const locale of ['hi', 'mr']) {
+for (const locale of ['hi']) {
   const targetMap = new Map(loaded[locale].flattened.map((item) => [item.path, item.value]));
 
   // 1. Check for missing keys in target locale
@@ -74,6 +74,6 @@ if (hasErrors) {
   console.error('\n❌ i18n validation FAILED: Missing or incomplete translation keys detected.');
   process.exit(1);
 } else {
-  console.log('✅ i18n validation PASSED: Perfect key parity across EN, HI, MR translations.\n');
+  console.log('✅ i18n validation PASSED: Perfect key parity across EN and HI translations.\n');
   process.exit(0);
 }

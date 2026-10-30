@@ -3,17 +3,32 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { Trash2, ShieldCheck, CheckCircle2, AlertTriangle, ArrowRight } from 'lucide-react';
+import { api } from '@/lib/api-client';
 
 export default function DataDeletionPage() {
   const [email, setEmail] = useState('');
   const [society, setSociety] = useState('');
   const [unit, setUnit] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !society) return;
-    setSubmitted(true);
+    setSubmitting(true);
+    try {
+      await api.submitPublicPrivacyRequest({
+        type: 'DELETION',
+        requesterName: `${email} (${society})`,
+        requesterEmail: email,
+        details: `Public erasure request for society: ${society}, unit: ${unit || 'N/A'}. In-person verification required.`,
+      });
+      setSubmitted(true);
+    } catch (err: any) {
+      alert(err.message || 'Failed to submit request');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (

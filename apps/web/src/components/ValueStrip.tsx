@@ -38,27 +38,27 @@ export function ValueStrip() {
   return (
     <section
       aria-label="Core GrievEase Values"
-      className="py-8 px-6 lg:px-12 bg-white border-y border-[#E2E8F0]/70"
+      className="py-10 px-6 lg:px-12 bg-[#F8FAFC] border-y border-[#E2E8F0]/80"
     >
-      <div className="max-w-[1300px] mx-auto">
+      <div className="container-fluid">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8">
           {items.map((item, idx) => {
             const Icon = item.icon;
             return (
               <div
                 key={idx}
-                className="flex items-center gap-3.5 p-3 rounded-2xl hover:bg-[#F0FAF7]/60 transition-colors"
+                className="flex items-center gap-4 p-4 rounded-2xl bg-white border border-[#E2E8F0]/60 shadow-2xs hover:shadow-xs hover:border-[#00B894]/40 transition-all"
               >
                 <div
-                  className={`w-12 h-12 rounded-xl ${item.bg} flex items-center justify-center shrink-0 shadow-2xs`}
+                  className={`w-13 h-13 rounded-xl ${item.bg} flex items-center justify-center shrink-0 shadow-2xs`}
                 >
                   <Icon className={`w-6 h-6 ${item.color}`} />
                 </div>
                 <div>
-                  <div className="text-[14px] font-bold text-[#1A1A2E] leading-snug">
+                  <div className="text-[15px] sm:text-[16px] font-bold text-[#1A1A2E] leading-snug">
                     {item.title}
                   </div>
-                  <div className="text-[12px] text-[#718096]">{item.subtitle}</div>
+                  <div className="text-[13px] text-[#718096] font-medium">{item.subtitle}</div>
                 </div>
               </div>
             );

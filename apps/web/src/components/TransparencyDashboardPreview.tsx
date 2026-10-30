@@ -72,9 +72,9 @@ export function TransparencyDashboardPreview() {
     <section
       id="transparency-preview"
       aria-labelledby="transparency-heading"
-      className="py-20 px-6 lg:px-12 bg-white border-b border-[#E2E8F0]"
+      className="section-fluid px-6 lg:px-12 bg-white border-b border-[#E2E8F0]/80"
     >
-      <div className="max-w-[1300px] mx-auto">
+      <div className="container-fluid">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
           <div>

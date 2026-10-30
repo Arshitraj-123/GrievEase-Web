@@ -27,6 +27,8 @@ import {
   Unlock,
   KeyRound,
   FileWarning,
+  Wrench,
+  Truck,
 } from 'lucide-react';
 import { api, ApiError } from '@/lib/api-client';
 
@@ -76,19 +78,31 @@ export default function AdminGrievanceDetailPage() {
   const [revealedIdentity, setRevealedIdentity] = useState<any | null>(null);
   const [revealError, setRevealError] = useState<string | null>(null);
 
+  // Vendor assignment state (Phase 8)
+  const [vendorsList, setVendorsList] = useState<any[]>([]);
+  const [selectedVendorId, setSelectedVendorId] = useState('');
+  const [vendorTaskPriority, setVendorTaskPriority] = useState('MEDIUM');
+  const [vendorTaskInstructions, setVendorTaskInstructions] = useState('');
+  const [showVendorAssignModal, setShowVendorAssignModal] = useState(false);
+  const [assigningVendor, setAssigningVendor] = useState(false);
+
   const fetchDetail = async () => {
     try {
       setLoading(true);
       setError(null);
-      const [res, profRes, usersRes] = await Promise.all([
+      const [res, profRes, usersRes, vendorsRes] = await Promise.all([
         api.getAdminGrievance(grievanceId),
         api.getProfile().catch(() => null),
         api.listUsers({}).catch(() => null),
+        api.listVendors().catch(() => []),
       ]);
       setData(res);
       setProfile(profRes);
       if (usersRes && Array.isArray(usersRes.items)) {
         setSocietyUsers(usersRes.items);
+      }
+      if (Array.isArray(vendorsRes)) {
+        setVendorsList(vendorsRes);
       }
       setTargetStatus(res.status);
     } catch (err: any) {
@@ -249,6 +263,32 @@ export default function AdminGrievanceDetailPage() {
       setRevealError(err.message || 'Break-glass reveal failed. Verify step-up password.');
     } finally {
       setRevealLoading(false);
+    }
+  };
+
+  const handleAssignVendor = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedVendorId) return;
+    setAssigningVendor(true);
+    try {
+      await api.createVendorTaskAdmin({
+        grievanceId,
+        flatId: data.flatId || undefined,
+        vendorId: selectedVendorId,
+        title: `Grievance #${data.ticketNumber || grievanceId.slice(0, 8)}: ${data.title}`,
+        description: vendorTaskInstructions || data.description,
+        priority: vendorTaskPriority,
+        areaText: data.areaText || (data.flatNumber ? `Flat ${data.flatNumber}` : 'Society Premises'),
+      });
+      setShowVendorAssignModal(false);
+      setSelectedVendorId('');
+      setVendorTaskInstructions('');
+      setActionSuccess('Vendor contractor assigned. Task created and vendor alerted.');
+      fetchDetail();
+    } catch (err: any) {
+      alert(err.message || 'Failed to assign vendor');
+    } finally {
+      setAssigningVendor(false);
     }
   };
 
@@ -486,6 +526,15 @@ export default function AdminGrievanceDetailPage() {
                 >
                   <UserCheck className="w-3.5 h-3.5" />
                   <span>Assign</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setShowVendorAssignModal(true)}
+                  className="min-h-[40px] px-3 py-2 rounded-xl border border-teal-300 text-teal-700 hover:bg-teal-50 text-xs font-bold inline-flex items-center justify-center gap-1.5"
+                >
+                  <Wrench className="w-3.5 h-3.5" />
+                  <span>Assign Vendor</span>
                 </button>
 
                 {data.currentLevel < 4 && (
@@ -834,6 +883,94 @@ export default function AdminGrievanceDetailPage() {
                     className="min-h-[40px] px-5 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-black text-xs shadow-lg"
                   >
                     {revealLoading ? 'Decrypting...' : 'Execute Break-Glass Reveal'}
+                  </Button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+        {/* Vendor Assignment Modal (Phase 8) */}
+        {showVendorAssignModal && (
+          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3">
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+              <div className="flex items-center justify-between border-b pb-3">
+                <div className="flex items-center gap-2">
+                  <Wrench className="w-5 h-5 text-teal-600" />
+                  <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+                    Assign Vendor Contractor
+                  </h3>
+                </div>
+                <button
+                  onClick={() => setShowVendorAssignModal(false)}
+                  className="text-slate-400 hover:text-slate-600 text-xs font-bold"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <form onSubmit={handleAssignVendor} className="space-y-3.5 text-xs">
+                <div>
+                  <label className="block font-bold text-slate-700 dark:text-slate-200 mb-1">
+                    Select Maintenance Contractor *
+                  </label>
+                  <select
+                    required
+                    value={selectedVendorId}
+                    onChange={(e) => setSelectedVendorId(e.target.value)}
+                    className="w-full px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs"
+                  >
+                    <option value="">-- Choose Vendor --</option>
+                    {vendorsList.map((v) => (
+                      <option key={v.id} value={v.id}>
+                        {v.company_name} ({v.category})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block font-bold text-slate-700 dark:text-slate-200 mb-1">
+                    Task Priority
+                  </label>
+                  <select
+                    value={vendorTaskPriority}
+                    onChange={(e) => setVendorTaskPriority(e.target.value)}
+                    className="w-full px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs"
+                  >
+                    <option value="LOW">LOW</option>
+                    <option value="MEDIUM">MEDIUM</option>
+                    <option value="HIGH">HIGH</option>
+                    <option value="EMERGENCY">EMERGENCY</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block font-bold text-slate-700 dark:text-slate-200 mb-1">
+                    Special Work Instructions
+                  </label>
+                  <textarea
+                    rows={3}
+                    placeholder="Provide diagnostic instructions, preferred visit window, or scope details..."
+                    value={vendorTaskInstructions}
+                    onChange={(e) => setVendorTaskInstructions(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs"
+                  />
+                </div>
+
+                <div className="flex items-center justify-end gap-2.5 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowVendorAssignModal(false)}
+                    className="min-h-[40px] px-4 py-2 rounded-xl border text-xs font-semibold"
+                  >
+                    Cancel
+                  </button>
+                  <Button
+                    type="submit"
+                    disabled={assigningVendor || !selectedVendorId}
+                    className="min-h-[40px] px-5 py-2 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-black text-xs shadow-lg"
+                  >
+                    {assigningVendor ? 'Assigning...' : 'Assign Contractor'}
                   </Button>
                 </div>
               </form>

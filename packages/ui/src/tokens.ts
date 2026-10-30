@@ -52,3 +52,36 @@ export const typography = {
   fontSans: 'var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
   fontDisplay: 'var(--font-outfit), sans-serif',
 } as const;
+
+// ─── Fluid Typography Design Tokens (PART 1 Requirement) ────────────────────
+export const fluidTypography = {
+  h1: 'clamp(2.75rem, 1.2rem + 4.6vw, 5.5rem)',
+  h2: 'clamp(2rem, 1.2rem + 2.4vw, 3.5rem)',
+  h3: 'clamp(1.5rem, 1.1rem + 1.2vw, 2.25rem)',
+  lead: 'clamp(1.25rem, 1.15rem + 0.5vw, 1.375rem)', // 20-22px
+  body: 'clamp(1.0625rem, 1rem + 0.3125vw, 1.125rem)', // 17px mobile -> 18px base desktop
+  cardTitle: 'clamp(1.25rem, 1.15rem + 0.35vw, 1.375rem)', // 20-22px
+  cardText: 'clamp(1rem, 0.95rem + 0.25vw, 1.0625rem)', // 16-17px
+  navLink: 'clamp(1rem, 0.95rem + 0.25vw, 1.0625rem)', // 16-17px
+  buttonText: '1.125rem', // 18px
+  smallCaps: '0.875rem', // 14px
+} as const;
+
+export const lineHeights = {
+  latin: {
+    body: 1.5,
+    heading: 1.15,
+  },
+  devanagari: {
+    body: 1.7, // 1.65 - 1.75
+    heading: 1.35, // 1.3 - 1.4
+  },
+} as const;
+
+export const layout = {
+  containerMaxWidth: '1440px',
+  containerMaxWidth2xl: '1600px',
+  containerPadding: 'clamp(1.5rem, 3vw, 3rem)', // 24-48px
+  sectionPaddingY: 'clamp(3.5rem, 6vw, 6rem)', // 56-96px
+  buttonHeight: '56px',
+} as const;

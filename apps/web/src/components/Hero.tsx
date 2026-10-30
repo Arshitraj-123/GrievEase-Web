@@ -12,6 +12,10 @@ import {
   Bell,
   Users,
   Search,
+  ShieldCheck,
+  Lock,
+  Receipt,
+  CheckCircle2,
 } from 'lucide-react';
 import { heroContent } from '@/content/hero';
 import { DemoVideoModal } from '@/components/DemoVideoModal';
@@ -32,85 +36,105 @@ export function Hero() {
       <section
         id="hero"
         aria-labelledby="hero-headline"
-        className="relative bg-white pt-8 md:pt-12 pb-16 md:pb-24 px-6 lg:px-12 overflow-hidden flex items-center min-h-[calc(100vh-72px)]"
+        className="relative bg-white pt-6 md:pt-10 pb-12 md:pb-16 px-6 lg:px-12 overflow-hidden flex items-center min-h-[calc(100vh-76px)]"
       >
         {/* Soft Radial Ambient Lighting */}
-        <div className="absolute top-0 right-1/4 w-[500px] h-[500px] bg-[radial-gradient(circle,rgba(0,184,148,0.12)_0%,transparent_70%)] pointer-events-none -z-10" />
+        <div className="absolute top-0 right-1/4 w-[600px] h-[600px] bg-[radial-gradient(circle,rgba(0,184,148,0.14)_0%,transparent_70%)] pointer-events-none -z-10" />
 
-        <div className="max-w-[1300px] mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
-          {/* LEFT COLUMN: Headline, Description, CTAs */}
-          <div className="lg:col-span-6 xl:col-span-6 flex flex-col items-start z-10">
+        <div className="container-fluid grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
+          {/* LEFT COLUMN: Headline, Description, CTAs, Highlights */}
+          <div className="lg:col-span-7 xl:col-span-7 flex flex-col items-start z-10">
             {/* Top Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-[#00B894]/10 border border-[#00B894]/30 rounded-full mb-6">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-[#00B894]/10 border border-[#00B894]/30 rounded-full mb-4">
               <span className="text-[#00B894] text-[14px]">🏠</span>
               <span className="text-[13px] font-semibold text-[#00846A]">
                 {heroContent.badge}
               </span>
             </div>
 
-            {/* Headline */}
+            {/* Headline with fluid typography token */}
             <h1
               id="hero-headline"
-              className="text-[46px] sm:text-[56px] lg:text-[62px] font-extrabold tracking-tight leading-[1.08] text-[#1A1A2E] mb-5"
+              className="text-[clamp(2.75rem,1.2rem+4.6vw,5.5rem)] font-extrabold tracking-tight leading-[1.08] text-[#1A1A2E] mb-4"
             >
               <span>{heroContent.headline.line1}</span>
               <br />
               <span className="text-[#00B894] inline-block">{heroContent.headline.accent}</span>
             </h1>
 
-            {/* Description */}
-            <p className="text-[15.5px] md:text-[16.5px] text-[#4A5568] leading-[1.7] max-w-[500px] mb-8 font-normal">
+            {/* Description with fluid lead typography */}
+            <p className="text-[clamp(1.2rem,1.1rem+0.4vw,1.35rem)] text-[#4A5568] leading-[1.6] max-w-[620px] mb-6 font-normal">
               {heroContent.description}
             </p>
 
-            {/* CTA Buttons Row */}
-            <div className="flex flex-wrap items-center gap-4 mb-5">
+            {/* CTAs Row: 3 prominent 56px action buttons */}
+            <div className="flex flex-wrap items-center gap-3.5 mb-6 w-full">
+              {/* Primary CTA */}
               <Link
                 href={heroContent.ctaPrimary.href}
-                className="group px-8 py-3.5 rounded-full bg-gradient-to-r from-[#00B894] to-[#00D4AA] text-white text-[15px] font-semibold shadow-[0_8px_25px_rgba(0,184,148,0.35)] hover:-translate-y-0.5 hover:shadow-[0_12px_30px_rgba(0,184,148,0.45)] transition-all duration-200 flex items-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#00B894]"
+                className="btn-fluid-primary bg-gradient-to-r from-[#00B894] to-[#00D4AA] text-white shadow-[0_8px_25px_rgba(0,184,148,0.35)] hover:-translate-y-0.5 hover:shadow-[0_12px_30px_rgba(0,184,148,0.45)] group focus:outline-none focus-visible:ring-2 focus-visible:ring-[#00B894]"
               >
                 <span>{heroContent.ctaPrimary.label}</span>
                 <span className="transition-transform group-hover:translate-x-1">→</span>
               </Link>
 
+              {/* Secondary CTA: Demo Modal */}
               <button
+                type="button"
                 onClick={() => setDemoModalOpen(true)}
-                className="px-6 py-3.5 rounded-full bg-white border border-[#E2E8F0] text-[#1A1A2E] text-[15px] font-semibold hover:border-[#00B894] hover:bg-[#F0FAF7]/60 shadow-xs transition-all duration-200 flex items-center gap-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#00B894]"
+                className="btn-fluid-secondary bg-white border border-[#E2E8F0] text-[#1A1A2E] hover:border-[#00B894] hover:bg-[#F0FAF7]/70 shadow-xs focus:outline-none focus-visible:ring-2 focus-visible:ring-[#00B894]"
                 aria-haspopup="dialog"
               >
-                <div className="w-7 h-7 rounded-full bg-gradient-to-r from-[#00B894] to-[#00D4AA] flex items-center justify-center text-white shadow-xs">
-                  <Play className="w-3 h-3 fill-white text-white ml-0.5" />
+                <div className="w-8 h-8 rounded-full bg-gradient-to-r from-[#00B894] to-[#00D4AA] flex items-center justify-center text-white shadow-xs">
+                  <Play className="w-3.5 h-3.5 fill-white text-white ml-0.5" />
                 </div>
                 <span>{heroContent.ctaSecondary.label}</span>
               </button>
-            </div>
 
-            {/* Third Text Link: Track a complaint */}
-            <div className="mb-8">
+              {/* Visible Third Button: Track a complaint */}
               <Link
                 href={heroContent.ctaTrack.href}
-                className="inline-flex items-center gap-1.5 text-[14px] font-semibold text-[#00846A] hover:text-[#00B894] hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[#00B894] rounded"
+                className="btn-fluid-secondary bg-teal-50/80 border border-teal-200 text-[#00846A] hover:bg-teal-100 hover:border-teal-300 shadow-xs focus:outline-none focus-visible:ring-2 focus-visible:ring-[#00B894]"
               >
                 <Search className="w-4 h-4 text-[#00B894]" />
                 <span>{heroContent.ctaTrack.label}</span>
-                <ArrowRight className="w-3.5 h-3.5 ml-0.5" />
               </Link>
+            </div>
+
+            {/* Compact Highlights Row directly beneath CTAs (4 items) */}
+            <div className="w-full pt-4 border-t border-slate-100 grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs text-[#4A5568]">
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4 text-[#00B894] shrink-0" />
+                <span className="font-medium text-[12px] sm:text-[13px] leading-tight">100% In-App Alerts</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Clock className="w-4 h-4 text-[#00B894] shrink-0" />
+                <span className="font-medium text-[12px] sm:text-[13px] leading-tight">4-Level Auto-SLA</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Lock className="w-4 h-4 text-[#00B894] shrink-0" />
+                <span className="font-medium text-[12px] sm:text-[13px] leading-tight">Immutable Audit Log</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Receipt className="w-4 h-4 text-[#00B894] shrink-0" />
+                <span className="font-medium text-[12px] sm:text-[13px] leading-tight">Cash Dues with Receipts</span>
+              </div>
             </div>
           </div>
 
-          {/* RIGHT COLUMN: Resident Mobile App Mockup + Single Handwritten Annotation */}
-          <div className="lg:col-span-6 xl:col-span-6 relative flex justify-center items-center mt-6 lg:mt-0">
-            {/* SINGLE Handwritten Annotation (Hidden below 1024px, positioned clearly to top-left of phone without overlapping) */}
+          {/* RIGHT COLUMN: Resident Mobile App Mockup (~1.15x scale) + 2 Floating Sample UI Cards */}
+          <div className="lg:col-span-5 xl:col-span-5 relative flex justify-center items-center mt-4 lg:mt-0">
+            {/* SINGLE Handwritten Annotation (Hidden below 1280px, strictly non-overlapping) */}
             <div
-              className="hidden lg:flex absolute -top-12 -left-4 xl:left-2 z-20 flex-col items-start pointer-events-none select-none"
+              className="hidden xl:flex absolute -top-12 -left-8 z-30 flex-col items-start pointer-events-none select-none"
               aria-hidden="true"
             >
-              <div className="font-caveat text-[22px] xl:text-[24px] text-[#00846A] font-semibold leading-tight -rotate-6">
+              <div className="font-caveat text-[24px] text-[#00846A] font-semibold leading-tight -rotate-6">
                 {heroContent.annotation.line1} <br />
                 {heroContent.annotation.line2}
               </div>
               <svg
-                className="w-10 h-9 text-[#00B894] mt-1 ml-6 rotate-12"
+                className="w-10 h-8 text-[#00B894] mt-0.5 ml-6 rotate-12"
                 viewBox="0 0 50 40"
                 fill="none"
                 stroke="currentColor"
@@ -121,18 +145,54 @@ export function Hero() {
               </svg>
             </div>
 
-            {/* RESIDENT PHONE MOCKUP */}
-            <div className="relative w-[295px] sm:w-[320px] bg-[#1A1A2E] rounded-[44px] p-[10px] shadow-[0_25px_70px_rgba(0,0,0,0.22),0_10px_25px_rgba(0,0,0,0.12)] border-[3px] border-[#2E3440] z-10 animate-float">
+            {/* Sample UI Card 1: Active SLA Timer Running (Sample UI) */}
+            <div className="hidden sm:flex absolute -top-5 -right-4 lg:-right-8 z-30 bg-white/95 backdrop-blur-md border border-slate-200/90 shadow-xl rounded-2xl p-3 max-w-[215px] select-none flex-col gap-1">
+              {/* Sample UI representation */}
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-[9.5px] font-bold uppercase tracking-wider text-teal-700 bg-teal-50 px-2 py-0.5 rounded-full border border-teal-200/60">
+                  {heroContent.floatingCards.slaRunning.tag}
+                </span>
+                <span className="w-2 h-2 rounded-full bg-teal-500 animate-pulse" />
+              </div>
+              <div className="text-[11.5px] font-bold text-slate-900 leading-snug">
+                {heroContent.floatingCards.slaRunning.title}
+              </div>
+              <div className="text-[10px] font-medium text-slate-500 flex items-center gap-1">
+                <Clock className="w-3 h-3 text-teal-600 shrink-0" />
+                <span className="truncate">{heroContent.floatingCards.slaRunning.timeRemaining}</span>
+              </div>
+            </div>
+
+            {/* Sample UI Card 2: Auto-Escalated to Committee (Sample UI) */}
+            <div className="hidden sm:flex absolute -bottom-5 -left-4 lg:-left-8 z-30 bg-white/95 backdrop-blur-md border border-slate-200/90 shadow-xl rounded-2xl p-3 max-w-[215px] select-none flex-col gap-1">
+              {/* Sample UI representation */}
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-[9.5px] font-bold uppercase tracking-wider text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200/60">
+                  {heroContent.floatingCards.escalated.tag}
+                </span>
+                <AlertTriangle className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+              </div>
+              <div className="text-[11.5px] font-bold text-slate-900 leading-snug">
+                {heroContent.floatingCards.escalated.title}
+              </div>
+              <div className="text-[10px] font-medium text-slate-500 flex items-center gap-1">
+                <CheckCircle2 className="w-3 h-3 text-amber-600 shrink-0" />
+                <span className="truncate">{heroContent.floatingCards.escalated.timeRemaining}</span>
+              </div>
+            </div>
+
+            {/* RESIDENT PHONE MOCKUP (Scaled ~1.15x: 340px base width) */}
+            <div className="relative w-[340px] sm:w-[365px] bg-[#1A1A2E] rounded-[48px] p-[11px] shadow-[0_28px_80px_rgba(0,0,0,0.24),0_12px_28px_rgba(0,0,0,0.12)] border-[3px] border-[#2E3440] z-20 animate-float">
               {/* Dynamic Island / Notch */}
-              <div className="absolute top-3 left-1/2 -translate-x-1/2 w-24 h-4 bg-[#0F172A] rounded-full z-30 flex items-center justify-between px-3">
+              <div className="absolute top-3.5 left-1/2 -translate-x-1/2 w-28 h-4 bg-[#0F172A] rounded-full z-40 flex items-center justify-between px-3">
                 <div className="w-2.5 h-2.5 rounded-full bg-[#1A1A2E]" />
                 <div className="w-2.5 h-2.5 rounded-full bg-[#1A1A2E]/80" />
               </div>
 
               {/* Inner Screen */}
-              <div className="w-full bg-[#F0FAF7] rounded-[36px] overflow-hidden flex flex-col text-left select-none relative pb-1">
+              <div className="w-full bg-[#F0FAF7] rounded-[40px] overflow-hidden flex flex-col text-left select-none relative pb-1">
                 {/* Status Bar */}
-                <div className="bg-white pt-2.5 px-4 pb-2 flex justify-between items-center text-[10px] text-[#718096] border-b border-[#F1F5F9]">
+                <div className="bg-white pt-3 px-4 pb-2 flex justify-between items-center text-[10px] text-[#718096] border-b border-[#F1F5F9]">
                   <div className="flex items-center gap-1.5">
                     <div className="w-4 h-4 rounded-md bg-gradient-to-br from-[#00B894] to-[#00D4AA] flex items-center justify-center text-white">
                       <Building2 className="w-2.5 h-2.5" />
@@ -141,6 +201,7 @@ export function Hero() {
                   </div>
                   <div className="flex items-center gap-2">
                     <button
+                      type="button"
                       onClick={() => triggerPhoneAction('Notifications checked')}
                       className="relative text-[#718096] hover:text-[#00B894]"
                       aria-label="View notifications"
@@ -158,7 +219,7 @@ export function Hero() {
                 <div className="bg-white px-4 py-3 border-b border-[#F1F5F9]">
                   <div className="flex justify-between items-start">
                     <div>
-                      {/* Sample Resident Mockup Data: Resident Home Screen (not Admin) */}
+                      {/* Sample Resident Mockup Data: Resident Home Screen */}
                       <div className="text-[13px] font-bold text-[#1A1A2E] leading-tight">
                         {heroContent.residentMockup.residentName} 👋
                       </div>
@@ -175,8 +236,7 @@ export function Hero() {
                   </div>
                 </div>
 
-                {/* Grievance Count Chips (Sample Resident Data: Open 2, In Progress 1, Escalated 0, Resolved 5) */}
-                {/* Sample Resident Mockup Data: Clean 4-chip counts */}
+                {/* Grievance Count Chips */}
                 <div className="bg-white px-3 pb-3 pt-2 grid grid-cols-4 gap-1.5">
                   <div
                     onClick={() => triggerPhoneAction('Filtered to 2 Open complaints')}
@@ -253,8 +313,7 @@ export function Hero() {
                   </div>
                 </div>
 
-                {/* Recent Complaints (Clean Sample Resident Data: Leaky faucet, Parking gate, Lift) */}
-                {/* Sample Resident Mockup Data: Clean recent complaints list */}
+                {/* Recent Complaints */}
                 <div className="px-3.5 py-2.5">
                   <div className="flex justify-between items-center mb-1.5">
                     <span className="text-[10px] font-bold text-[#1A1A2E]">Recent Grievances</span>

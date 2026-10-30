@@ -62,30 +62,30 @@ export function Testimonials() {
     <section
       id="testimonials"
       aria-labelledby="testimonials-heading"
-      className="py-20 px-6 lg:px-12 bg-white border-b border-[#E2E8F0]"
+      className="section-fluid bg-[#F0FAF7]/40 border-b border-[#E2E8F0]/70"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="max-w-[1100px] mx-auto">
+      <div className="container-fluid">
         {/* Header */}
-        <div className="text-center max-w-[650px] mx-auto mb-14">
-          <span className="text-[12px] font-bold tracking-[1.5px] uppercase text-[#00846A] mb-2.5 block">
+        <div className="text-center max-w-[800px] mx-auto mb-12 sm:mb-16">
+          <span className="text-[13px] font-bold tracking-[1.5px] uppercase text-[#00846A] mb-2.5 block">
             {testimonialsContent.tag}
           </span>
           <h2
             id="testimonials-heading"
-            className="text-[32px] sm:text-[40px] font-extrabold text-[#1A1A2E] leading-tight mb-3"
+            className="fluid-h2 font-extrabold text-[#1A1A2E] leading-tight mb-3"
           >
             {testimonialsContent.heading}
           </h2>
-          <p className="text-[15.5px] text-[#4A5568]">
+          <p className="fluid-lead text-[#4A5568]">
             {testimonialsContent.subtitle}
           </p>
         </div>
 
         {/* Carousel Card */}
         <div
-          className="relative bg-white rounded-3xl p-8 sm:p-14 border border-[#E2E8F0] shadow-[0_4px_30px_rgba(0,0,0,0.06)] overflow-hidden"
+          className="relative bg-white rounded-3xl p-8 sm:p-14 border border-[#E2E8F0] shadow-[0_4px_30px_rgba(0,0,0,0.06)] overflow-hidden max-w-[1200px] mx-auto"
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
         >

@@ -192,24 +192,24 @@ async function seed() {
     // ==========================================
     console.log('[SEED] Seeding Phase 3 Categories, Area Tags, Governance Chain & SLA Configs...');
 
-    // 5. Seed 8 Default Categories (with EN, HI, MR names & icons)
+    // 5. Seed 8 Default Categories (with EN, HI names & icons)
     const defaultCategories = [
-      { name_en: 'Water Supply', name_hi: 'पानी की आपूर्ति', name_mr: 'पाणी पुरवठा', icon: 'Droplets', requires_photo: false, sort: 1 },
-      { name_en: 'Electricity & Power', name_hi: 'बिजली और बिजली आपूर्ति', name_mr: 'वीज आणि विद्युत पुरवठा', icon: 'Zap', requires_photo: false, sort: 2 },
-      { name_en: 'Cleanliness & Waste', name_hi: 'सफाई और कचरा प्रबंधन', name_mr: 'स्वच्छता आणि कचरा व्यवस्थापन', icon: 'Trash2', requires_photo: true, sort: 3 },
-      { name_en: 'Security & Safety', name_hi: 'सुरक्षा और बचाव', name_mr: 'सुरक्षा आणि दक्षता', icon: 'Shield', requires_photo: false, sort: 4 },
-      { name_en: 'Elevators & Lifts', name_hi: 'लिफ्ट और एलिवेटर', name_mr: 'लिफ्ट आणि एलेव्हेटर', icon: 'ArrowUpDown', requires_photo: false, sort: 5 },
-      { name_en: 'Parking & Vehicles', name_hi: 'पार्किंग और वाहन', name_mr: 'पार्किंग आणि वाहने', icon: 'Car', requires_photo: false, sort: 6 },
-      { name_en: 'Noise & Disturbance', name_hi: 'शोर और अशांति', name_mr: 'आवाज आणि उपद्रव', icon: 'Volume2', requires_photo: false, sort: 7 },
-      { name_en: 'Maintenance & Repairs', name_hi: 'रखरखाव और मरम्मत', name_mr: 'देखभाल आणि दुरुस्ती', icon: 'Wrench', requires_photo: true, sort: 8 },
+      { name_en: 'Water Supply', name_hi: 'पानी की आपूर्ति', icon: 'Droplets', requires_photo: false, sort: 1 },
+      { name_en: 'Electricity & Power', name_hi: 'बिजली और बिजली आपूर्ति', icon: 'Zap', requires_photo: false, sort: 2 },
+      { name_en: 'Cleanliness & Waste', name_hi: 'सफाई और कचरा प्रबंधन', icon: 'Trash2', requires_photo: true, sort: 3 },
+      { name_en: 'Security & Safety', name_hi: 'सुरक्षा और बचाव', icon: 'Shield', requires_photo: false, sort: 4 },
+      { name_en: 'Elevators & Lifts', name_hi: 'लिफ्ट और एलिवेटर', icon: 'ArrowUpDown', requires_photo: false, sort: 5 },
+      { name_en: 'Parking & Vehicles', name_hi: 'पार्किंग और वाहन', icon: 'Car', requires_photo: false, sort: 6 },
+      { name_en: 'Noise & Disturbance', name_hi: 'शोर और अशांति', icon: 'Volume2', requires_photo: false, sort: 7 },
+      { name_en: 'Maintenance & Repairs', name_hi: 'रखरखाव और मरम्मत', icon: 'Wrench', requires_photo: true, sort: 8 },
     ];
 
     for (const cat of defaultCategories) {
       await client.query(`
-        INSERT INTO category (society_id, name_en, name_hi, name_mr, icon, requires_photo, sort, active)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, true)
+        INSERT INTO category (society_id, name_en, name_hi, icon, requires_photo, sort, active)
+        VALUES ($1, $2, $3, $4, $5, $6, true)
         ON CONFLICT DO NOTHING;
-      `, [societyId, cat.name_en, cat.name_hi, cat.name_mr, cat.icon, cat.requires_photo, cat.sort]);
+      `, [societyId, cat.name_en, cat.name_hi, cat.icon, cat.requires_photo, cat.sort]);
     }
 
     // 6. Seed Area Tags with QR Slugs

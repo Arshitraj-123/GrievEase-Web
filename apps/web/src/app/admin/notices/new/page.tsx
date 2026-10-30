@@ -25,13 +25,11 @@ export default function NewNoticePage() {
   const router = useRouter();
 
   // Multi-lingual tabs
-  const [activeLang, setActiveLang] = useState<'EN' | 'HI' | 'MR'>('EN');
+  const [activeLang, setActiveLang] = useState<'EN' | 'HI'>('EN');
   const [titleEn, setTitleEn] = useState('');
   const [bodyEn, setBodyEn] = useState('');
   const [titleHi, setTitleHi] = useState('');
   const [bodyHi, setBodyHi] = useState('');
-  const [titleMr, setTitleMr] = useState('');
-  const [bodyMr, setBodyMr] = useState('');
 
   // Core settings
   const [categoryId, setCategoryId] = useState(fallbackCategories[0]?.id || 'cat-1');
@@ -57,19 +55,17 @@ export default function NewNoticePage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
-  const currentTitle = activeLang === 'EN' ? titleEn : activeLang === 'HI' ? titleHi : titleMr;
-  const currentBody = activeLang === 'EN' ? bodyEn : activeLang === 'HI' ? bodyHi : bodyMr;
+  const currentTitle = activeLang === 'EN' ? titleEn : titleHi;
+  const currentBody = activeLang === 'EN' ? bodyEn : bodyHi;
 
   const setCurrentTitle = (val: string) => {
     if (activeLang === 'EN') setTitleEn(val);
-    else if (activeLang === 'HI') setTitleHi(val);
-    else setTitleMr(val);
+    else setTitleHi(val);
   };
 
   const setCurrentBody = (val: string) => {
     if (activeLang === 'EN') setBodyEn(val);
-    else if (activeLang === 'HI') setBodyHi(val);
-    else setBodyMr(val);
+    else setBodyHi(val);
   };
 
   const handlePublish = async () => {
@@ -98,7 +94,6 @@ export default function NewNoticePage() {
         bodyEn,
         translations: [
           ...(titleHi.trim() ? [{ lang: 'HI' as const, title: titleHi, body: bodyHi }] : []),
-          ...(titleMr.trim() ? [{ lang: 'MR' as const, title: titleMr, body: bodyMr }] : []),
         ],
       };
 
@@ -155,7 +150,7 @@ export default function NewNoticePage() {
             </div>
 
             <div className="flex items-center gap-1">
-              {(['EN', 'HI', 'MR'] as const).map((lang) => (
+              {(['EN', 'HI'] as const).map((lang) => (
                 <button
                   key={lang}
                   type="button"
@@ -166,7 +161,7 @@ export default function NewNoticePage() {
                       : 'text-slate-600 hover:bg-slate-100'
                   }`}
                 >
-                  {lang === 'EN' ? 'English (Primary)' : lang === 'HI' ? 'हिंदी (Hindi)' : 'मराठी (Marathi)'}
+                  {lang === 'EN' ? 'English (Primary)' : 'हिंदी (Hindi)'}
                   {lang === 'EN' && ' *'}
                 </button>
               ))}
@@ -238,7 +233,7 @@ export default function NewNoticePage() {
               >
                 {fallbackCategories.map((c) => (
                   <option key={c.id} value={c.id}>
-                    {c.nameEn} ({c.nameHi} / {c.nameMr})
+                    {c.nameEn} ({c.nameHi})
                   </option>
                 ))}
               </select>

@@ -28,23 +28,23 @@ export function DownloadApp() {
   const hasAndroidUrl = Boolean(siteConfig.storeUrls.android);
 
   return (
-    <section id="download" aria-labelledby="download-heading" className="px-6 lg:px-12 py-12 bg-white">
-      <div className="max-w-[1300px] mx-auto bg-[#F0FAF7] rounded-[32px] p-8 sm:p-14 border border-[#B0EBDC]/60 relative overflow-hidden">
+    <section id="download" aria-labelledby="download-heading" className="section-fluid bg-white">
+      <div className="container-fluid bg-[#F0FAF7] rounded-[36px] p-8 sm:p-14 border border-[#B0EBDC]/70 relative overflow-hidden shadow-xs">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
           {/* Left Info Column (7 cols) */}
           <div className="lg:col-span-7">
-            <span className="text-[12px] font-bold tracking-[1.5px] uppercase text-[#00846A] mb-2 block">
+            <span className="text-[13px] font-bold tracking-[1.5px] uppercase text-[#00846A] mb-2 block">
               GET THE APP
             </span>
             <h2
               id="download-heading"
-              className="text-[32px] sm:text-[42px] font-bold text-[#1A1A2E] leading-tight mb-3"
+              className="fluid-h2 font-bold text-[#1A1A2E] leading-tight mb-3"
             >
               Your society in your pocket
             </h2>
-            <p className="text-[15.5px] text-[#4A5568] leading-relaxed max-w-[480px] mb-8">
-              Available on iOS and Android. Same real-time experience, same powerful auto-escalation
-              features — right on the go.
+            <p className="fluid-body text-[#4A5568] leading-relaxed max-w-[520px] mb-8">
+              Available on iOS and Android. Same real-time experience, same powerful 4-level auto-escalation
+              features, and direct guard visitor approvals — right on the go.
             </p>
 
             {/* Store Buttons Row */}

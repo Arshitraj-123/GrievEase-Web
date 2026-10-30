@@ -100,8 +100,8 @@ export class BillingService implements OnModuleInit, OnModuleDestroy {
       await client.query("SELECT set_config('app.is_super_admin', 'true', true)");
       const res = await client.query(
         `SELECT id, calc_method, rate_paise, rate_table, tax_percent, active, sort,
-                CASE $2 WHEN 'hi' THEN name_hi WHEN 'mr' THEN name_mr ELSE name_en END AS name,
-                name_en, name_hi, name_mr
+                CASE $2 WHEN 'hi' THEN name_hi ELSE name_en END AS name,
+                name_en, name_hi
          FROM bill_head
          WHERE society_id = $1
          ORDER BY sort ASC, created_at ASC`,
@@ -119,14 +119,13 @@ export class BillingService implements OnModuleInit, OnModuleDestroy {
       await client.query("SELECT set_config('app.is_super_admin', 'true', true)");
       const res = await client.query(
         `INSERT INTO bill_head (
-           society_id, name_en, name_hi, name_mr, calc_method, rate_paise, rate_table, tax_percent, active, sort
-         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+           society_id, name_en, name_hi, calc_method, rate_paise, rate_table, tax_percent, active, sort
+         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
          RETURNING id`,
         [
           societyId,
           dto.nameEn,
           dto.nameHi,
-          dto.nameMr,
           dto.calcMethod,
           dto.ratePaise || 0,
           dto.rateTable ? JSON.stringify(dto.rateTable) : null,
@@ -157,16 +156,15 @@ export class BillingService implements OnModuleInit, OnModuleDestroy {
       await client.query("SELECT set_config('app.is_super_admin', 'true', true)");
       await client.query(
         `UPDATE bill_head SET
-           name_en = $3, name_hi = $4, name_mr = $5,
-           calc_method = $6, rate_paise = $7, rate_table = $8,
-           tax_percent = $9, active = $10, sort = $11, updated_at = NOW()
+           name_en = $3, name_hi = $4,
+           calc_method = $5, rate_paise = $6, rate_table = $7,
+           tax_percent = $8, active = $9, sort = $10, updated_at = NOW()
          WHERE id = $1 AND society_id = $2`,
         [
           headId,
           societyId,
           dto.nameEn,
           dto.nameHi,
-          dto.nameMr,
           dto.calcMethod,
           dto.ratePaise || 0,
           dto.rateTable ? JSON.stringify(dto.rateTable) : null,

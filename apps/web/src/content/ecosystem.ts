@@ -20,7 +20,7 @@ export const ecosystemContent = {
       title: 'Society Noticeboard & Polls',
       tag: 'Stay Informed',
       description:
-        'Official announcements, wing-targeted circulars, emergency banners, and secret-ballot community polls in English, Hindi, and Marathi.',
+        'Official announcements, wing-targeted circulars, emergency banners, and secret-ballot community polls in English and Hindi.',
       href: '/features#noticeboard',
       color: '#3B82F6',
       bg: 'bg-[#3B82F6]/10',

@@ -84,22 +84,22 @@ async function main() {
 
     // 3. Ensure Categories
     const categoriesData = [
-      { en: 'Water Supply & Plumbing', hi: 'जल आपूर्ति और प्लंबिंग', mr: 'पाणी पुरवठा आणि प्लंबिंग', icon: 'droplet' },
-      { en: 'Electrical & Power', hi: 'विद्युत और ऊर्जा', mr: 'विद्युत आणि वीज', icon: 'zap' },
-      { en: 'Lift & Elevators', hi: 'लिफ्ट और एलीवेटर', mr: 'लिफ्ट आणि एलीव्हेटर्स', icon: 'arrow-up-down' },
-      { en: 'Security & Access Control', hi: 'सुरक्षा और प्रवेश नियंत्रण', mr: 'सुरक्षा आणि प्रवेश नियंत्रण', icon: 'shield' },
-      { en: 'Sanitation & Waste', hi: 'स्वच्छता और कचरा प्रबंधन', mr: 'स्वच्छता आणि कचरा', icon: 'trash' },
-      { en: 'Structural & Common Areas', hi: 'संरचनात्मक और सामान्य क्षेत्र', mr: 'संरचनात्मक आणि सामान्य क्षेत्र', icon: 'home' },
+      { en: 'Water Supply & Plumbing', hi: 'जल आपूर्ति और प्लंबिंग', icon: 'droplet' },
+      { en: 'Electrical & Power', hi: 'विद्युत और ऊर्जा', icon: 'zap' },
+      { en: 'Lift & Elevators', hi: 'लिफ्ट और एलीवेटर', icon: 'arrow-up-down' },
+      { en: 'Security & Access Control', hi: 'सुरक्षा और प्रवेश नियंत्रण', icon: 'shield' },
+      { en: 'Sanitation & Waste', hi: 'स्वच्छता और कचरा प्रबंधन', icon: 'trash' },
+      { en: 'Structural & Common Areas', hi: 'संरचनात्मक और सामान्य क्षेत्र', icon: 'home' },
     ];
 
     const categoryIds: string[] = [];
     for (const cat of categoriesData) {
       const cRes = await client.query(`
-        INSERT INTO category (society_id, name_en, name_hi, name_mr, icon)
-        VALUES ($1, $2, $3, $4, $5)
+        INSERT INTO category (society_id, name_en, name_hi, icon)
+        VALUES ($1, $2, $3, $4)
         ON CONFLICT DO NOTHING
         RETURNING id;
-      `, [societyId, cat.en, cat.hi, cat.mr, cat.icon]);
+      `, [societyId, cat.en, cat.hi, cat.icon]);
       if (cRes.rows[0]) {
         categoryIds.push(cRes.rows[0].id);
       } else {

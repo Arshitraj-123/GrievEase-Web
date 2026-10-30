@@ -4,6 +4,8 @@ export const escalationContent = {
   headlineAbsolute: 'No complaint ever gets ignored. Ever.',
   subtitle:
     'Our 4-level automated governance chain ensures every complaint reaches the right authority — automatically when SLA targets are breached.',
+  howItWorksParagraph:
+    'When an issue is filed, a precise cryptographic countdown begins immediately. Level 1 routes the ticket to the Secretary for initial review, verification, and vendor dispatch within 48 hours. If the SLA elapses without resolution or verified extension, the server-side cron triggers automated escalation to Level 2 (Management Committee), notifying all committee members simultaneously. Continued inaction advances the ticket to Level 3 (Chairman executive review) at 96 hours, and finally to Level 4 (Governing Body) at 120 hours. Every escalation transition is stamped onto the immutable SHA-256 hash-chained audit log with zero manual intervention required.',
   levels: [
     {
       level: 'L1',

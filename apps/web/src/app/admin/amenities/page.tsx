@@ -41,18 +41,15 @@ export default function AdminAmenitiesPage() {
   const [selectedForBlackout, setSelectedForBlackout] = useState<any | null>(null);
 
   // Form states
-  const [langTab, setLangTab] = useState<'en' | 'hi' | 'mr'>('en');
+  const [langTab, setLangTab] = useState<'en' | 'hi'>('en');
   const [formData, setFormData] = useState<any>({
     type: 'CLUBHOUSE',
     name_en: '',
     name_hi: '',
-    name_mr: '',
     description_en: '',
     description_hi: '',
-    description_mr: '',
     rules_text_en: '',
     rules_text_hi: '',
-    rules_text_mr: '',
     mode: 'EXCLUSIVE',
     capacity_total: 1,
     slot_minutes: 60,
@@ -105,13 +102,10 @@ export default function AdminAmenitiesPage() {
       type: 'CLUBHOUSE',
       name_en: '',
       name_hi: '',
-      name_mr: '',
       description_en: '',
       description_hi: '',
-      description_mr: '',
       rules_text_en: '',
       rules_text_hi: '',
-      rules_text_mr: '',
       mode: 'EXCLUSIVE',
       capacity_total: 1,
       slot_minutes: 60,
@@ -140,13 +134,10 @@ export default function AdminAmenitiesPage() {
       type: a.type || 'CLUBHOUSE',
       name_en: a.name_en || a.name || '',
       name_hi: a.name_hi || '',
-      name_mr: a.name_mr || '',
       description_en: a.description_en || a.description || '',
       description_hi: a.description_hi || '',
-      description_mr: a.description_mr || '',
       rules_text_en: a.rules_text_en || a.rules_text || '',
       rules_text_hi: a.rules_text_hi || '',
-      rules_text_mr: a.rules_text_mr || '',
       mode: a.mode || 'EXCLUSIVE',
       capacity_total: a.capacity_total || 1,
       slot_minutes: a.slot_minutes || 60,
@@ -179,13 +170,10 @@ export default function AdminAmenitiesPage() {
       type: formData.type,
       name_en: formData.name_en,
       name_hi: formData.name_hi || undefined,
-      name_mr: formData.name_mr || undefined,
       description_en: formData.description_en || undefined,
       description_hi: formData.description_hi || undefined,
-      description_mr: formData.description_mr || undefined,
       rules_text_en: formData.rules_text_en || undefined,
       rules_text_hi: formData.rules_text_hi || undefined,
-      rules_text_mr: formData.rules_text_mr || undefined,
       mode: formData.mode,
       capacity_total: Number(formData.capacity_total),
       slot_minutes: Number(formData.slot_minutes),
@@ -439,7 +427,7 @@ export default function AdminAmenitiesPage() {
               <form onSubmit={handleSaveAmenity} className="space-y-4">
                 {/* Language Switch Tabs */}
                 <div className="bg-slate-100 p-1 rounded-xl flex gap-1">
-                  {(['en', 'hi', 'mr'] as const).map((lang) => (
+                  {(['en', 'hi'] as const).map((lang) => (
                     <button
                       key={lang}
                       type="button"
@@ -450,7 +438,7 @@ export default function AdminAmenitiesPage() {
                           : 'text-slate-600 hover:text-slate-900'
                       }`}
                     >
-                      {lang === 'en' ? 'English (EN)' : lang === 'hi' ? 'Hindi (HI)' : 'Marathi (MR)'}
+                      {lang === 'en' ? 'English (EN)' : 'Hindi (HI)'}
                     </button>
                   ))}
                 </div>

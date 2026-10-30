@@ -3,6 +3,13 @@ import type { NextRequest } from 'next/server';
 
 const ADMIN_ROLES = ['SUPER_ADMIN', 'SECRETARY', 'COMMITTEE', 'CHAIRMAN', 'GOVERNING_BODY'];
 
+/** Public routes that support the /hi locale prefix */
+const PUBLIC_LOCALE_ROUTES = [
+  '/', '/features', '/how-it-works', '/about', '/faq', '/contact',
+  '/transparency', '/download', '/privacy', '/terms', '/testimonials',
+  '/data-deletion', '/track',
+];
+
 function parseJwtPayload(token: string): any | null {
   try {
     const parts = token.split('.');
@@ -23,6 +30,40 @@ function parseJwtPayload(token: string): any | null {
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  // ──────────────────────────────────────────────────────────
+  // 0. LOCALE-AWARE ROUTING for public pages
+  //    /hi        → rewrite to / with lang=hi cookie
+  //    /hi/faq    → rewrite to /faq with lang=hi cookie
+  //    Preserves the /hi URL in the browser address bar.
+  // ──────────────────────────────────────────────────────────
+  if (pathname === '/hi' || pathname.startsWith('/hi/')) {
+    const strippedPath = pathname === '/hi' ? '/' : pathname.slice(3); // remove "/hi"
+
+    // Only rewrite known public routes; let other /hi/... 404 normally
+    const isPublicRoute = PUBLIC_LOCALE_ROUTES.some(
+      (r) => strippedPath === r || (r !== '/' && strippedPath.startsWith(r + '/'))
+    );
+
+    if (isPublicRoute) {
+      const rewriteUrl = new URL(strippedPath, request.url);
+      rewriteUrl.search = request.nextUrl.search; // preserve query params
+      const response = NextResponse.rewrite(rewriteUrl);
+      // Set lang cookie to hi (1 year) so the client picks up Hindi
+      const oneYear = 365 * 24 * 60 * 60;
+      response.cookies.set('lang', 'hi', {
+        path: '/',
+        maxAge: oneYear,
+        sameSite: 'lax',
+      });
+      response.cookies.set('NEXT_LOCALE', 'hi', {
+        path: '/',
+        maxAge: oneYear,
+        sameSite: 'lax',
+      });
+      return response;
+    }
+  }
 
   // 1. Feature Flag: /register-society
   if (pathname.startsWith('/register-society')) {
@@ -70,7 +111,6 @@ export function middleware(request: NextRequest) {
       return NextResponse.redirect(loginUrl);
     }
     if (ADMIN_ROLES.includes(userRole)) {
-      // Admins cannot reach resident /app routes per requirements
       return NextResponse.redirect(new URL('/admin', request.url));
     }
     if (userRole !== 'RESIDENT') {
@@ -86,7 +126,6 @@ export function middleware(request: NextRequest) {
       return NextResponse.redirect(loginUrl);
     }
     if (!ADMIN_ROLES.includes(userRole)) {
-      // Non-admin cannot reach /admin
       return NextResponse.redirect(new URL('/403', request.url));
     }
   }
@@ -120,6 +159,8 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
+    '/hi',
+    '/hi/:path*',
     '/login',
     '/register-society/:path*',
     '/app/:path*',

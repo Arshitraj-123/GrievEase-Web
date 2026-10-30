@@ -3,9 +3,11 @@ import './globals.css';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { CookieConsent } from '@/components/CookieConsent';
+import { PrivacyConsentModal } from '@/components/PrivacyConsentModal';
 import { siteConfig } from '@/config/site';
 import { AccessibilityProvider } from '@/components/AccessibilityProvider';
 import { InstallPrompt } from '@/components/InstallPrompt';
+import { HreflangLinks } from '@/components/HreflangLinks';
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -41,6 +43,11 @@ export const metadata: Metadata = {
   publisher: 'GrievEase',
   alternates: {
     canonical: '/',
+    languages: {
+      'en': '/',
+      'hi': '/hi',
+      'x-default': '/',
+    },
   },
   openGraph: {
     type: 'website',
@@ -84,7 +91,7 @@ export default function RootLayout({
       contactType: 'customer support',
       email: siteConfig.contactInbox,
       areaServed: 'IN',
-      availableLanguage: ['en', 'hi', 'mr'],
+      availableLanguage: ['en', 'hi'],
     },
   };
 
@@ -94,6 +101,7 @@ export default function RootLayout({
         <link rel="manifest" href="/manifest.json" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <HreflangLinks />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdOrg) }}
@@ -122,6 +130,9 @@ export default function RootLayout({
 
           {/* Cookie Consent Banner */}
           <CookieConsent />
+
+          {/* DPDP Act 2023 Statutory Consent Modal */}
+          <PrivacyConsentModal />
 
           {/* PWA Add to Home Screen Prompt */}
           <InstallPrompt />

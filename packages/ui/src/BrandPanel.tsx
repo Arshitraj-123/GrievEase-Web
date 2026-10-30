@@ -97,13 +97,13 @@ export function BrandPanel({ className, collapsed = false }: BrandPanelProps) {
 
         {/* Hero Headline */}
         <div className="space-y-3 mb-8">
-          <h1 className="text-3xl xl:text-4xl font-extrabold tracking-tight leading-tight text-white">
+          <h1 className="text-[clamp(1.75rem,1rem+2.4vw,2.75rem)] font-extrabold tracking-tight leading-tight text-white">
             Raise it. Track it.{' '}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-300 via-teal-200 to-emerald-300 block">
               Get it resolved.
             </span>
           </h1>
-          <p className="text-sm xl:text-base text-teal-100/90 leading-relaxed max-w-md">
+          <p className="text-[clamp(0.875rem,0.75rem+0.5vw,1.125rem)] text-teal-100/90 leading-relaxed max-w-md">
             Autonomous grievance resolution with guaranteed timelines, transparent escalation, and zero lost complaints.
           </p>
         </div>

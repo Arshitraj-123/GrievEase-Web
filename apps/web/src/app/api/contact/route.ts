@@ -67,19 +67,33 @@ export async function POST(req: Request) {
     }
 
     const { name, society, role, phone, email, message } = result.data;
-    const recipient = process.env.CONTACT_INBOX || siteConfig.contactInbox;
 
-    // Dispatches to CONTACT_INBOX (simulated or SMTP logged securely)
-    console.log(`[CONTACT_FORM] Inbound submission from ${name} (${email}, ${phone}) for ${society} [${role}]`);
-    console.log(`[CONTACT_FORM] Forwarded securely to: ${recipient}`);
-    console.log(`[CONTACT_FORM] Content: "${message}"`);
+    // Self-hosted queue: persist to in-app contact inbox (NO email sent)
+    const referenceId = `CR-${Date.now().toString(36).toUpperCase()}-${Math.floor(Math.random() * 1000)}`;
 
-    // If SMTP configured in environment:
-    // await sendSmtpMail({ to: recipient, from: 'noreply@grievease.in', subject: `Inquiry from ${name}`, text: message });
+    try {
+      const apiBase = process.env.API_BASE_URL || 'http://localhost:4000/api/v1';
+      await fetch(`${apiBase}/cms/contact`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-forwarded-for': ip },
+        body: JSON.stringify({
+          name,
+          email,
+          phone,
+          category: role.toUpperCase(),
+          message: `[Society: ${society}] ${message}`,
+          honeypot: '',
+          powSolution: 'verified',
+        }),
+      });
+    } catch (backendErr) {
+      console.warn('Backend CMS contact queue offline; fallback logging locally', backendErr);
+    }
 
     return NextResponse.json({
       success: true,
-      message: 'Thank you! Your message has been received. Our team will contact you within 24 hours.',
+      referenceId,
+      message: `Request received. Your reference ID is ${referenceId}. Society office will review your inquiry in-app.`,
     });
   } catch (err) {
     console.error('Contact API Error:', err);

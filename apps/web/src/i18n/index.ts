@@ -13,7 +13,11 @@ export function useTranslation() {
       setLocaleState(getStoredLocale());
     };
     window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
+    window.addEventListener('grievease_locale_change', handleStorageChange);
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('grievease_locale_change', handleStorageChange);
+    };
   }, []);
 
   const changeLocale = (newLocale: Locale) => {

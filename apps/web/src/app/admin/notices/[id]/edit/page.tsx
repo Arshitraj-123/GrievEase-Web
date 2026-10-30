@@ -23,13 +23,11 @@ export default function EditNoticePage() {
   const router = useRouter();
   const noticeId = typeof params?.id === 'string' ? params.id : '';
 
-  const [activeLang, setActiveLang] = useState<'EN' | 'HI' | 'MR'>('EN');
+  const [activeLang, setActiveLang] = useState<'EN' | 'HI'>('EN');
   const [titleEn, setTitleEn] = useState('');
   const [bodyEn, setBodyEn] = useState('');
   const [titleHi, setTitleHi] = useState('');
   const [bodyHi, setBodyHi] = useState('');
-  const [titleMr, setTitleMr] = useState('');
-  const [bodyMr, setBodyMr] = useState('');
 
   const [categoryId, setCategoryId] = useState(fallbackCategories[0]?.id || 'cat-1');
   const [priority, setPriority] = useState<'NORMAL' | 'IMPORTANT' | 'EMERGENCY'>('NORMAL');
@@ -62,11 +60,6 @@ export default function EditNoticePage() {
               setTitleHi(hi.title);
               setBodyHi(hi.body);
             }
-            const mr = res.translations.find((t: any) => t.lang === 'MR');
-            if (mr) {
-              setTitleMr(mr.title);
-              setBodyMr(mr.body);
-            }
           }
         } else {
           const fallback = fallbackNotices.find((n) => n.id === noticeId) || fallbackNotices[0]!;
@@ -90,19 +83,17 @@ export default function EditNoticePage() {
     loadNotice();
   }, [noticeId]);
 
-  const currentTitle = activeLang === 'EN' ? titleEn : activeLang === 'HI' ? titleHi : titleMr;
-  const currentBody = activeLang === 'EN' ? bodyEn : activeLang === 'HI' ? bodyHi : bodyMr;
+  const currentTitle = activeLang === 'EN' ? titleEn : titleHi;
+  const currentBody = activeLang === 'EN' ? bodyEn : bodyHi;
 
   const setCurrentTitle = (val: string) => {
     if (activeLang === 'EN') setTitleEn(val);
-    else if (activeLang === 'HI') setTitleHi(val);
-    else setTitleMr(val);
+    else setTitleHi(val);
   };
 
   const setCurrentBody = (val: string) => {
     if (activeLang === 'EN') setBodyEn(val);
-    else if (activeLang === 'HI') setBodyHi(val);
-    else setBodyMr(val);
+    else setBodyHi(val);
   };
 
   const handleSave = async (e: React.FormEvent) => {
@@ -127,7 +118,6 @@ export default function EditNoticePage() {
         editReason,
         translations: [
           ...(titleHi.trim() ? [{ lang: 'HI' as const, title: titleHi, body: bodyHi }] : []),
-          ...(titleMr.trim() ? [{ lang: 'MR' as const, title: titleMr, body: bodyMr }] : []),
         ],
       });
       router.push('/admin/notices');
@@ -204,7 +194,7 @@ export default function EditNoticePage() {
               </div>
 
               <div className="flex items-center gap-1">
-                {(['EN', 'HI', 'MR'] as const).map((lang) => (
+                {(['EN', 'HI'] as const).map((lang) => (
                   <button
                     key={lang}
                     type="button"
@@ -215,7 +205,7 @@ export default function EditNoticePage() {
                         : 'text-slate-600 hover:bg-slate-100'
                     }`}
                   >
-                    {lang === 'EN' ? 'English' : lang === 'HI' ? 'हिंदी' : 'मराठी'}
+                    {lang === 'EN' ? 'English' : 'हिंदी'}
                   </button>
                 ))}
               </div>

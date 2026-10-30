@@ -20,6 +20,10 @@ import { GuardsModule } from './modules/guards/guards.module';
 import { SosModule } from './modules/sos/sos.module';
 import { AmenitiesModule } from './modules/amenities/amenities.module';
 import { BillingModule } from './modules/billing/billing.module';
+import { VendorsModule } from './modules/vendors/vendors.module';
+import { CmsModule } from './modules/cms/cms.module';
+import { PrivacyModule } from './modules/privacy/privacy.module';
+import { SystemModule } from './modules/system/system.module';
 
 @Module({
   imports: [
@@ -44,6 +48,10 @@ import { BillingModule } from './modules/billing/billing.module';
     SosModule,
     AmenitiesModule,
     BillingModule,
+    VendorsModule,
+    CmsModule,
+    PrivacyModule,
+    SystemModule,
   ],
 })
 export class AppModule {}

@@ -34,20 +34,20 @@ export class GovernanceService {
     if (dto.id) {
       const res = await pool.query(
         `UPDATE category
-         SET name_en = $1, name_hi = $2, name_mr = $3, icon = $4,
-             requires_photo = $5, sort = $6, active = $7
-         WHERE id = $8 AND society_id = $9
+         SET name_en = $1, name_hi = $2, icon = $3,
+             requires_photo = $4, sort = $5, active = $6
+         WHERE id = $7 AND society_id = $8
          RETURNING *;`,
-        [dto.nameEn, dto.nameHi, dto.nameMr, dto.icon, dto.requiresPhoto, dto.sort, dto.active, dto.id, societyId]
+        [dto.nameEn, dto.nameHi, dto.icon, dto.requiresPhoto, dto.sort, dto.active, dto.id, societyId]
       );
       if (res.rows.length === 0) throw new NotFoundException('Category not found');
       result = res.rows[0];
     } else {
       const res = await pool.query(
-        `INSERT INTO category (society_id, name_en, name_hi, name_mr, icon, requires_photo, sort, active)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        `INSERT INTO category (society_id, name_en, name_hi, icon, requires_photo, sort, active)
+         VALUES ($1, $2, $3, $4, $5, $6, $7)
          RETURNING *;`,
-        [societyId, dto.nameEn, dto.nameHi, dto.nameMr, dto.icon, dto.requiresPhoto, dto.sort, dto.active]
+        [societyId, dto.nameEn, dto.nameHi, dto.icon, dto.requiresPhoto, dto.sort, dto.active]
       );
       result = res.rows[0];
     }

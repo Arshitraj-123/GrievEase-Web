@@ -5,7 +5,7 @@ export const heroContent = {
     accent: 'Resolve.',
   },
   description:
-    'GrievEase is a modern society grievance management platform that helps residents report issues, track progress and get them resolved faster, easier and more transparently.',
+    'GrievEase is a modern, self-hosted society governance platform that ensures resident complaints get resolved with strict turnaround SLAs. Residents report issues with photo proof or file sensitive matters anonymously, track progress through 4 automated escalation levels, and manage cash maintenance payments with immutable audit receipts — all with zero third-party tracking.',
   ctaPrimary: {
     label: 'Activate your account',
     href: '/activate',
@@ -16,6 +16,26 @@ export const heroContent = {
   ctaTrack: {
     label: 'Track a complaint',
     href: '/track',
+  },
+  highlights: [
+    { id: 'h1', icon: 'shield-check', text: '100% Privacy & In-App Alerts' },
+    { id: 'h2', icon: 'clock', text: '4-Level Auto-Escalation SLAs' },
+    { id: 'h3', icon: 'lock', text: 'Immutable Cryptographic Audit Trail' },
+    { id: 'h4', icon: 'receipt', text: 'Cash Maintenance with Verified Receipts' },
+  ],
+  floatingCards: {
+    slaRunning: {
+      tag: 'SLA timer running',
+      title: 'Wing B Elevator Cable Inspection',
+      timeRemaining: '18h 42m remaining at L1 (Secretary)',
+      level: 'L1',
+    },
+    escalated: {
+      tag: 'Escalated to Committee',
+      title: 'Common Tank Booster Overhaul',
+      timeRemaining: 'Auto-routed past 48h limit',
+      level: 'L2',
+    },
   },
   annotation: {
     line1: 'A better community',

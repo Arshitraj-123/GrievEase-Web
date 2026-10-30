@@ -31,7 +31,7 @@ describe('Phase 7 Unit Tests: Money Utility, Amenity Rules & Maintenance Billing
       expect(roundHalfUp(-0.51)).toBe(-1);
     });
 
-    it('should format paise with Indian digit grouping (1,23,456.00) in EN/HI/MR', () => {
+    it('should format paise with Indian digit grouping (1,23,456.00) in EN/HI', () => {
       expect(formatPaise(12345600)).toBe('₹1,23,456.00');
       expect(formatPaise(5000)).toBe('₹50.00');
       expect(formatPaise(99)).toBe('₹0.99');

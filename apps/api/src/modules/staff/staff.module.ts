@@ -11,6 +11,6 @@ import { StorageModule } from '../storage/storage.module';
   imports: [AuditModule, NotificationsModule, StorageModule],
   controllers: [StaffController],
   providers: [StaffService, StaffCryptoService, StaffPassService],
-  exports: [StaffService, StaffPassService],
+  exports: [StaffService, StaffPassService, StaffCryptoService],
 })
 export class StaffModule {}

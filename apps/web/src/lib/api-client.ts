@@ -528,4 +528,96 @@ export const api = {
     request('/admin/billing/opening-balances/commit', { method: 'POST', body: JSON.stringify(body) }),
   getBillingSettings: () => request('/admin/billing/settings'),
   updateBillingSettings: (body: any) => request('/admin/billing/settings', { method: 'PUT', body: JSON.stringify(body) }),
+
+  // 21. Phase 8 (A) Vendor Portal
+  getVendorTasks: (status?: string) => request(`/vendor/tasks${status ? `?status=${encodeURIComponent(status)}` : ''}`),
+  getVendorTask: (id: string) => request(`/vendor/tasks/${id}`),
+  acceptVendorTask: (id: string) => request(`/vendor/tasks/${id}/accept`, { method: 'POST' }),
+  declineVendorTask: (id: string, reason: string) =>
+    request(`/vendor/tasks/${id}/decline`, { method: 'POST', body: JSON.stringify({ reason }) }),
+  scheduleVendorVisit: (id: string, body: { expectedVisitFrom: string; expectedVisitTo: string }) =>
+    request(`/vendor/tasks/${id}/schedule-visit`, { method: 'POST', body: JSON.stringify(body) }),
+  startVendorTask: (id: string) => request(`/vendor/tasks/${id}/start`, { method: 'POST' }),
+  completeVendorTask: (id: string, body: { completionNote: string }) =>
+    request(`/vendor/tasks/${id}/complete`, { method: 'POST', body: JSON.stringify(body) }),
+  uploadVendorTaskPhoto: (id: string, body: { kind: 'BEFORE' | 'AFTER' | 'OTHER'; storageKey: string; mime: string; size: number; sha256: string }) =>
+    request(`/vendor/tasks/${id}/photos`, { method: 'POST', body: JSON.stringify(body) }),
+  getVendorProfile: () => request('/vendor/profile'),
+  getGrievanceVendorTask: (grievanceId: string) => request(`/vendors/grievance-task/${grievanceId}`),
+  confirmVendorTaskResident: (id: string, body: { confirmation: 'CONFIRMED' | 'NOT_FIXED' | 'NO_RESPONSE'; rating?: number; comment?: string; reopenReason?: string }) =>
+    request(`/vendors/tasks/${id}/resident-confirm`, { method: 'POST', body: JSON.stringify(body) }),
+  toggleVendorContactShare: (id: string, share: boolean) =>
+    request(`/vendors/tasks/${id}/share-contact`, { method: 'POST', body: JSON.stringify({ share }) }),
+
+  // Admin Vendors
+  listVendors: (params?: { category?: string; status?: string }) => {
+    const q = new URLSearchParams();
+    if (params?.category) q.set('category', params.category);
+    if (params?.status) q.set('status', params.status);
+    return request(`/admin/vendors?${q.toString()}`);
+  },
+  createVendor: (body: any) => request('/admin/vendors', { method: 'POST', body: JSON.stringify(body) }),
+  getVendor: (id: string) => request(`/admin/vendors/${id}`),
+  updateVendor: (id: string, body: any) => request(`/admin/vendors/${id}`, { method: 'PUT', body: JSON.stringify(body) }),
+  getVendorPerformance: (id: string) => request(`/admin/vendors/${id}/performance`),
+  listVendorTasksAdmin: (params?: { vendorId?: string; status?: string; grievanceId?: string }) => {
+    const q = new URLSearchParams();
+    if (params?.vendorId) q.set('vendorId', params.vendorId);
+    if (params?.status) q.set('status', params.status);
+    if (params?.grievanceId) q.set('grievanceId', params.grievanceId);
+    return request(`/admin/vendor-tasks?${q.toString()}`);
+  },
+  createVendorTaskAdmin: (body: any) => request('/admin/vendor-tasks', { method: 'POST', body: JSON.stringify(body) }),
+  reassignVendorTaskAdmin: (id: string, body: { vendorId: string; reason?: string }) =>
+    request(`/admin/vendor-tasks/${id}/reassign`, { method: 'POST', body: JSON.stringify(body) }),
+
+  // 22. Phase 8 (B) Content, Support, and Messages
+  getPublicFaqs: (societyId?: string) => request(`/cms/faq${societyId ? `?societyId=${societyId}` : ''}`),
+  getPublicTestimonials: (societyId?: string) => request(`/cms/testimonials${societyId ? `?societyId=${societyId}` : ''}`),
+  submitPublicContact: (body: any) => request('/cms/contact', { method: 'POST', body: JSON.stringify(body) }),
+  getPublicSiteSettings: (societyId?: string) => request(`/cms/site-settings${societyId ? `?societyId=${societyId}` : ''}`),
+
+  submitTestimonial: (body: any) => request('/cms/resident/testimonials', { method: 'POST', body: JSON.stringify(body) }),
+  listConversationsResident: () => request('/cms/resident/conversations'),
+  getConversationResident: (id: string) => request(`/cms/resident/conversations/${id}`),
+  createConversationResident: (body: any) => request('/cms/resident/conversations', { method: 'POST', body: JSON.stringify(body) }),
+  sendMessageResident: (convId: string, body: any) =>
+    request(`/cms/resident/conversations/${convId}/messages`, { method: 'POST', body: JSON.stringify(body) }),
+  createSupportTicketResident: (body: any) => request('/cms/resident/support-tickets', { method: 'POST', body: JSON.stringify(body) }),
+
+  listAllFaqsAdmin: () => request('/admin/cms/faq'),
+  saveFaqAdmin: (body: any) => request('/admin/cms/faq', { method: 'POST', body: JSON.stringify(body) }),
+  deleteFaqAdmin: (id: string) => request(`/admin/cms/faq/${id}`, { method: 'DELETE' }),
+  listTestimonialsAdmin: (status?: string) => request(`/admin/cms/testimonials${status ? `?status=${status}` : ''}`),
+  moderateTestimonialAdmin: (id: string, body: any) =>
+    request(`/admin/cms/testimonials/${id}/moderate`, { method: 'POST', body: JSON.stringify(body) }),
+  listContactRequestsAdmin: (status?: string) => request(`/admin/cms/contact-requests${status ? `?status=${status}` : ''}`),
+  updateContactStatusAdmin: (id: string, status: string, notes?: string) =>
+    request(`/admin/cms/contact-requests/${id}/status`, { method: 'POST', body: JSON.stringify({ status, notes }) }),
+  listSupportConversationsAdmin: () => request('/admin/cms/support/conversations'),
+  getSupportConversationAdmin: (id: string) => request(`/admin/cms/support/conversations/${id}`),
+  replySupportConversationAdmin: (convId: string, body: any) =>
+    request(`/admin/cms/support/conversations/${convId}/messages`, { method: 'POST', body: JSON.stringify(body) }),
+  listSupportTicketsAdmin: (status?: string) => request(`/admin/cms/support/tickets${status ? `?status=${status}` : ''}`),
+  resolveSupportTicketAdmin: (id: string, resolution: string) =>
+    request(`/admin/cms/support/tickets/${id}/resolve`, { method: 'POST', body: JSON.stringify({ resolution }) }),
+  updateSiteSettingAdmin: (key: string, body: any) =>
+    request(`/admin/cms/site-settings/${key}`, { method: 'PUT', body: JSON.stringify(body) }),
+
+  // 23. Phase 8 (E) Privacy & Data Requests (DPDP Act 2023)
+  submitPublicPrivacyRequest: (body: any) => request('/privacy/requests/public', { method: 'POST', body: JSON.stringify(body) }),
+  recordConsent: (version: string) => request('/privacy/consent', { method: 'POST', body: JSON.stringify({ version }) }),
+  getConsentStatus: (version?: string) => request(`/privacy/consent/status${version ? `?version=${encodeURIComponent(version)}` : ''}`),
+  downloadMyData: () => request('/privacy/me/export'),
+  requestAccountDeletion: (reason: string) => request('/privacy/me/deletion-request', { method: 'POST', body: JSON.stringify({ reason }) }),
+  listPrivacyRequestsAdmin: (status?: string) => request(`/admin/privacy-requests${status ? `?status=${status}` : ''}`),
+  verifyPrivacyRequestAdmin: (id: string, body: any) =>
+    request(`/admin/privacy-requests/${id}/verify`, { method: 'POST', body: JSON.stringify(body) }),
+  listSensitiveAccessLogsAdmin: (limit?: number) =>
+    request(`/admin/audit/sensitive-access${limit ? `?limit=${limit}` : ''}`),
+
+  // 24. Phase 8 (D) System Operations & Backups
+  getSystemOverview: () => request('/admin/system/overview'),
+  listBackups: () => request('/admin/system/backups'),
+  recordBackupRun: (body: any) => request('/admin/system/backups/record', { method: 'POST', body: JSON.stringify(body) }),
 };

@@ -168,7 +168,7 @@ export default function ResidentSecurityPage() {
               <Globe className="w-4 h-4 text-teal-600" />
               <span>{t.settings.languageLabel}</span>
             </label>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-2 gap-2">
               <button
                 type="button"
                 onClick={() => handleLocaleChange('en')}
@@ -191,18 +191,6 @@ export default function ResidentSecurityPage() {
                 }`}
               >
                 हिंदी
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleLocaleChange('mr')}
-                className={`min-h-[48px] px-4 py-3 rounded-xl border text-xs sm:text-sm font-semibold flex items-center justify-center transition-all ${
-                  locale === 'mr'
-                    ? 'border-teal-600 bg-teal-50 dark:bg-teal-950/60 text-teal-800 dark:text-teal-200 ring-2 ring-teal-600/20'
-                    : 'border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50'
-                }`}
-              >
-                मराठी
               </button>
             </div>
           </div>

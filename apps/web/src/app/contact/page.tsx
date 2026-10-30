@@ -48,6 +48,7 @@ function ContactFormInner() {
 
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
+  const [referenceId, setReferenceId] = useState('');
 
   const {
     register,
@@ -96,6 +97,7 @@ function ContactFormInner() {
         return;
       }
 
+      if (json.referenceId) setReferenceId(json.referenceId);
       setSubmitStatus('success');
       reset();
     } catch {
@@ -105,39 +107,43 @@ function ContactFormInner() {
   };
 
   return (
-    <div className="py-16 px-6 lg:px-12 bg-white">
-      <div className="max-w-[1240px] mx-auto">
-        <div className="text-center max-w-[650px] mx-auto mb-16">
-          <span className="text-[12px] font-bold tracking-[1.5px] uppercase text-[#00846A] mb-2.5 block">
+    <div className="section-fluid bg-white">
+      <div className="container-fluid">
+        <div className="text-center max-w-[840px] mx-auto mb-16">
+          <span className="text-[13px] font-bold tracking-[1.5px] uppercase text-[#00846A] mb-2.5 block">
             GET IN TOUCH
           </span>
-          <h1 className="text-[36px] sm:text-[44px] font-extrabold text-[#1A1A2E] leading-tight mb-4">
+          <h1 className="fluid-h1 font-extrabold text-[#1A1A2E] leading-tight mb-4">
             {isDemo ? 'Request a Society Demo' : 'Contact Us & Society Support'}
           </h1>
-          <p className="text-[15.5px] text-[#4A5568]">
-            Have a question about onboarding your society, auto-escalation SLAs, or platform
-            customization? Fill out the form below or reach our team.
+          <p className="fluid-lead text-[#4A5568]">
+            Have a question about onboarding your society, auto-escalation SLAs, cash maintenance ledgers, or platform
+            customization? Fill out the form below or reach our operations team.
           </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
           {/* Left: Contact Form */}
-          <div className="lg:col-span-7 bg-[#F8FAFC] rounded-3xl p-8 sm:p-10 border border-[#E2E8F0] shadow-sm">
+          <div className="lg:col-span-7 bg-[#F8FAFC] rounded-3xl p-8 sm:p-12 border border-[#E2E8F0] shadow-sm">
             {submitStatus === 'success' ? (
               <div className="p-8 text-center bg-white rounded-2xl border border-emerald-200">
                 <div className="w-14 h-14 rounded-full bg-emerald-50 text-[#00846A] flex items-center justify-center mx-auto mb-4">
                   <CheckCircle2 className="w-8 h-8" />
                 </div>
-                <h3 className="text-xl font-bold text-[#1A1A2E] mb-2">Message Dispatched!</h3>
-                <p className="text-sm text-[#4A5568] leading-relaxed mb-6">
-                  Thank you for reaching out. Your request has been securely logged and forwarded to our
-                  society operations desk. We will respond within 24 hours.
+                <h3 className="text-xl font-bold text-[#1A1A2E] mb-2">Request Received!</h3>
+                <p className="text-sm text-[#4A5568] leading-relaxed mb-3">
+                  Your inquiry has been securely queued in the society office inbox. No automated email is sent to prevent data harvesting.
                 </p>
+                {referenceId && (
+                  <div className="p-3 bg-slate-50 border rounded-xl font-mono text-xs text-teal-800 font-bold mb-6">
+                    Reference ID: {referenceId}
+                  </div>
+                )}
                 <button
                   onClick={() => setSubmitStatus('idle')}
                   className="px-6 py-2.5 rounded-full bg-[#00B894] hover:bg-[#00A383] text-white text-xs font-semibold cursor-pointer"
                 >
-                  Send another message
+                  Send another inquiry
                 </button>
               </div>
             ) : (
@@ -268,9 +274,9 @@ function ContactFormInner() {
                 <button
                   type="submit"
                   disabled={submitStatus === 'loading'}
-                  className="w-full py-3.5 rounded-full bg-gradient-to-r from-[#00B894] to-[#00D4AA] text-white text-sm font-semibold shadow-[0_4px_15px_rgba(0,184,148,0.35)] hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
+                  className="w-full h-[56px] rounded-full bg-gradient-to-r from-[#00B894] to-[#00D4AA] text-white text-base font-bold shadow-[0_4px_15px_rgba(0,184,148,0.35)] hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
                 >
-                  <Send className="w-4 h-4" />
+                  <Send className="w-5 h-5" />
                   <span>{submitStatus === 'loading' ? 'Transmitting...' : 'Submit Message'}</span>
                 </button>
               </form>

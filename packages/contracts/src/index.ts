@@ -377,7 +377,6 @@ export const CategorySchema = z.object({
   id: z.string().uuid().optional(),
   nameEn: z.string().min(2).max(100),
   nameHi: z.string().min(2).max(100),
-  nameMr: z.string().min(2).max(100),
   icon: z.string().min(1).max(50),
   requiresPhoto: z.boolean().default(false),
   sort: z.number().int().default(0),
@@ -692,7 +691,6 @@ export interface NoticeCategoryDto {
   id: string;
   nameEn: string;
   nameHi: string;
-  nameMr: string;
   isSystem: boolean;
   sortOrder: number;
 }
@@ -713,7 +711,6 @@ export const CreateNoticeSchema = z.object({
   translations: z
     .object({
       hi: z.object({ title: z.string(), body: z.string() }).optional(),
-      mr: z.object({ title: z.string(), body: z.string() }).optional(),
     })
     .optional(),
   attachmentKeys: z.array(z.string()).optional(),
@@ -752,7 +749,6 @@ export interface NoticeDetailDto extends NoticeListItemDto {
   createdByName: string;
   translations?: {
     hi?: { title: string; body: string };
-    mr?: { title: string; body: string };
   };
   attachments: {
     id: string;
@@ -834,7 +830,6 @@ export const CreatePollSchema = z.object({
       z.object({
         labelEn: z.string().min(1).max(200),
         labelHi: z.string().max(200).optional(),
-        labelMr: z.string().max(200).optional(),
         sortOrder: z.number().int().default(0),
       })
     )
@@ -851,7 +846,6 @@ export interface PollOptionDto {
   id: string;
   labelEn: string;
   labelHi?: string | null;
-  labelMr?: string | null;
   label?: string;
   sortOrder: number;
   voteCount?: number;
@@ -1169,7 +1163,7 @@ export type StaffSettingsDto = z.infer<typeof StaffSettingsSchema>;
 // PHASE 6: (A) VISITORS AND DELIVERIES CONTRACTS
 // ==============================================================================
 
-export type VisitorPassType = 'ONE_TIME' | 'RECURRING' | 'GROUP' | 'VEHICLE_ONLY';
+export type VisitorPassType = 'ONE_TIME' | 'RECURRING' | 'GROUP' | 'VEHICLE_ONLY' | 'VENDOR';
 export type VisitorPassStatus = 'ACTIVE' | 'USED' | 'EXPIRED' | 'CANCELLED';
 export type VisitSource = 'PREAPPROVED' | 'WALKIN' | 'DELIVERY' | 'CAB' | 'STAFF' | 'OVERRIDE';
 export type VisitDecision = 'APPROVED' | 'DENIED' | 'TIMEOUT_DEFAULT' | 'GUARD_OVERRIDE';
@@ -1177,7 +1171,7 @@ export type ApprovalRequestStatus = 'PENDING' | 'APPROVED' | 'DENIED' | 'EXPIRED
 
 export const CreateVisitorPassSchema = z.object({
   flatId: z.string().uuid(),
-  type: z.enum(['ONE_TIME', 'RECURRING', 'GROUP', 'VEHICLE_ONLY']).default('ONE_TIME'),
+  type: z.enum(['ONE_TIME', 'RECURRING', 'GROUP', 'VEHICLE_ONLY', 'VENDOR']).default('ONE_TIME'),
   visitorName: z.string().min(2, 'Name must be at least 2 characters'),
   visitorPhone: z.string().optional(),
   purpose: z.string().min(2, 'Purpose is required'),
@@ -1703,13 +1697,10 @@ export const CreateAmenitySchema = z.object({
   type: AmenityTypeEnum,
   nameEn: z.string().min(2).max(100),
   nameHi: z.string().min(2).max(100),
-  nameMr: z.string().min(2).max(100),
   descriptionEn: z.string().max(2000).optional(),
   descriptionHi: z.string().max(2000).optional(),
-  descriptionMr: z.string().max(2000).optional(),
   rulesEn: z.string().max(5000).optional(),
   rulesHi: z.string().max(5000).optional(),
-  rulesMr: z.string().max(5000).optional(),
   photoKeys: z.array(z.string()).max(10).default([]),
   capacityTotal: z.number().int().min(1).default(1),
   mode: AmenityModeEnum.default('EXCLUSIVE'),
@@ -1814,7 +1805,6 @@ export type CashSessionStatus = z.infer<typeof CashSessionStatusEnum>;
 export const CreateBillHeadSchema = z.object({
   nameEn: z.string().min(2).max(100),
   nameHi: z.string().min(2).max(100),
-  nameMr: z.string().min(2).max(100),
   calcMethod: CalcMethodEnum,
   ratePaise: z.number().int().min(0).default(0),
   rateTable: z.record(z.string(), z.number().int().min(0)).optional(),
@@ -1895,3 +1885,11 @@ export interface CashSessionSummaryDto {
   closedAt: string | null; expectedPaise: number; countedPaise: number | null;
   variancePaise: number | null; status: CashSessionStatus; paymentsCount: number;
 }
+
+// ----------------------------------------------------------------------------
+// Phase 8: (A) Vendors, (B) CMS & Support, (C) Privacy & Operations
+// ----------------------------------------------------------------------------
+export * from './vendor.schema';
+export * from './cms.schema';
+export * from './privacy.schema';
+

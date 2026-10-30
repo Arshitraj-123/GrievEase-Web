@@ -25,7 +25,6 @@ export default function NoticeSettingsPage() {
   const [showAddCat, setShowAddCat] = useState(false);
   const [newEn, setNewEn] = useState('');
   const [newHi, setNewHi] = useState('');
-  const [newMr, setNewMr] = useState('');
 
   // Permissions matrix
   const [perms, setPerms] = useState({
@@ -44,7 +43,6 @@ export default function NoticeSettingsPage() {
       id: `cat-${Date.now()}`,
       nameEn: newEn,
       nameHi: newHi || newEn,
-      nameMr: newMr || newEn,
       isSystem: false,
       sortOrder: categories.length + 1,
     };
@@ -52,7 +50,6 @@ export default function NoticeSettingsPage() {
     setCategories([...categories, newCat]);
     setNewEn('');
     setNewHi('');
-    setNewMr('');
     setShowAddCat(false);
   };
 
@@ -149,8 +146,6 @@ export default function NoticeSettingsPage() {
                   <span className="text-sm font-bold text-slate-900">{c.nameEn}</span>
                   <div className="text-xs text-slate-400 mt-0.5 flex items-center gap-2">
                     <span>HI: {c.nameHi}</span>
-                    <span>•</span>
-                    <span>MR: {c.nameMr}</span>
                   </div>
                 </div>
 
@@ -249,18 +244,6 @@ export default function NoticeSettingsPage() {
                     value={newHi}
                     onChange={(e) => setNewHi(e.target.value)}
                     placeholder="e.g. उत्सव एवं समारोह"
-                    className="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
-                    Marathi Name (मराठी)
-                  </label>
-                  <input
-                    type="text"
-                    value={newMr}
-                    onChange={(e) => setNewMr(e.target.value)}
-                    placeholder="e.g. सण आणि उत्सव"
                     className="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm"
                   />
                 </div>

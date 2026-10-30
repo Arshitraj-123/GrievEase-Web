@@ -202,6 +202,16 @@ export class ImportService {
           }
         }
 
+        // Validate language preference (only en or hi supported)
+        if (row.language !== undefined && row.language !== '') {
+          const lang = String(row.language).trim().toLowerCase();
+          if (lang === 'mr') {
+            errors.push('Language must be en or hi');
+          } else if (!['en', 'hi'].includes(lang)) {
+            errors.push(`Language must be en or hi (got '${row.language}')`);
+          }
+        }
+
         // Duplicate checks
         const lowerMid = memberId.toLowerCase();
         if (existingMemberIds.has(lowerMid) || seenInBatchMemberIds.has(lowerMid)) {

@@ -12,13 +12,13 @@ import {
 } from '@grievease/contracts';
 
 export const fallbackCategories: NoticeCategoryDto[] = [
-  { id: 'cat-1', nameEn: 'Emergency', nameHi: 'आपातकालीन', nameMr: 'तातडीची सूचना', isSystem: true, sortOrder: 0 },
-  { id: 'cat-2', nameEn: 'Water/Power shutoff', nameHi: 'जल / विद्युत आपूर्ति', nameMr: 'पाणी / वीज पुरवठा', isSystem: true, sortOrder: 1 },
-  { id: 'cat-3', nameEn: 'Maintenance', nameHi: 'रखरखाव कार्य', nameMr: 'देखभाल दुरुस्ती', isSystem: true, sortOrder: 2 },
-  { id: 'cat-4', nameEn: 'Meeting/AGM', nameHi: 'वार्षिक आम बैठक', nameMr: 'वार्षिक सर्वसाधारण सभा', isSystem: true, sortOrder: 3 },
-  { id: 'cat-5', nameEn: 'General', nameHi: 'सामान्य सूचना', nameMr: 'सर्वसाधारण', isSystem: true, sortOrder: 4 },
-  { id: 'cat-6', nameEn: 'Rules', nameHi: 'सोसायटी नियम', nameMr: 'सोसायटी नियम', isSystem: true, sortOrder: 5 },
-  { id: 'cat-7', nameEn: 'Event', nameHi: 'उत्सव व कार्यक्रम', nameMr: 'समारंभ व उत्सव', isSystem: true, sortOrder: 6 },
+  { id: 'cat-1', nameEn: 'Emergency', nameHi: 'आपातकालीन', isSystem: true, sortOrder: 0 },
+  { id: 'cat-2', nameEn: 'Water/Power shutoff', nameHi: 'जल / विद्युत आपूर्ति', isSystem: true, sortOrder: 1 },
+  { id: 'cat-3', nameEn: 'Maintenance', nameHi: 'रखरखाव कार्य', isSystem: true, sortOrder: 2 },
+  { id: 'cat-4', nameEn: 'Meeting/AGM', nameHi: 'वार्षिक आम बैठक', isSystem: true, sortOrder: 3 },
+  { id: 'cat-5', nameEn: 'General', nameHi: 'सामान्य सूचना', isSystem: true, sortOrder: 4 },
+  { id: 'cat-6', nameEn: 'Rules', nameHi: 'सोसायटी नियम', isSystem: true, sortOrder: 5 },
+  { id: 'cat-7', nameEn: 'Event', nameHi: 'उत्सव व कार्यक्रम', isSystem: true, sortOrder: 6 },
 ];
 
 export const fallbackNotices: NoticeListItemDto[] = [

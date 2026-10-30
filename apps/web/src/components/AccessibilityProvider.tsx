@@ -28,9 +28,26 @@ export function AccessibilityProvider({ children }: { children: React.ReactNode 
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    // 1. Initialise locale from cookie / localStorage
-    const savedLocale = getStoredLocale();
+    // 1. Initialise locale from URL / cookie / localStorage
+    let savedLocale = getStoredLocale();
+    if (typeof window !== 'undefined') {
+      const pathname = window.location.pathname;
+      if (pathname === '/hi' || pathname.startsWith('/hi/')) {
+        savedLocale = 'hi';
+        setStoredLocale('hi');
+      }
+    }
     setLocaleState(savedLocale);
+    // Sync <html lang> attribute on initial mount
+    document.documentElement.lang = savedLocale;
+
+    const handleLocaleChange = () => {
+      const current = getStoredLocale();
+      setLocaleState(current);
+      document.documentElement.lang = current;
+    };
+    window.addEventListener('grievease_locale_change', handleLocaleChange);
+    window.addEventListener('storage', handleLocaleChange);
 
     // 2. Initialise font size from localStorage
     const savedFontSize = (localStorage.getItem('grievease_font_size') as FontSizeSetting) || 'normal';
@@ -46,9 +63,10 @@ export function AccessibilityProvider({ children }: { children: React.ReactNode 
     api.getProfile()
       .then((profile) => {
         if (profile) {
-          if (profile.language && ['en', 'hi', 'mr'].includes(profile.language)) {
+          if (profile.language && ['en', 'hi'].includes(profile.language)) {
             setLocaleState(profile.language);
             setStoredLocale(profile.language);
+            document.documentElement.lang = profile.language;
           }
           if (profile.fontSize && ['normal', 'large', 'xlarge'].includes(profile.fontSize)) {
             setFontSizeState(profile.fontSize);
@@ -63,6 +81,10 @@ export function AccessibilityProvider({ children }: { children: React.ReactNode 
       });
 
     setMounted(true);
+    return () => {
+      window.removeEventListener('grievease_locale_change', handleLocaleChange);
+      window.removeEventListener('storage', handleLocaleChange);
+    };
   }, []);
 
   const handleSetFontSize = async (size: FontSizeSetting) => {
@@ -82,6 +104,32 @@ export function AccessibilityProvider({ children }: { children: React.ReactNode 
   const handleSetLocale = async (loc: Locale) => {
     setLocaleState(loc);
     setStoredLocale(loc);
+    if (typeof document !== 'undefined') {
+      document.documentElement.lang = loc;
+    }
+
+    // URL routing synchronization for public pages
+    if (typeof window !== 'undefined') {
+      const pathname = window.location.pathname;
+      const search = window.location.search;
+      const hash = window.location.hash;
+
+      // Shells and internal routes don't use the /hi URL prefix
+      const isInternalShell = /^\/(app|admin|guard|vendor|login|activate)(\/|$)/.test(pathname);
+
+      if (!isInternalShell) {
+        if (loc === 'hi' && !pathname.startsWith('/hi')) {
+          const newPath = pathname === '/' ? '/hi' : `/hi${pathname}`;
+          window.location.href = `${newPath}${search}${hash}`;
+          return;
+        } else if (loc === 'en' && (pathname === '/hi' || pathname.startsWith('/hi/'))) {
+          const stripped = pathname === '/hi' ? '/' : pathname.slice(3);
+          window.location.href = `${stripped}${search}${hash}`;
+          return;
+        }
+      }
+    }
+
     try {
       await api.updatePreferences({ language: loc });
     } catch {

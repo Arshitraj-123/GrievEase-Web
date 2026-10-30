@@ -124,13 +124,12 @@ export class PollsService implements OnModuleInit, OnModuleDestroy {
       for (const [i, opt] of dto.options.entries()) {
         if (!opt) continue;
         await client.query(`
-          INSERT INTO poll_option (poll_id, label_en, label_hi, label_mr, sort_order)
-          VALUES ($1, $2, $3, $4, $5);
+          INSERT INTO poll_option (poll_id, label_en, label_hi, sort_order)
+          VALUES ($1, $2, $3, $4);
         `, [
           pollId,
           opt.labelEn.trim(),
           opt.labelHi?.trim() || null,
-          opt.labelMr?.trim() || null,
           opt.sortOrder !== undefined ? opt.sortOrder : i,
         ]);
       }
@@ -520,13 +519,12 @@ export class PollsService implements OnModuleInit, OnModuleDestroy {
           po.id,
           po.label_en as "labelEn",
           po.label_hi as "labelHi",
-          po.label_mr as "labelMr",
           po.sort_order as "sortOrder",
           COALESCE(COUNT(pb.id), 0)::int as "voteCount"
         FROM poll_option po
         LEFT JOIN poll_ballot pb ON po.id = pb.option_id
         WHERE po.poll_id = $1
-        GROUP BY po.id, po.label_en, po.label_hi, po.label_mr, po.sort_order
+        GROUP BY po.id, po.label_en, po.label_hi, po.sort_order
         ORDER BY po.sort_order ASC;
       `, [pollId]);
 
