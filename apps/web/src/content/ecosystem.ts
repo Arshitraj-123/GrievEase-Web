@@ -42,7 +42,7 @@ export const ecosystemContent = {
       title: 'Amenity Booking',
       tag: 'Easy Booking',
       description:
-        'Reserve clubhouse, party hall, badminton courts, and swimming pool slots with a live calendar and slot reservation system.',
+        'Reserve the clubhouse, gym, pool and more with a live calendar.',
       href: '/features#amenities',
       color: '#F59E0B',
       bg: 'bg-[#F59E0B]/10',
@@ -51,9 +51,9 @@ export const ecosystemContent = {
       id: 'bills',
       icon: 'credit-card',
       title: 'Maintenance Payments',
-      tag: 'Pay Online',
+      tag: 'Digital Receipts',
       description:
-        'Pay society maintenance fees, water charges, and utility bills online via UPI/cards with instant tax-compliant digital receipts.',
+        'Track your dues, see every payment recorded in real time, and download receipts. Pay at the society office.',
       href: '/features#bills',
       color: '#10B981',
       bg: 'bg-[#10B981]/10',

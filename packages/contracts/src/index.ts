@@ -1674,4 +1674,224 @@ export const StartDrillSchema = z.object({
 });
 export type StartDrillDto = z.infer<typeof StartDrillSchema>;
 
+// ==============================================================================
+// PHASE 7A: AMENITY BOOKING CONTRACTS
+// ==============================================================================
 
+export { formatPaise, formatPaiseRaw, amountInWords, roundHalfUp, formatReceiptNo, formatBillNo, financialYearLabel, financialYearBounds, multiplyPaise, perSqft, applyPercent, cancellationFee, parsePaiseFromString } from './money';
+export type { Paise } from './money';
+
+export const AmenityTypeEnum = z.enum(['CLUBHOUSE', 'GYM', 'POOL', 'HALL', 'COURT', 'OTHER']);
+export type AmenityType = z.infer<typeof AmenityTypeEnum>;
+
+export const AmenityModeEnum = z.enum(['EXCLUSIVE', 'CAPACITY']);
+export type AmenityMode = z.infer<typeof AmenityModeEnum>;
+
+export const FeeModeEnum = z.enum(['NONE', 'PER_SLOT', 'PER_BOOKING']);
+export type FeeMode = z.infer<typeof FeeModeEnum>;
+
+export const FeeCollectionEnum = z.enum(['COLLECT_BEFORE_CONFIRM', 'ADD_TO_NEXT_BILL']);
+export type FeeCollection = z.infer<typeof FeeCollectionEnum>;
+
+export const BookingStatusEnum = z.enum([
+  'PENDING_APPROVAL', 'AWAITING_PAYMENT', 'CONFIRMED', 'CANCELLED',
+  'REJECTED', 'COMPLETED', 'NO_SHOW', 'EXPIRED',
+]);
+export type BookingStatus = z.infer<typeof BookingStatusEnum>;
+
+export const CreateAmenitySchema = z.object({
+  type: AmenityTypeEnum,
+  nameEn: z.string().min(2).max(100),
+  nameHi: z.string().min(2).max(100),
+  nameMr: z.string().min(2).max(100),
+  descriptionEn: z.string().max(2000).optional(),
+  descriptionHi: z.string().max(2000).optional(),
+  descriptionMr: z.string().max(2000).optional(),
+  rulesEn: z.string().max(5000).optional(),
+  rulesHi: z.string().max(5000).optional(),
+  rulesMr: z.string().max(5000).optional(),
+  photoKeys: z.array(z.string()).max(10).default([]),
+  capacityTotal: z.number().int().min(1).default(1),
+  mode: AmenityModeEnum.default('EXCLUSIVE'),
+  openHours: z.record(z.string(), z.object({
+    open: z.string().regex(/^\d{2}:\d{2}$/),
+    close: z.string().regex(/^\d{2}:\d{2}$/),
+    enabled: z.boolean(),
+  })).optional(),
+  slotMinutes: z.number().int().min(15).max(1440).default(60),
+  minSlots: z.number().int().min(1).default(1),
+  maxSlots: z.number().int().min(1).default(4),
+  advanceDaysMax: z.number().int().min(1).default(30),
+  minNoticeHours: z.number().int().min(0).default(2),
+  maxBookingsPerFlatPerWeek: z.number().int().min(1).default(2),
+  maxGuests: z.number().int().min(0).default(20),
+  feeMode: FeeModeEnum.default('NONE'),
+  feePaise: z.number().int().min(0).default(0),
+  depositPaise: z.number().int().min(0).default(0),
+  feeCollection: FeeCollectionEnum.default('COLLECT_BEFORE_CONFIRM'),
+  holdHours: z.number().int().min(1).default(24),
+  requiresApproval: z.boolean().default(false),
+  cancellationFreeHours: z.number().int().min(0).default(24),
+  cancellationFeePercent: z.number().min(0).max(100).default(0),
+  active: z.boolean().default(true),
+});
+export type CreateAmenityDto = z.infer<typeof CreateAmenitySchema>;
+
+export const CreateBookingSchema = z.object({
+  amenityId: z.string().uuid(),
+  slotStart: z.string(),
+  slotCount: z.number().int().min(1),
+  peopleCount: z.number().int().min(1),
+  guestsCount: z.number().int().min(0).default(0),
+  purpose: z.string().min(2).max(255),
+  overrideDues: z.boolean().default(false),
+  overrideNote: z.string().max(255).optional(),
+});
+export type CreateBookingDto = z.infer<typeof CreateBookingSchema>;
+
+export const CancelBookingSchema = z.object({
+  reason: z.string().min(5).max(255),
+});
+export type CancelBookingDto = z.infer<typeof CancelBookingSchema>;
+
+export interface AmenityListItemDto {
+  id: string; type: AmenityType; name: string; description?: string;
+  photoKeys: string[]; capacityTotal: number; mode: AmenityMode;
+  feeMode: FeeMode; feePaise: number; depositPaise: number;
+  nextAvailableSlot?: string | null; active: boolean;
+}
+
+export interface BookingDetailDto {
+  id: string; amenityId: string; amenityName: string; flatId: string;
+  flatNumber: string; bookedBy: string; bookedByName: string;
+  slotStart: string; slotEnd: string; slotCount: number; peopleCount: number;
+  guestsCount: number; purpose: string; status: BookingStatus;
+  holdExpiresAt: string | null; feePaise: number; depositPaise: number;
+  passToken?: string; checkedInAt?: string | null; cancellationFeePaise?: number;
+  createdAt: string;
+}
+
+// ==============================================================================
+// PHASE 7B: MAINTENANCE BILLING CONTRACTS
+// ==============================================================================
+
+export const OccupancyEnum = z.enum(['OWNER_OCCUPIED', 'TENANT', 'VACANT']);
+export type Occupancy = z.infer<typeof OccupancyEnum>;
+
+export const CalcMethodEnum = z.enum([
+  'FIXED_PER_FLAT', 'PER_SQFT', 'BY_FLAT_TYPE', 'PER_PARKING_SLOT', 'MANUAL',
+]);
+export type CalcMethod = z.infer<typeof CalcMethodEnum>;
+
+export const BillCycleStatusEnum = z.enum(['DRAFT', 'PREVIEWED', 'ISSUED', 'CLOSED']);
+export type BillCycleStatus = z.infer<typeof BillCycleStatusEnum>;
+
+export const BillStatusEnum = z.enum([
+  'ISSUED', 'PARTIALLY_PAID', 'PAID', 'OVERDUE', 'CANCELLED',
+]);
+export type BillStatus = z.infer<typeof BillStatusEnum>;
+
+export const LedgerEntryTypeEnum = z.enum([
+  'BILL', 'PAYMENT', 'LATE_FEE', 'ADJUSTMENT', 'WAIVER',
+  'CREDIT_NOTE', 'REFUND', 'OPENING_BALANCE', 'REVERSAL', 'AMENITY_FEE', 'DEPOSIT',
+]);
+export type LedgerEntryType = z.infer<typeof LedgerEntryTypeEnum>;
+
+export const PaymentModeEnum = z.enum(['CASH', 'OFFLINE_UPI', 'CHEQUE', 'BANK_TRANSFER']);
+export type PaymentMode = z.infer<typeof PaymentModeEnum>;
+
+export const AllocationStrategyEnum = z.enum(['OLDEST_FIRST', 'SPECIFIC_BILL', 'ADVANCE']);
+export type AllocationStrategy = z.infer<typeof AllocationStrategyEnum>;
+
+export const AdjustmentTypeEnum = z.enum([
+  'WAIVER', 'CREDIT_NOTE', 'REFUND', 'VOID', 'BILL_CANCEL',
+]);
+export type AdjustmentType = z.infer<typeof AdjustmentTypeEnum>;
+
+export const CashSessionStatusEnum = z.enum(['OPEN', 'CLOSED', 'RECONCILED']);
+export type CashSessionStatus = z.infer<typeof CashSessionStatusEnum>;
+
+export const CreateBillHeadSchema = z.object({
+  nameEn: z.string().min(2).max(100),
+  nameHi: z.string().min(2).max(100),
+  nameMr: z.string().min(2).max(100),
+  calcMethod: CalcMethodEnum,
+  ratePaise: z.number().int().min(0).default(0),
+  rateTable: z.record(z.string(), z.number().int().min(0)).optional(),
+  taxPercent: z.number().min(0).max(30).default(0),
+  active: z.boolean().default(true),
+  sort: z.number().int().default(0),
+});
+export type CreateBillHeadDto = z.infer<typeof CreateBillHeadSchema>;
+
+export const CreateBillCycleSchema = z.object({
+  name: z.string().min(3).max(50),
+  periodStart: z.string(),
+  periodEnd: z.string(),
+  dueDate: z.string(),
+  headIds: z.array(z.string().uuid()).min(1),
+});
+export type CreateBillCycleDto = z.infer<typeof CreateBillCycleSchema>;
+
+export const RecordPaymentSchema = z.object({
+  flatId: z.string().uuid(),
+  amountPaise: z.number().int().min(1),
+  receivedOn: z.string(),
+  receivedFromName: z.string().min(2).max(100),
+  mode: PaymentModeEnum.default('CASH'),
+  allocationStrategy: AllocationStrategyEnum.default('OLDEST_FIRST'),
+  specificBillId: z.string().uuid().optional(),
+  note: z.string().max(255).optional(),
+  idempotencyKey: z.string().min(8).max(64),
+});
+export type RecordPaymentDto = z.infer<typeof RecordPaymentSchema>;
+
+export const CreateAdjustmentSchema = z.object({
+  type: AdjustmentTypeEnum,
+  flatId: z.string().uuid(),
+  amountPaise: z.number().int().min(0),
+  reason: z.string().min(30).max(1000),
+  billId: z.string().uuid().optional(),
+  paymentId: z.string().uuid().optional(),
+});
+export type CreateAdjustmentDto = z.infer<typeof CreateAdjustmentSchema>;
+
+export const CreateDisputeSchema = z.object({
+  kind: z.enum(['ENTRY_WRONG', 'PAID_NOT_RECORDED']),
+  paymentId: z.string().uuid().optional(),
+  claimAmountPaise: z.number().int().min(1).optional(),
+  claimDate: z.string().optional(),
+  note: z.string().min(10).max(1000),
+  attachmentKeys: z.array(z.string()).max(5).default([]),
+});
+export type CreateDisputeDto = z.infer<typeof CreateDisputeSchema>;
+
+export interface BillSummaryDto {
+  id: string; billNo: string; flatNumber: string; wingName: string;
+  cycleName: string; periodStart: string; periodEnd: string; dueDate: string;
+  subtotalPaise: number; taxPaise: number; adjustmentsPaise: number;
+  totalPaise: number; status: BillStatus; lateFeesPaise: number; totalDuePaise: number;
+}
+
+export interface LedgerEntryDto {
+  id: string; seq: number; entryType: LedgerEntryType;
+  direction: 'DEBIT' | 'CREDIT'; amountPaise: number;
+  refType: string; refId: string; narration: string;
+  createdByName: string; createdAt: string;
+  runningBalancePaise: number; hash: string;
+}
+
+export interface PaymentReceiptDto {
+  id: string; receiptNo: string; flatNumber: string; wingName: string;
+  receivedFromName: string; amountPaise: number; amountInWords: string;
+  mode: PaymentMode; receivedOn: string; collectorName: string; collectorRole: string;
+  allocations: { description: string; amountPaise: number }[];
+  remainingBalancePaise: number; receiptHash: string; auditChainStamp: string;
+  societyName: string; societyAddress: string; generatedAt: string;
+}
+
+export interface CashSessionSummaryDto {
+  id: string; collectorName: string; date: string; openedAt: string;
+  closedAt: string | null; expectedPaise: number; countedPaise: number | null;
+  variancePaise: number | null; status: CashSessionStatus; paymentsCount: number;
+}

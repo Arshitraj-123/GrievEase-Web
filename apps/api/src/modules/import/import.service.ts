@@ -51,11 +51,15 @@ export class ImportService {
       'flat',
       'resident_type',
       'verify_detail',
+      'area_sqft',
+      'flat_type',
+      'parking_slots',
+      'occupancy',
     ];
     const sampleRows = [
-      ['GV-A101-R1', 'Aarav Sharma', '+919876543210', 'aarav@example.com', 'RESIDENT', 'A', '101', 'OWNER', 'A-101'],
-      ['GV-B202-R1', 'Meera Patel', '+919876543211', 'meera@example.com', 'RESIDENT', 'B', '202', 'TENANT', '1990-05-12'],
-      ['GV-A301-SEC', 'Vikram Singh', '+919876543212', 'vikram@example.com', 'SECRETARY', 'A', '301', 'OWNER', 'A-301'],
+      ['GV-A101-R1', 'Aarav Sharma', '+919876543210', 'aarav@example.com', 'RESIDENT', 'A', '101', 'OWNER', 'A-101', '1250.00', '2BHK', '1', 'OWNER_OCCUPIED'],
+      ['GV-B202-R1', 'Meera Patel', '+919876543211', 'meera@example.com', 'RESIDENT', 'B', '202', 'TENANT', '1990-05-12', '950.00', '1BHK', '0', 'TENANT'],
+      ['GV-A301-SEC', 'Vikram Singh', '+919876543212', 'vikram@example.com', 'SECRETARY', 'A', '301', 'OWNER', 'A-301', '1800.00', '3BHK', '2', 'OWNER_OCCUPIED'],
     ];
 
     return csvStringify.stringify([headers, ...sampleRows]);
@@ -180,6 +184,24 @@ export class ImportService {
           errors.push(`Invalid role '${role}'. Allowed: ${Object.values(RoleEnum.enum).join(', ')}`);
         }
 
+        // Validate optional flat attributes
+        if (row.area_sqft !== undefined && row.area_sqft !== '') {
+          const area = Number(row.area_sqft);
+          if (isNaN(area) || area < 0) errors.push('Area sqft must be a non-negative number');
+        }
+        if (row.parking_slots !== undefined && row.parking_slots !== '') {
+          const slots = Number(row.parking_slots);
+          if (isNaN(slots) || !Number.isInteger(slots) || slots < 0) {
+            errors.push('Parking slots must be a non-negative integer');
+          }
+        }
+        if (row.occupancy !== undefined && row.occupancy !== '') {
+          const occ = String(row.occupancy).trim().toUpperCase();
+          if (!['OWNER_OCCUPIED', 'TENANT', 'VACANT'].includes(occ)) {
+            errors.push(`Occupancy must be OWNER_OCCUPIED, TENANT, or VACANT (got '${row.occupancy}')`);
+          }
+        }
+
         // Duplicate checks
         const lowerMid = memberId.toLowerCase();
         if (existingMemberIds.has(lowerMid) || seenInBatchMemberIds.has(lowerMid)) {
@@ -296,10 +318,31 @@ export class ImportService {
         const wingId = wingRes.rows[0].id;
 
         let flatRes = await client.query(`SELECT id FROM flat WHERE society_id = $1 AND wing_id = $2 AND flat_number = $3;`, [societyId, wingId, flatNumber]);
+        const areaSqft = raw.area_sqft !== undefined && raw.area_sqft !== '' ? parseFloat(raw.area_sqft) : null;
+        const flatType = raw.flat_type ? String(raw.flat_type).trim() : null;
+        const parkingSlots = raw.parking_slots !== undefined && raw.parking_slots !== '' ? parseInt(raw.parking_slots, 10) : 0;
+        const occupancy = raw.occupancy ? String(raw.occupancy).trim().toUpperCase() : 'OWNER_OCCUPIED';
+
+        let flatId: string;
         if (flatRes.rows.length === 0) {
-          flatRes = await client.query(`INSERT INTO flat (society_id, wing_id, flat_number) VALUES ($1, $2, $3) RETURNING id;`, [societyId, wingId, flatNumber]);
+          const insertFlat = await client.query(`
+            INSERT INTO flat (society_id, wing_id, flat_number, area_sqft, flat_type, parking_slots, occupancy)
+            VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id;
+          `, [societyId, wingId, flatNumber, areaSqft, flatType, parkingSlots, occupancy]);
+          flatId = insertFlat.rows[0].id;
+        } else {
+          flatId = flatRes.rows[0].id;
+          if (areaSqft !== null || flatType !== null || (raw.parking_slots !== undefined && raw.parking_slots !== '') || raw.occupancy) {
+            await client.query(`
+              UPDATE flat SET
+                area_sqft = COALESCE($1, area_sqft),
+                flat_type = COALESCE($2, flat_type),
+                parking_slots = COALESCE($3, parking_slots),
+                occupancy = COALESCE($4, occupancy)
+              WHERE id = $5;
+            `, [areaSqft, flatType, raw.parking_slots !== undefined && raw.parking_slots !== '' ? parkingSlots : null, raw.occupancy ? occupancy : null, flatId]);
+          }
         }
-        const flatId = flatRes.rows[0].id;
 
         const memberId = raw.member_id || `GV-${wingName}${flatNumber}-${Date.now().toString().slice(-4)}`;
         const username = `${raw.full_name.toLowerCase().replace(/[^a-z0-9]/g, '')}.${Date.now().toString().slice(-4)}`;

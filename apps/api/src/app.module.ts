@@ -18,6 +18,7 @@ import { StaffModule } from './modules/staff/staff.module';
 import { VisitorsModule } from './modules/visitors/visitors.module';
 import { GuardsModule } from './modules/guards/guards.module';
 import { SosModule } from './modules/sos/sos.module';
+import { AmenitiesModule } from './modules/amenities/amenities.module';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { SosModule } from './modules/sos/sos.module';
     VisitorsModule,
     GuardsModule,
     SosModule,
+    AmenitiesModule,
   ],
 })
 export class AppModule {}
