@@ -1,4 +1,5 @@
 import * as argon2 from 'argon2';
+import os from 'os';
 
 // Local offline common password blacklist (frequent passwords to reject)
 const COMMON_PASSWORDS = new Set([
@@ -16,6 +17,73 @@ export const ARGON2_CONFIG = {
   timeCost: 3,       // 3 iterations
   parallelism: 2,   // 2 lanes / threads
 };
+
+/**
+ * Memory-aware concurrency limiter for Argon2id hashing.
+ * Prevents container Out-Of-Memory (OOM) crashes under burst authentication floods
+ * by queueing concurrent compute tasks and capping peak memory.
+ */
+export class Argon2ConcurrencyLimiter {
+  private active = 0;
+  private queue: (() => void)[] = [];
+  public readonly maxConcurrent: number;
+
+  constructor(maxConcurrent?: number) {
+    if (maxConcurrent && maxConcurrent > 0) {
+      this.maxConcurrent = maxConcurrent;
+    } else if (process.env.ARGON2_MAX_CONCURRENT) {
+      this.maxConcurrent = parseInt(process.env.ARGON2_MAX_CONCURRENT, 10);
+    } else {
+      // Sized to safe bounds based on available memory (64MB per worker)
+      const cpus = os.cpus()?.length || 2;
+      this.maxConcurrent = Math.max(2, Math.min(cpus, 8));
+    }
+  }
+
+  async acquire(): Promise<() => void> {
+    if (this.active < this.maxConcurrent) {
+      this.active++;
+      let released = false;
+      return () => {
+        if (!released) {
+          released = true;
+          this.release();
+        }
+      };
+    }
+
+    return new Promise((resolve) => {
+      this.queue.push(() => {
+        this.active++;
+        let released = false;
+        resolve(() => {
+          if (!released) {
+            released = true;
+            this.release();
+          }
+        });
+      });
+    });
+  }
+
+  private release() {
+    this.active--;
+    if (this.queue.length > 0) {
+      const next = this.queue.shift();
+      if (next) next();
+    }
+  }
+
+  getActiveCount(): number {
+    return this.active;
+  }
+
+  getQueueLength(): number {
+    return this.queue.length;
+  }
+}
+
+export const argon2Limiter = new Argon2ConcurrencyLimiter();
 
 function getPepper(): Buffer | undefined {
   const pepper = process.env.SECURITY_PEPPER;
@@ -81,33 +149,43 @@ export function validatePasswordStrength(
 }
 
 export async function hashPassword(password: string): Promise<string> {
-  const pepper = getPepper();
-  return argon2.hash(password, {
-    ...ARGON2_CONFIG,
-    ...(pepper ? { secret: pepper } : {}),
-  });
+  const release = await argon2Limiter.acquire();
+  try {
+    const pepper = getPepper();
+    return await argon2.hash(password, {
+      ...ARGON2_CONFIG,
+      ...(pepper ? { secret: pepper } : {}),
+    });
+  } finally {
+    release();
+  }
 }
 
 export async function verifyPassword(hash: string | null | undefined, candidate: string): Promise<boolean> {
-  const pepper = getPepper();
-  if (!hash) {
-    // Perform constant-time dummy verification to prevent timing attack / user enumeration
-    if (DUMMY_HASH) {
-      await argon2.verify(DUMMY_HASH, candidate, pepper ? { secret: pepper } : undefined).catch(() => false);
-    }
-    return false;
-  }
-
+  const release = await argon2Limiter.acquire();
   try {
-    if (pepper) {
-      const matchWithPepper = await argon2.verify(hash, candidate, { secret: pepper }).catch(() => false);
-      if (matchWithPepper) return true;
-      // Fallback: Check without pepper for legacy hashes awaiting upgrade
-      return await argon2.verify(hash, candidate).catch(() => false);
+    const pepper = getPepper();
+    if (!hash) {
+      // Perform constant-time dummy verification to prevent timing attack / user enumeration
+      if (DUMMY_HASH) {
+        await argon2.verify(DUMMY_HASH, candidate, pepper ? { secret: pepper } : undefined).catch(() => false);
+      }
+      return false;
     }
-    return await argon2.verify(hash, candidate);
-  } catch {
-    return false;
+
+    try {
+      if (pepper) {
+        const matchWithPepper = await argon2.verify(hash, candidate, { secret: pepper }).catch(() => false);
+        if (matchWithPepper) return true;
+        // Fallback: Check without pepper for legacy hashes awaiting upgrade
+        return await argon2.verify(hash, candidate).catch(() => false);
+      }
+      return await argon2.verify(hash, candidate);
+    } catch {
+      return false;
+    }
+  } finally {
+    release();
   }
 }
 

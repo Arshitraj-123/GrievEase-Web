@@ -23,6 +23,9 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+# Preserve security audit evidence logs
+!docs/evidence/**
+!docs/evidence/*.log
 
 # Misc & OS
 .DS_Store

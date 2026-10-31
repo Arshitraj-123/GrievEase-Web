@@ -1,11 +1,13 @@
 import { describe, it, expect } from 'vitest';
 import crypto from 'crypto';
-import { verifyProofOfWork, sha256Hex } from '../../src/common/utils/security-crypto';
+import { verifyProofOfWork, sha256Hex, generateRecoveryCodes } from '../../src/common/utils/security-crypto';
+import { isAdminRole, Role } from '@grievease/contracts';
 
-describe('Login Spam Defense, Account Lockout & Password Resets (Items 6 & 8)', () => {
+describe('Login Spam Defense, Account Lockout & Self-Hosted Recovery (Items 6 & 8)', () => {
   class AccountSecurityManager {
     private failedAttempts = new Map<string, { count: number; lockedUntil: number | null }>();
-    private passwordResetTokens = new Map<string, { tokenHash: string; expiresAt: number; used: boolean }>();
+    private recoveryCodes = new Map<string, { codeHash: string; used: boolean }[]>(); // userId -> codes
+    private recoveryTickets = new Map<string, { eligibleAt: number; status: 'PENDING' | 'CANCELLED' | 'USED' }>();
     private userSessions = new Map<string, string[]>(); // userId -> sessionIds
 
     recordFailedLogin(userOrIp: string) {
@@ -36,27 +38,58 @@ describe('Login Spam Defense, Account Lockout & Password Resets (Items 6 & 8)', 
       };
     }
 
-    createPasswordResetToken(userId: string): string {
-      const rawToken = crypto.randomBytes(32).toString('hex');
-      const tokenHash = crypto.createHash('sha256').update(rawToken).digest('hex');
-      const expiresAt = Date.now() + 15 * 60 * 1000; // 15 mins
-      this.passwordResetTokens.set(userId, { tokenHash, expiresAt, used: false });
-      return rawToken;
+    // GrievEase 10 Single-Use Offline Backup Codes (Non-Admin Only)
+    provisionRecoveryCodes(userId: string, role: Role): string[] {
+      if (isAdminRole(role)) {
+        throw new Error('Admin roles cannot use recovery codes. Emergency key transfer protocol required.');
+      }
+      const plainCodes = generateRecoveryCodes(10);
+      const codeRecords = plainCodes.map((code) => ({
+        codeHash: sha256Hex(code.replace(/-/g, '').toUpperCase()),
+        used: false,
+      }));
+      this.recoveryCodes.set(userId, codeRecords);
+      return plainCodes;
     }
 
-    consumePasswordResetToken(userId: string, rawToken: string): boolean {
-      const record = this.passwordResetTokens.get(userId);
-      if (!record || record.used) return false;
-      if (Date.now() > record.expiresAt) return false;
+    useRecoveryCode(userId: string, inputCode: string): boolean {
+      const records = this.recoveryCodes.get(userId);
+      if (!records) return false;
 
-      const inputHash = crypto.createHash('sha256').update(rawToken).digest('hex');
-      const match = crypto.timingSafeEqual(Buffer.from(inputHash, 'hex'), Buffer.from(record.tokenHash, 'hex'));
+      const inputHash = sha256Hex(inputCode.replace(/-/g, '').toUpperCase());
+      const match = records.find((r) => r.codeHash === inputHash && !r.used);
       if (!match) return false;
 
-      record.used = true;
-      // Revoke all existing sessions for this user on password reset
+      // Mark used immediately
+      match.used = true;
+
+      // Revoke all existing sessions
       this.userSessions.delete(userId);
       return true;
+    }
+
+    // 24-Hour Cooling Off Device-Bound Recovery Ticket
+    startSecurityQuestionRecovery(userId: string, role: Role): { ticketId: string; eligibleInHours: number } {
+      if (isAdminRole(role)) {
+        throw new Error('Admin roles cannot recover via security questions.');
+      }
+
+      const ticketId = crypto.randomUUID();
+      const delayHours = 24; // 24-hour cooling-off delay
+      const eligibleAt = Date.now() + delayHours * 60 * 60 * 1000;
+
+      this.recoveryTickets.set(ticketId, {
+        eligibleAt,
+        status: 'PENDING',
+      });
+
+      return { ticketId, eligibleInHours: delayHours };
+    }
+
+    isTicketEligible(ticketId: string): boolean {
+      const ticket = this.recoveryTickets.get(ticketId);
+      if (!ticket || ticket.status !== 'PENDING') return false;
+      return Date.now() >= ticket.eligibleAt;
     }
 
     addSession(userId: string, sessionId: string) {
@@ -123,26 +156,53 @@ describe('Login Spam Defense, Account Lockout & Password Resets (Items 6 & 8)', 
     expect(nonExistentResponse.error).toBe(wrongPasswordResponse.error);
   });
 
-  it('should enforce single-use, 15-minute expiration, and session revocation on password resets', () => {
+  it('should enforce single-use offline recovery codes and revoke sessions on recovery', () => {
     const sec = new AccountSecurityManager();
-    const userId = 'user-123';
+    const residentId = 'resident-101';
 
-    sec.addSession(userId, 'session-device-1');
-    sec.addSession(userId, 'session-device-2');
-    expect(sec.getUserSessions(userId).length).toBe(2);
+    sec.addSession(residentId, 'session-phone');
+    sec.addSession(residentId, 'session-laptop');
+    expect(sec.getUserSessions(residentId).length).toBe(2);
 
-    const token = sec.createPasswordResetToken(userId);
+    // Provision 10 offline recovery codes for resident
+    const codes = sec.provisionRecoveryCodes(residentId, 'RESIDENT');
+    expect(codes.length).toBe(10);
 
-    // Tampered token fails
-    expect(sec.consumePasswordResetToken(userId, token + 'tampered')).toBe(false);
+    const firstCode = codes[0];
 
-    // Legitimate token succeeds
-    expect(sec.consumePasswordResetToken(userId, token)).toBe(true);
+    // Wrong code fails
+    expect(sec.useRecoveryCode(residentId, 'WRONG-CODE-0000')).toBe(false);
 
-    // Token reuse is blocked
-    expect(sec.consumePasswordResetToken(userId, token)).toBe(false);
+    // Legitimate code succeeds
+    expect(sec.useRecoveryCode(residentId, firstCode)).toBe(true);
 
-    // All prior sessions are revoked
-    expect(sec.getUserSessions(userId).length).toBe(0);
+    // Replay attack: Code cannot be reused
+    expect(sec.useRecoveryCode(residentId, firstCode)).toBe(false);
+
+    // All prior sessions revoked
+    expect(sec.getUserSessions(residentId).length).toBe(0);
+  });
+
+  it('should disallow recovery codes or security questions for administrative roles', () => {
+    const sec = new AccountSecurityManager();
+    const adminRoles: Role[] = ['SECRETARY', 'CHAIRMAN', 'SUPER_ADMIN', 'COMMITTEE', 'GOVERNING_BODY'];
+
+    for (const role of adminRoles) {
+      expect(() => sec.provisionRecoveryCodes('admin-user', role)).toThrow(
+        /Admin roles cannot use recovery codes/
+      );
+      expect(() => sec.startSecurityQuestionRecovery('admin-user', role)).toThrow(
+        /Admin roles cannot recover via security questions/
+      );
+    }
+  });
+
+  it('should enforce 24-hour cooling off on security question recovery tickets', () => {
+    const sec = new AccountSecurityManager();
+    const { ticketId, eligibleInHours } = sec.startSecurityQuestionRecovery('resident-102', 'RESIDENT');
+
+    expect(eligibleInHours).toBe(24);
+    // Immediately after creation, ticket is locked in cooling-off
+    expect(sec.isTicketEligible(ticketId)).toBe(false);
   });
 });

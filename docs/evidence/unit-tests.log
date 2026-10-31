@@ -1,0 +1,58 @@
+﻿
+[1m[46m RUN [49m[22m [36mv3.2.7 [39m[90mC:/Users/Arshit Raj/OneDrive/Desktop/Grievase Web/apps/api[39m
+
+ [32mΓ£ô[39m test/unit/direct-sql-rls-and-roles.spec.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 26[2mms[22m[39m
+[90mstdout[2m | test/unit/all-routes-access-coverage.spec.ts[2m > [22m[2mExhaustive Route & Socket Event Access Matrix (Section D & Coverage Drill)[2m > [22m[2mshould verify routes tested / routes total: 100% complete coverage
+[22m[39mΓ£à Routes Tested / Routes Total: 287 / 287 (100% HTTP Coverage)
+Γ£à Socket Events Tested / Socket Events Total: 2 / 2 (100% WebSocket Coverage)
+
+ [32mΓ£ô[39m test/unit/admin-access-matrix.spec.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 130[2mms[22m[39m
+ [32mΓ£ô[39m test/unit/recovery-normalisation.spec.ts [2m([22m[2m5 tests[22m[2m)[22m[33m 1092[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m Account Recovery & Security Question Hardening[2m > [22mshould hash normalized answers with salt and server pepper [33m 1046[2mms[22m[39m
+ [32mΓ£ô[39m test/unit/all-routes-access-coverage.spec.ts [2m([22m[2m5 tests[22m[2m)[22m[33m 1870[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m Exhaustive Route & Socket Event Access Matrix (Section D & Coverage Drill)[2m > [22mshould block cross-society requests (tenant isolation) across all endpoints [33m 1199[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m Exhaustive Route & Socket Event Access Matrix (Section D & Coverage Drill)[2m > [22mshould block horizontal IDOR between residents of different flats [33m 431[2mms[22m[39m
+ [32mΓ£ô[39m test/unit/password-policy.spec.ts [2m([22m[2m7 tests[22m[2m)[22m[33m 3320[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m Password Policy & Argon2id Verification[2m > [22mshould hash and verify passwords using Argon2id correctly [33m 953[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m Password Policy & Argon2id Verification[2m > [22mshould safely execute dummy hash verification for non-existent users without throwing [33m 496[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m Password Policy & Argon2id Verification[2m > [22mshould trigger needsRehash when hash parameters differ from OWASP standards [33m 710[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m Password Policy & Argon2id Verification[2m > [22mshould verify with pepper and seamlessly support legacy unpeppered verification [33m 1131[2mms[22m[39m
+ [32mΓ£ô[39m test/unit/sla-calculator.spec.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 24[2mms[22m[39m
+ [32mΓ£ô[39m test/unit/lockout-and-rotation.spec.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 24[2mms[22m[39m
+ [32mΓ£ô[39m test/unit/env-and-redaction.spec.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 27[2mms[22m[39m
+ [32mΓ£ô[39m test/unit/idor-and-tenant-isolation.spec.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 20[2mms[22m[39m
+ [32mΓ£ô[39m test/unit/state-machine.spec.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 37[2mms[22m[39m
+ [32mΓ£ô[39m test/unit/phase7-amenities-billing.spec.ts [2m([22m[2m21 tests[22m[2m)[22m[32m 126[2mms[22m[39m
+ [32mΓ£ô[39m test/unit/bot-timing-defense.spec.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 18[2mms[22m[39m
+ [32mΓ£ô[39m test/unit/metrics.spec.ts [2m([22m[2m15 tests[22m[2m)[22m[33m 906[2mms[22m[39m
+   [33m[2mΓ£ô[22m[39m Phase 4: MetricsService Unit Tests (docs/metrics.md reconciliation)[2m > [22m2. Resolution Duration & PENDING_INFO Deduction[2m > [22mshould respect working hours and exclude closed periods [33m 848[2mms[22m[39m
+ [32mΓ£ô[39m test/unit/anonymity-crypto.spec.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 28[2mms[22m[39m
+ [32mΓ£ô[39m test/unit/anonymity-leak.spec.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+ [32mΓ£ô[39m test/unit/form-payload-security.spec.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+ [32mΓ£ô[39m test/unit/anonymity-analytics.spec.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 38[2mms[22m[39m
+ [32mΓ£ô[39m test/unit/login-spam-defense.spec.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 31[2mms[22m[39m
+ [32mΓ£ô[39m test/unit/community-modules.spec.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 56[2mms[22m[39m
+ [32mΓ£ô[39m test/unit/phase8-vendors-cms-privacy.spec.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 52[2mms[22m[39m
+ [32mΓ£ô[39m test/unit/visitors-guards-sos.spec.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 48[2mms[22m[39m
+ [32mΓ£ô[39m test/unit/audit-hash-chain.spec.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 49[2mms[22m[39m
+[33m[Nest] 14692  - [39m31/10/2026, 2:13:50 pm [33m   WARN[39m [38;5;3m[HttpExceptionFilter] [39m[33m[e4c6cb63-db10-40b0-baf7-7a7c0434209d] Client Error 400 on POST /api/v1/test-endpoint: Unexpected token } in JSON at position 42[39m
+[33m[Nest] 14692  - [39m31/10/2026, 2:13:50 pm [33m   WARN[39m [38;5;3m[HttpExceptionFilter] [39m[33m[c62f8d1f-853a-457a-8327-2067990b6a74] Client Error 401 on POST /api/v1/test-endpoint: Authentication required[39m
+[33m[Nest] 14692  - [39m31/10/2026, 2:13:50 pm [33m   WARN[39m [38;5;3m[HttpExceptionFilter] [39m[33m[a151a0d7-928c-48ef-b692-bbd10135ab6d] Client Error 403 on POST /api/v1/test-endpoint: You do not have permission to view flat 102[39m
+[33m[Nest] 14692  - [39m31/10/2026, 2:13:50 pm [33m   WARN[39m [38;5;3m[HttpExceptionFilter] [39m[33m[794a9eda-a093-4be4-a07d-840a85dc0c91] Client Error 404 on POST /api/v1/test-endpoint: Grievance grv-9999 not found[39m
+[33m[Nest] 14692  - [39m31/10/2026, 2:13:50 pm [33m   WARN[39m [38;5;3m[HttpExceptionFilter] [39m[33m[28405036-2347-49bd-a711-c7dd93f5b3b7] Client Error 405 on POST /api/v1/test-endpoint: PATCH method is not allowed[39m
+[33m[Nest] 14692  - [39m31/10/2026, 2:13:50 pm [33m   WARN[39m [38;5;3m[HttpExceptionFilter] [39m[33m[a9914a8f-adfd-4f30-8f64-d26469a210e4] Client Error 413 on POST /api/v1/test-endpoint: File size 15MB exceeds limit 5MB[39m
+[33m[Nest] 14692  - [39m31/10/2026, 2:13:50 pm [33m   WARN[39m [38;5;3m[HttpExceptionFilter] [39m[33m[2a8fe04f-54b2-4b9d-b156-de3adf43a47c] Client Error 415 on POST /api/v1/test-endpoint: Executable files are not allowed[39m
+[33m[Nest] 14692  - [39m31/10/2026, 2:13:50 pm [33m   WARN[39m [38;5;3m[HttpExceptionFilter] [39m[33m[a033a343-96d0-4d86-bf0e-70556ba09909] Client Error 429 on POST /api/v1/test-endpoint: Rate limit exceeded[39m
+ [32mΓ£ô[39m test/unit/forced-error-sanitization.spec.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 101[2mms[22m[39m
+ [32mΓ£ô[39m test/unit/proof-of-work.spec.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32mΓ£ô[39m test/unit/rate-limiting.spec.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32mΓ£ô[39m test/unit/escalation-idempotency.spec.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32mΓ£ô[39m test/unit/authorization-analytics.spec.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 17[2mms[22m[39m
+ [32mΓ£ô[39m test/unit/reconciliation-analytics.spec.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32mΓ£ô[39m test/unit/report-exporter.spec.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 121[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m29 passed[39m[22m[90m (29)[39m
+[2m      Tests [22m [1m[32m191 passed[39m[22m[90m (191)[39m
+[2m   Start at [22m 14:13:32
+[2m   Duration [22m 23.35s[2m (transform 7.44s, setup 0ms, collect 125.00s, tests 8.23s, environment 23ms, prepare 38.17s)[22m
+

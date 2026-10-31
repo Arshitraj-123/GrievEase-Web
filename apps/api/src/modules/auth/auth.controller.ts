@@ -28,7 +28,8 @@ function getCookieOptions(maxAgeMs: number) {
     sameSite: 'lax' as const,
     maxAge: maxAgeMs,
     path: '/',
-    ...(domain !== 'localhost' ? { domain } : {}),
+    // RFC 6265bis: __Host- cookies must NOT set a Domain attribute (strictly host-bound)
+    ...(!isHttps && domain !== 'localhost' ? { domain } : {}),
   };
 }
 

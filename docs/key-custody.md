@@ -1,85 +1,63 @@
-# GrievEase Cryptographic Key Custody & Secrets Management Policy
+# GrievEase Disaster Recovery & Key Custody Protocol
 
-## 1. Scope & Objective
-
-GrievEase operates under a strict **Zero-Third-Party Runtime** constraint. Without reliance on commercial cloud key management services (e.g. AWS KMS, HashiCorp Vault cloud), all cryptographic secrets, master keys, and salts are managed via self-hosted, air-gapped ready protocols.
-
-This policy mandates the classification, custody, lifecycle, and emergency rotation procedures for all secrets in the ecosystem.
+> **Classification**: Strictly Confidential (Society Secretary & Chairman Custody Only)  
+> **Purpose**: Standalone disaster recovery procedure allowing complete database restoration using only offsite backup archives and this document, independent of any running application server.
 
 ---
 
-## 2. Secrets Inventory & Classification
+## 1. Key Segregation Architecture
+GrievEase maintains strict cryptographic isolation between application secrets and backup encryption keys:
 
-| Secret Name | Purpose & Algorithm | Storage Location | Sensitivity | Rotation Cadence | Custodian |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| `JWT_SECRET` | Access token HMAC-SHA256 signing | Environment (`/etc/grievease/.env.secrets`) | **HIGH** | 90 Days (or on compromise) | Lead System Administrator |
-| `JWT_SECRET_PREV` | Grace-period token verification for zero-downtime rotation | Environment | **HIGH** | Overwritten upon next rotation | Lead System Administrator |
-| `REFRESH_SECRET` | Refresh token hashing pepper | Environment | **CRITICAL** | 180 Days | Lead System Administrator |
-| `ANONYMITY_SECRET_SALT` | Resident ID masking for anonymous grievances | Environment + DB Society Salt | **CRITICAL** | Society Lifetime (Rotating breaks anonymous lookup) | Super Admin + Chairman |
-| `BACKUP_ENCRYPTION_KEY` | AES-256-GCM payload encryption for `pg_dump` backups | Encrypted off-site storage / Environment | **CRITICAL** | 180 Days | Dual Custody: Secretary & Chairman |
-| `DB_PASSWORD` | PostgreSQL superuser & application connection | Docker secrets / isolated environment | **CRITICAL** | 180 Days | Database Administrator |
-| `REDIS_PASSWORD` | Redis cluster / cache authentication | Docker secrets / isolated environment | **HIGH** | 180 Days | System Administrator |
-| `MINIO_ROOT_PASSWORD` | Object storage administrative credentials | Docker secrets / isolated environment | **CRITICAL** | 180 Days | Storage Administrator |
-| `CSRF_SECRET` | Double-submit cookie anti-CSRF token signing | Environment | **MEDIUM** | On restart / 90 Days | Application Process |
+| Secret Identifier | Environment Variable | Storage Location | Purpose |
+|---|---|---|---|
+| **App Master Key** | `ENCRYPTION_KEY` | Server environment (`.env`) | Field-level PII encryption (phone numbers, vendor contact details). |
+| **Security Pepper** | `SECURITY_PEPPER` | Server environment (`.env`) | Argon2id password hash seasoning. |
+| **Backup Encryption Key** | `BACKUP_ENCRYPTION_KEY` | Offline Key Custody Safe | AES-256-GCM encryption of PostgreSQL dumps and WAL segments. |
+
+> **Critical Rule**: The `BACKUP_ENCRYPTION_KEY` must **NEVER** be stored in the database, nor in Git, and must be held offline by at least two designated trustees (Society Secretary and Chairman) in physical split envelopes or a secure password vault.
 
 ---
 
-## 3. Custody & Multi-Party Governance
+## 2. Emergency Standalone Decryption Procedure
+In the event of total server loss, an engineer with access to the raw encrypted backup (`grievease_backup_*.enc.sql`) and the `BACKUP_ENCRYPTION_KEY` can restore the entire database on a fresh Linux/PostgreSQL machine using standard Node.js or OpenSSL:
 
-### 3.1 Dual-Control (Maker-Checker) Custody
-1. **Critical Secrets (`BACKUP_ENCRYPTION_KEY`, Master Database Encryption)**:
-   - Must never reside solely with one individual.
-   - Generated via Shamir's Secret Sharing (2-of-3 threshold):
-     - **Share 1**: Super Admin / System Engineer
-     - **Share 2**: Society Secretary
-     - **Share 3**: Society Chairman (stored in physical sealed envelope inside society vault)
-2. **Reconstitution**:
-   - Any disaster recovery decryption requires physical or authenticated presence of at least 2 keyholders.
+```bash
+# Decryption using GrievEase Standalone CLI
+BACKUP_ENCRYPTION_KEY="<KEY_FROM_CUSTODY_SAFE>" node scripts/restore-db.js /path/to/backup.enc.sql
+```
 
-### 3.2 Offline Vault Storage
-- A physical, water-resistant, fireproof tamper-evident envelope containing:
-  1. The base `BACKUP_ENCRYPTION_KEY` passphrase
-  2. The Emergency Break-Glass Super Admin recovery credential
-  3. The genesis block hash of the society `audit_log`
-- Deposited in the Society Bank Locker / Secure Physical Safe. Inspected annually during the Annual General Meeting (AGM).
+### Manual Decryption via OpenSSL (AES-256-GCM)
+The archive package layout is:
+- Bytes 0-12: 12-byte initialization vector (IV)
+- Bytes 12-28: 16-byte GCM authentication tag
+- Bytes 28+: AES-256-GCM ciphertext
+
+```bash
+# Extract IV, Tag, and Ciphertext
+dd if=backup.enc.sql of=iv.bin bs=1 count=12
+dd if=backup.enc.sql of=tag.bin bs=1 skip=12 count=16
+dd if=backup.enc.sql of=cipher.bin bs=1 skip=28
+
+# Decrypt using standard OpenSSL 3.0+
+openssl enc -d -aes-256-gcm \
+  -in cipher.bin -out restored_db.sql \
+  -K $(echo -n "$BACKUP_ENCRYPTION_KEY" | sha256sum | awk '{print $1}') \
+  -iv $(xxd -p -c 12 iv.bin) \
+  -tag $(xxd -p -c 16 tag.bin)
+
+# Stream into fresh PostgreSQL database
+psql -U postgres -d grievease_prod -f restored_db.sql
+```
 
 ---
 
-## 4. Key Lifecycle & Rotation Procedures
+## 3. Recovery Time & Point Objectives (RTO / RPO)
+- **Recovery Point Objective (RPO)**: **< 24 Hours** (via daily automated full encrypted backup) and **< 15 Minutes** (with WAL archiving enabled).
+- **Recovery Time Objective (RTO)**: **< 15 Minutes** for full 100k-record database reconstitution.
 
-### 4.1 Zero-Downtime JWT Secret Rotation
-To rotate `JWT_SECRET` without forcibly disconnecting thousands of active residents:
-1. Generate new 64-byte high-entropy hex secret:
-   ```bash
-   node -e "console.log(crypto.randomBytes(32).toString('hex'))"
-   ```
-2. Update the environment:
-   ```env
-   JWT_SECRET_PREV="<current_JWT_SECRET>"
-   JWT_SECRET="<newly_generated_secret>"
-   ```
-3. Restart the API cluster with zero-downtime rolling restart (`pnpm pm2 reload` or Docker rolling update).
-4. The API signs all new tokens with `JWT_SECRET` but accepts incoming tokens signed by either `JWT_SECRET` or `JWT_SECRET_PREV`.
-5. After 15 minutes (max access token TTL), remove `JWT_SECRET_PREV`.
+---
 
-### 4.2 Backup Encryption Key Rotation
-When rotating `BACKUP_ENCRYPTION_KEY`:
-1. Generate `BACKUP_ENCRYPTION_KEY_NEW`.
-2. Existing backups are NOT rewritten retroactively; their manifest stores `key_id: "2026-Q1"`.
-3. The key archive maintains historical decryption keys in the Society Vault.
-4. Future nightly backups run with `BACKUP_ENCRYPTION_KEY_NEW`.
-
-### 4.3 Emergency Key Revocation (Compromise Protocol)
-If a server breach, unauthorized dump, or administrator departure occurs:
-1. **Immediate Execution**:
-   - Invalidate all active Redis refresh token families:
-     ```redis
-     EVAL "return redis.call('del', unpack(redis.call('keys', 'refresh:*')))" 0
-     ```
-   - Rotate `JWT_SECRET` immediately without `JWT_SECRET_PREV` (forces re-login across all clients).
-   - Rotate database credentials and restart application containers.
-2. **Post-Mortem**:
-   - Execute `pnpm audit:verify` to confirm audit hash chain continuity.
-   - Inspect `sensitive_access_log` for unauthorized queries.
-   - Publish incident report to the Governing Body within 24 hours under DPDP regulations.
-
+## 4. Offsite Replication Schedule
+- Primary backup is taken daily at **02:00 IST** via local cron (`scripts/backup-db.sh`).
+- Secondary offsite replica is pushed at **02:30 IST** to an isolated offsite target via `scripts/backup-offsite.sh`.
+- Retention: 30 daily backups, 12 monthly archives, permanently archived annual financial audits.

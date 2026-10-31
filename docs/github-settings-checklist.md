@@ -46,3 +46,4 @@ Navigate to `Settings > Actions > General`:
 - [ ] **Workflow Permissions**: Select **Read repository contents and packages permissions** (default least-privilege).
 - [ ] **Fork Pull Request Workflows**: Require approval for first-time contributors; ensure repository secrets are NEVER passed to forks.
 - [ ] **Pinned Action SHAs**: Verify all GitHub Actions workflows in `.github/workflows/` pin actions by immutable commit SHAs, not mutable tags.
+

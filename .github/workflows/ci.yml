@@ -40,6 +40,9 @@ jobs:
       - name: Full Git History Secret Scan (All Commits)
         run: node scripts/git-history-scan.js
 
+      - name: Dead Code and Unused Dependency Gate
+        run: node scripts/audit-unused-code.js
+
       - name: Preflight Checklist Verification
         run: pnpm preflight
 

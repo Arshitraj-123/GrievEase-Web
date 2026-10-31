@@ -56,3 +56,4 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
   CMD curl -f http://localhost:3000/ || exit 1
 
 CMD ["pnpm", "--filter", "@grievease/web", "start"]
+

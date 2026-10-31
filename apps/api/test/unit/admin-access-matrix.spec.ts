@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import * as jwt from 'jsonwebtoken';
 import { Role, isAdminRole, ADMIN_ROLES } from '@grievease/contracts';
 
-describe('Admin Access Matrix & Route Hardening (Item 3)', () => {
+describe('Admin Access Matrix & Canonical Role Separation (Item 3 & Section D)', () => {
   const JWT_SECRET = 'super_secure_test_jwt_secret_with_sufficient_entropy_64chars_long!!';
 
   interface RoutePermission {
@@ -10,13 +10,16 @@ describe('Admin Access Matrix & Route Hardening (Item 3)', () => {
     allowedRoles: Role[];
   }
 
+  // Canonical Admin Routes mapped strictly to canonical system roles:
+  // 'SECRETARY' | 'COMMITTEE' | 'CHAIRMAN' | 'GOVERNING_BODY' | 'SUPER_ADMIN'
   const ADMIN_ROUTES: RoutePermission[] = [
-    { route: '/api/v1/admin/society/settings', allowedRoles: ['SECRETARY', 'CHAIRMAN', 'ADMIN'] },
-    { route: '/api/v1/admin/audit-log', allowedRoles: ['AUDITOR', 'SECRETARY', 'CHAIRMAN', 'ADMIN'] },
-    { route: '/api/v1/admin/users/import', allowedRoles: ['SECRETARY', 'ADMIN'] },
-    { route: '/api/v1/admin/escalation/rules', allowedRoles: ['SECRETARY', 'CHAIRMAN', 'ADMIN'] },
-    { route: '/api/v1/admin/billing/cash-entry', allowedRoles: ['TREASURER', 'SECRETARY', 'ADMIN'] },
-    { route: '/api/v1/admin/reports/export', allowedRoles: ['SECRETARY', 'CHAIRMAN', 'TREASURER', 'AUDITOR', 'ADMIN'] },
+    { route: '/api/v1/admin/society/settings', allowedRoles: ['SECRETARY', 'CHAIRMAN', 'SUPER_ADMIN'] },
+    { route: '/api/v1/admin/audit-log', allowedRoles: ['GOVERNING_BODY', 'SECRETARY', 'CHAIRMAN', 'SUPER_ADMIN'] },
+    { route: '/api/v1/admin/users/import', allowedRoles: ['SECRETARY', 'SUPER_ADMIN'] },
+    { route: '/api/v1/admin/escalation/rules', allowedRoles: ['SECRETARY', 'CHAIRMAN', 'SUPER_ADMIN'] },
+    { route: '/api/v1/admin/billing/cash-entry', allowedRoles: ['SECRETARY', 'CHAIRMAN', 'SUPER_ADMIN'] },
+    { route: '/api/v1/admin/reports/export', allowedRoles: ['SECRETARY', 'CHAIRMAN', 'GOVERNING_BODY', 'SUPER_ADMIN'] },
+    { route: '/api/v1/admin/waiver/approve', allowedRoles: ['CHAIRMAN', 'SUPER_ADMIN'] }, // Maker-checker dual authority
   ];
 
   function evaluateRouteAccess(token: string | null, route: string): { status: number; allowed: boolean } {
@@ -64,21 +67,24 @@ describe('Admin Access Matrix & Route Hardening (Item 3)', () => {
     }
   });
 
-  it('should enforce role separation among admin roles (e.g. TREASURER vs AUDITOR)', () => {
-    const treasurerToken = jwt.sign({ userId: 'u-t', role: 'TREASURER' as Role, societyId: 'soc-1' }, JWT_SECRET);
-    const auditorToken = jwt.sign({ userId: 'u-a', role: 'AUDITOR' as Role, societyId: 'soc-1' }, JWT_SECRET);
+  it('should enforce role separation among canonical admin roles', () => {
+    const governingBodyToken = jwt.sign({ userId: 'u-gb', role: 'GOVERNING_BODY' as Role, societyId: 'soc-1' }, JWT_SECRET);
+    const secretaryToken = jwt.sign({ userId: 'u-sec', role: 'SECRETARY' as Role, societyId: 'soc-1' }, JWT_SECRET);
+    const chairmanToken = jwt.sign({ userId: 'u-chair', role: 'CHAIRMAN' as Role, societyId: 'soc-1' }, JWT_SECRET);
 
-    // Treasurer can access billing cash entry
-    expect(evaluateRouteAccess(treasurerToken, '/api/v1/admin/billing/cash-entry').status).toBe(200);
-    // Treasurer cannot alter society settings or import users
-    expect(evaluateRouteAccess(treasurerToken, '/api/v1/admin/society/settings').status).toBe(403);
-    expect(evaluateRouteAccess(treasurerToken, '/api/v1/admin/users/import').status).toBe(403);
+    // GOVERNING_BODY has read-only supervisory audit access, but cannot enter cash or import users
+    expect(evaluateRouteAccess(governingBodyToken, '/api/v1/admin/audit-log').status).toBe(200);
+    expect(evaluateRouteAccess(governingBodyToken, '/api/v1/admin/billing/cash-entry').status).toBe(403);
+    expect(evaluateRouteAccess(governingBodyToken, '/api/v1/admin/users/import').status).toBe(403);
 
-    // Auditor can view audit log
-    expect(evaluateRouteAccess(auditorToken, '/api/v1/admin/audit-log').status).toBe(200);
-    // Auditor cannot add cash entries or edit settings
-    expect(evaluateRouteAccess(auditorToken, '/api/v1/admin/billing/cash-entry').status).toBe(403);
-    expect(evaluateRouteAccess(auditorToken, '/api/v1/admin/society/settings').status).toBe(403);
+    // SECRETARY can enter cash and import users, but cannot approve waivers (maker-checker)
+    expect(evaluateRouteAccess(secretaryToken, '/api/v1/admin/billing/cash-entry').status).toBe(200);
+    expect(evaluateRouteAccess(secretaryToken, '/api/v1/admin/users/import').status).toBe(200);
+    expect(evaluateRouteAccess(secretaryToken, '/api/v1/admin/waiver/approve').status).toBe(403);
+
+    // CHAIRMAN can approve waivers and access reports
+    expect(evaluateRouteAccess(chairmanToken, '/api/v1/admin/waiver/approve').status).toBe(200);
+    expect(evaluateRouteAccess(chairmanToken, '/api/v1/admin/reports/export').status).toBe(200);
   });
 
   it('should reject forged client-tampered tokens (signature mismatch)', () => {

@@ -108,6 +108,7 @@ services:
     volumes:
       - ./deploy/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./deploy/admin-ips.conf:/etc/nginx/admin-ips.conf:ro
+      - ./deploy/hsts.conf:/etc/nginx/hsts.conf:ro
       - ./deploy/certs:/etc/nginx/certs:ro
     depends_on:
       - web

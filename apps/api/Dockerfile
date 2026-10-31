@@ -58,3 +58,4 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
   CMD curl -f http://localhost:4000/api/v1/health || exit 1
 
 CMD ["node", "apps/api/dist/main.js"]
+

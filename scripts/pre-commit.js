@@ -29,3 +29,4 @@ try {
   console.error('\n❌ PRE-COMMIT CHECK FAILED: Commit aborted.');
   process.exit(1);
 }
+

@@ -95,3 +95,24 @@ Legend:
 
 \* *Super Admin sole approver activates ONLY when society has fewer than 2 eligible approvers, logging the `SOLE_APPROVER` audit flag and dispatching notices to Governing Body.*
 
+---
+
+## 3. Canonical Role Specification & Test Fixture Reconciliation
+
+GrievEase strictly recognizes eight canonical user roles defined in `RoleEnum` within `@grievease/contracts` and enforced across database enum definitions:
+1. `SUPER_ADMIN`
+2. `CHAIRMAN`
+3. `SECRETARY`
+4. `COMMITTEE`
+5. `GOVERNING_BODY`
+6. `RESIDENT`
+7. `GUARD`
+8. `VENDOR`
+
+### Note on Historical Test Roles (`TREASURER` and `AUDITOR`):
+Early mock test suites introduced non-canonical role identifiers (`TREASURER`, `AUDITOR`) as test fixtures. Because these roles do not exist in the PostgreSQL schema `role_enum` or the Prisma/TypeScript contracts, they were eliminated during the security audit refactoring:
+- Financial responsibilities previously attributed to `TREASURER` are handled by `SECRETARY` (day-to-day cash entry, bill run) and `CHAIRMAN` / `COMMITTEE` (waiver approvals).
+- Supervisory audit responsibilities previously attributed to `AUDITOR` are handled by `GOVERNING_BODY` (read-only audit trail and financial transparency).
+All automated tests now strictly validate against the canonical eight roles.
+
+

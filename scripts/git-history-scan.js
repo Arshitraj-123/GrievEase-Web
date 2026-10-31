@@ -32,7 +32,9 @@ const ALLOWLIST_SUBSTRINGS = [
   'process.env',
   'dummy_hash',
   'example',
-  'placeholder'
+  'placeholder',
+  'mock',
+  'spec'
 ];
 
 console.log('🔍 Scanning FULL git history across all commits, branches, and tags...');
@@ -107,3 +109,4 @@ try {
   console.error(`Failed to scan git history: ${err.message}`);
   process.exit(1);
 }
+

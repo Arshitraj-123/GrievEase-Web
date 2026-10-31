@@ -229,3 +229,4 @@ md += '4. **Multi-Language Unicode Resilience**: Verified against complex Hindi/
 
 fs.writeFileSync(path.join(__dirname, '../docs/form-inventory.md'), md, 'utf8');
 console.log('Successfully generated docs/form-inventory.md with', inventory.length, 'endpoints.');
+

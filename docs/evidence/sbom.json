@@ -1,0 +1,339 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.5",
+  "serialNumber": "urn:uuid:7e436753-bb6b-442a-ae02-dc19cac0a0d9",
+  "version": 1,
+  "metadata": {
+    "timestamp": "2026-10-31T08:40:25.306Z",
+    "tools": [
+      {
+        "vendor": "GrievEase Security",
+        "name": "sbom-generator",
+        "version": "1.0.0"
+      }
+    ],
+    "component": {
+      "type": "application",
+      "name": "grievease-web-app",
+      "version": "1.0.0",
+      "description": "Standalone Self-Hosted Cooperative Housing Society Management Platform"
+    }
+  },
+  "components": [
+    {
+      "type": "library",
+      "name": "@aws-sdk/client-s3",
+      "version": "3.1158.0",
+      "purl": "pkg:npm/@aws-sdk/client-s3@3.1158.0",
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "name": "@aws-sdk/s3-request-presigner",
+      "version": "3.1158.0",
+      "purl": "pkg:npm/@aws-sdk/s3-request-presigner@3.1158.0",
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "name": "@nestjs/common",
+      "version": "10.4.15",
+      "purl": "pkg:npm/@nestjs/common@10.4.15",
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "name": "@nestjs/core",
+      "version": "10.4.15",
+      "purl": "pkg:npm/@nestjs/core@10.4.15",
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "name": "@nestjs/jwt",
+      "version": "10.2.0",
+      "purl": "pkg:npm/@nestjs/jwt@10.2.0",
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "name": "@nestjs/platform-express",
+      "version": "10.4.15",
+      "purl": "pkg:npm/@nestjs/platform-express@10.4.15",
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "name": "@nestjs/platform-socket.io",
+      "version": "10.4.15",
+      "purl": "pkg:npm/@nestjs/platform-socket.io@10.4.15",
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "name": "@nestjs/swagger",
+      "version": "8.1.1",
+      "purl": "pkg:npm/@nestjs/swagger@8.1.1",
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "name": "@nestjs/websockets",
+      "version": "10.4.15",
+      "purl": "pkg:npm/@nestjs/websockets@10.4.15",
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "name": "argon2",
+      "version": "0.41.1",
+      "purl": "pkg:npm/argon2@0.41.1",
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "name": "bullmq",
+      "version": "6.5.0",
+      "purl": "pkg:npm/bullmq@6.5.0",
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "name": "class-transformer",
+      "version": "0.5.1",
+      "purl": "pkg:npm/class-transformer@0.5.1",
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "name": "class-validator",
+      "version": "0.15.1",
+      "purl": "pkg:npm/class-validator@0.15.1",
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "name": "cookie-parser",
+      "version": "1.4.7",
+      "purl": "pkg:npm/cookie-parser@1.4.7",
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "name": "csv-parse",
+      "version": "5.6.0",
+      "purl": "pkg:npm/csv-parse@5.6.0",
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "name": "csv-stringify",
+      "version": "6.5.2",
+      "purl": "pkg:npm/csv-stringify@6.5.2",
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "name": "dotenv",
+      "version": "16.4.7",
+      "purl": "pkg:npm/dotenv@16.4.7",
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "name": "drizzle-orm",
+      "version": "0.38.4",
+      "purl": "pkg:npm/drizzle-orm@0.38.4",
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "name": "exceljs",
+      "version": "4.4.0",
+      "purl": "pkg:npm/exceljs@4.4.0",
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "name": "express",
+      "version": "4.21.2",
+      "purl": "pkg:npm/express@4.21.2",
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "name": "helmet",
+      "version": "8.0.0",
+      "purl": "pkg:npm/helmet@8.0.0",
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "name": "ioredis",
+      "version": "5.5.0",
+      "purl": "pkg:npm/ioredis@5.5.0",
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "name": "jsonwebtoken",
+      "version": "9.0.2",
+      "purl": "pkg:npm/jsonwebtoken@9.0.2",
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "name": "otplib",
+      "version": "12.0.1",
+      "purl": "pkg:npm/otplib@12.0.1",
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "name": "pdfkit",
+      "version": "0.20.2",
+      "purl": "pkg:npm/pdfkit@0.20.2",
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "name": "pg",
+      "version": "8.13.1",
+      "purl": "pkg:npm/pg@8.13.1",
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "name": "qrcode",
+      "version": "1.5.4",
+      "purl": "pkg:npm/qrcode@1.5.4",
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "name": "reflect-metadata",
+      "version": "0.2.2",
+      "purl": "pkg:npm/reflect-metadata@0.2.2",
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "name": "rxjs",
+      "version": "7.8.1",
+      "purl": "pkg:npm/rxjs@7.8.1",
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "name": "sharp",
+      "version": "0.35.5",
+      "purl": "pkg:npm/sharp@0.35.5",
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "name": "socket.io",
+      "version": "4.8.1",
+      "purl": "pkg:npm/socket.io@4.8.1",
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "name": "zod",
+      "version": "3.24.2",
+      "purl": "pkg:npm/zod@3.24.2",
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "name": "@hookform/resolvers",
+      "version": "3.10.0",
+      "purl": "pkg:npm/@hookform/resolvers@3.10.0",
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "name": "@tanstack/react-query",
+      "version": "5.66.0",
+      "purl": "pkg:npm/@tanstack/react-query@5.66.0",
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "name": "clsx",
+      "version": "2.1.1",
+      "purl": "pkg:npm/clsx@2.1.1",
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "name": "framer-motion",
+      "version": "12.4.7",
+      "purl": "pkg:npm/framer-motion@12.4.7",
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "name": "lucide-react",
+      "version": "0.475.0",
+      "purl": "pkg:npm/lucide-react@0.475.0",
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "name": "next",
+      "version": "15.1.7",
+      "purl": "pkg:npm/next@15.1.7",
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "name": "qrcode",
+      "version": "1.5.4",
+      "purl": "pkg:npm/qrcode@1.5.4",
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "name": "react",
+      "version": "19.0.0",
+      "purl": "pkg:npm/react@19.0.0",
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "name": "react-dom",
+      "version": "19.0.0",
+      "purl": "pkg:npm/react-dom@19.0.0",
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "name": "react-hook-form",
+      "version": "7.54.2",
+      "purl": "pkg:npm/react-hook-form@7.54.2",
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "name": "socket.io-client",
+      "version": "4.8.1",
+      "purl": "pkg:npm/socket.io-client@4.8.1",
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "name": "tailwind-merge",
+      "version": "3.0.1",
+      "purl": "pkg:npm/tailwind-merge@3.0.1",
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "name": "zod",
+      "version": "3.24.2",
+      "purl": "pkg:npm/zod@3.24.2",
+      "scope": "required"
+    }
+  ]
+}

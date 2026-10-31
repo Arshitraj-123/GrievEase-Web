@@ -8,3 +8,7 @@ allowBuilds:
   argon2: true
   esbuild: true
   msgpackr-extract: true
+
+overrides:
+  tinypool: '>=2.1.2'
+  body-parser: '>=1.20.6'

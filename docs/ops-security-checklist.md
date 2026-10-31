@@ -91,3 +91,4 @@
 ## 7. Offsite Encrypted Backup Sync
 - [ ] Configure nightly cron job to sync `./backups/*.sql.enc` to secondary offsite storage via encrypted SFTP or rclone.
 - [ ] Ensure `BACKUP_ENCRYPTION_KEY` is backed up in a secure offline password manager (1Password / Bitwarden / Hardware Security Module).
+
