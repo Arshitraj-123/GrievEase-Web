@@ -30,9 +30,16 @@
     "smoke": "node scripts/smoke-test.js",
     "guard:no-marathi": "node scripts/guard-no-marathi.js",
     "i18n:import-review": "node scripts/import-review.js",
-    "preflight": "node scripts/preflight.js"
+    "preflight": "node scripts/preflight.js",
+    "demo:reset": "node demo/cli.js reset",
+    "demo:record": "node demo/cli.js record",
+    "demo:verify": "node demo/cli.js verify",
+    "demo:pack": "node demo/cli.js pack",
+    "demo:coverage": "node demo/cli.js coverage"
   },
   "devDependencies": {
+    "@playwright/test": "^1.64.1",
+    "otplib": "^13.5.0",
     "typescript": "^5.7.3"
   }
 }

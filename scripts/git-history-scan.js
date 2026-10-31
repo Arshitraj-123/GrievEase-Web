@@ -34,7 +34,8 @@ const ALLOWLIST_SUBSTRINGS = [
   'example',
   'placeholder',
   'mock',
-  'spec'
+  'spec',
+  'demo'
 ];
 
 console.log('🔍 Scanning FULL git history across all commits, branches, and tags...');

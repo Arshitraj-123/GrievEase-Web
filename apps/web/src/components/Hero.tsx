@@ -72,6 +72,7 @@ export function Hero() {
               {/* Primary CTA */}
               <Link
                 href={heroContent.ctaPrimary.href}
+                data-testid="hero-primary-cta"
                 className="btn-fluid-primary bg-gradient-to-r from-[#00B894] to-[#00D4AA] text-white shadow-[0_8px_25px_rgba(0,184,148,0.35)] hover:-translate-y-0.5 hover:shadow-[0_12px_30px_rgba(0,184,148,0.45)] group focus:outline-none focus-visible:ring-2 focus-visible:ring-[#00B894]"
               >
                 <span>{heroContent.ctaPrimary.label}</span>
@@ -81,6 +82,7 @@ export function Hero() {
               {/* Secondary CTA: Demo Modal */}
               <button
                 type="button"
+                data-testid="hero-demo-btn"
                 onClick={() => setDemoModalOpen(true)}
                 className="btn-fluid-secondary bg-white border border-[#E2E8F0] text-[#1A1A2E] hover:border-[#00B894] hover:bg-[#F0FAF7]/70 shadow-xs focus:outline-none focus-visible:ring-2 focus-visible:ring-[#00B894]"
                 aria-haspopup="dialog"
@@ -94,6 +96,7 @@ export function Hero() {
               {/* Visible Third Button: Track a complaint */}
               <Link
                 href={heroContent.ctaTrack.href}
+                data-testid="hero-track-cta"
                 className="btn-fluid-secondary bg-teal-50/80 border border-teal-200 text-[#00846A] hover:bg-teal-100 hover:border-teal-300 shadow-xs focus:outline-none focus-visible:ring-2 focus-visible:ring-[#00B894]"
               >
                 <Search className="w-4 h-4 text-[#00B894]" />

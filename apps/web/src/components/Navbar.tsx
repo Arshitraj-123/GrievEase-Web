@@ -131,6 +131,7 @@ export function Navbar() {
         {/* Language Switcher Dropdown */}
         <div className="relative">
           <button
+            data-testid="lang-dropdown-btn"
             onClick={() => setLangDropdownOpen(!langDropdownOpen)}
             className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full border border-[#E2E8F0] text-[12.5px] font-medium text-[#4A5568] hover:text-[#00B894] hover:border-[#00B894]/50 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#00B894]"
             aria-label="Select language"
@@ -149,6 +150,7 @@ export function Navbar() {
               {LANGUAGES.map((lang) => (
                 <button
                   key={lang.code}
+                  data-testid={`lang-btn-${lang.code.toLowerCase()}`}
                   onClick={() => changeLanguage(lang.code)}
                   className={`w-full text-left px-3.5 py-1.5 text-xs flex items-center justify-between hover:bg-[#F0FAF7] hover:text-[#00B894] transition-colors ${
                     currentLang === lang.code ? 'font-bold text-[#00B894] bg-[#F0FAF7]/60' : 'text-[#4A5568]'
@@ -166,6 +168,7 @@ export function Navbar() {
         {/* Login Button */}
         <Link
           href="/login"
+          data-testid="nav-login-btn"
           className="px-5 py-2 rounded-full border-[1.5px] border-[#00B894] text-[#00B894] bg-transparent text-[14px] font-semibold hover:bg-[#00B894] hover:text-white transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#00B894]"
         >
           {locale === 'hi' ? 'लॉगिन' : 'Login'}
@@ -174,6 +177,7 @@ export function Navbar() {
         {/* Get Started Button */}
         <Link
           href="/join"
+          data-testid="nav-get-started-btn"
           className="px-5 py-2 rounded-full bg-gradient-to-r from-[#00B894] to-[#00D4AA] text-white text-[14px] font-semibold shadow-[0_4px_15px_rgba(0,184,148,0.35)] hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(0,184,148,0.45)] transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#00B894]"
         >
           {locale === 'hi' ? 'शुरू करें' : 'Get Started'}

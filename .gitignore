@@ -39,3 +39,7 @@ next-env.d.ts
 # Playwright
 test-results/
 playwright-report/
+
+# Demo Recording Artifacts & Local Credentials (Never commit)
+demo/out/
+demo/credentials.local.md

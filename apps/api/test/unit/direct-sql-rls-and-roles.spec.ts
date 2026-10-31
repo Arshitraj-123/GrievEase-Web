@@ -189,3 +189,4 @@ describe('Direct SQL RLS Enforcement & Append-Only Table Hardening (Item 9 & Sec
     }
   });
 });
+

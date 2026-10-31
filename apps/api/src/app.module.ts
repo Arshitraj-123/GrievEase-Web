@@ -24,6 +24,7 @@ import { VendorsModule } from './modules/vendors/vendors.module';
 import { CmsModule } from './modules/cms/cms.module';
 import { PrivacyModule } from './modules/privacy/privacy.module';
 import { SystemModule } from './modules/system/system.module';
+import { DemoModule } from './modules/demo/demo.module';
 
 @Module({
   imports: [
@@ -52,6 +53,7 @@ import { SystemModule } from './modules/system/system.module';
     CmsModule,
     PrivacyModule,
     SystemModule,
+    DemoModule,
   ],
 })
 export class AppModule {}

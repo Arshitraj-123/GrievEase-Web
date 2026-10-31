@@ -131,3 +131,4 @@ md += '4. **Idempotency**: All payment, billing, cash-collection, and grievance 
 
 fs.writeFileSync(path.resolve(__dirname, '../docs/form-inventory.md'), md, 'utf8');
 console.log('✅ docs/form-inventory.md generated with comprehensive static analysis data.');
+

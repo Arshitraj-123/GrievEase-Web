@@ -23,3 +23,4 @@ rsync -avz --include='*.enc.sql' --include='*.sha256' --exclude='*' "$BACKUP_DIR
 chmod 0600 "$OFFSITE_TARGET"/* 2>/dev/null || true
 
 echo "✅ Offsite replication completed successfully to $OFFSITE_TARGET."
+

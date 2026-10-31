@@ -118,3 +118,14 @@ jobs:
 
       - name: Build All Workspaces
         run: pnpm build
+
+      - name: Demo Workflow Verification & Quality Gate
+        run: pnpm demo:verify --fast
+        env:
+          DEMO_MODE: 'true'
+          ALLOW_DEMO_SEED_ON_DEV: 'true'
+
+      - name: Demo Pack Assembly & Leak Audit
+        run: pnpm demo:pack
+        env:
+          DEMO_MODE: 'true'

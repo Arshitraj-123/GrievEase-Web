@@ -36,3 +36,4 @@ console.log('   - Container Image Scan: trivy image --severity HIGH,CRITICAL gri
 console.log('\n================================================================');
 console.log('✅ TRIVY CONTAINER & FILESYSTEM SCAN COMPLETED.');
 console.log('================================================================');
+

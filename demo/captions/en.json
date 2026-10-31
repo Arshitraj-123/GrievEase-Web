@@ -1,0 +1,354 @@
+{
+  "P01": {
+    "title": "Public Landing Page Tour",
+    "role": "Public Visitor",
+    "goal": "Tour homepage sections, verify claims compliance, and switch languages",
+    "steps": {
+      "1": "Landing on the GrievEase homepage with live community impact metrics.",
+      "2": "Toggling bilingual interface to Hindi through the language selector.",
+      "3": "Viewing 4-level grievance auto-escalation workflow and SLA guarantees.",
+      "4": "Reviewing self-hosted community ecosystem: notices, amenities, gate security.",
+      "5": "Checking cash maintenance dues with printed receipts and ledger integrity.",
+      "6": "Navigating interactive FAQ accordion with native bilingual responses.",
+      "7": "Verifying footer links and statutory data privacy notice."
+    }
+  },
+  "P02": {
+    "title": "Public Complaint Tracking",
+    "role": "Public Visitor",
+    "goal": "Track a grievance status using tracking code without login",
+    "steps": {
+      "1": "Navigating to the public complaint tracking portal.",
+      "2": "Entering public grievance ID and private 8-character tracking code.",
+      "3": "Viewing current escalation level, resolver assignment, and SLA timer.",
+      "4": "Verifying privacy protection: resident identity and flat remain concealed."
+    }
+  },
+  "P03": {
+    "title": "Transparency Dashboard",
+    "role": "Public Visitor",
+    "goal": "Inspect public society governance and resolution statistics",
+    "steps": {
+      "1": "Opening society transparency dashboard.",
+      "2": "Reviewing 30-day resolution rate, average turnaround, and SLA adherence.",
+      "3": "Filtering resolution metrics by category: water, power, and security.",
+      "4": "Confirming zero identifiable personal information is exposed publicly."
+    }
+  },
+  "P04": {
+    "title": "Public Contact & Demo Request",
+    "role": "Public Visitor",
+    "goal": "Submit an onboarding inquiry protected by Proof-of-Work challenge",
+    "steps": {
+      "1": "Navigating to the public contact inquiry page.",
+      "2": "Filling society details, committee contact, and flat count.",
+      "3": "Computing lightweight browser Proof-of-Work puzzle to defeat bot spam.",
+      "4": "Submitting inquiry and receiving verified inquiry reference number."
+    }
+  },
+  "A01": {
+    "title": "First-Run Super Admin Setup",
+    "role": "Super Admin",
+    "goal": "Bootstrap master administrator account and enroll mandatory TOTP",
+    "steps": {
+      "1": "Navigating to /setup with single-use cryptographic bootstrap token.",
+      "2": "Creating master administrator username and high-entropy password.",
+      "3": "Enrolling mandatory TOTP authenticator with verification code.",
+      "4": "Submitting setup; /setup endpoint is permanently sealed with 404."
+    }
+  },
+  "A02": {
+    "title": "User Management & Bulk Onboarding",
+    "role": "Super Admin & Secretary",
+    "goal": "Import society residents with validation, step-up, and credential slips",
+    "steps": {
+      "1": "Opening user directory and downloading standard Excel onboarding template.",
+      "2": "Uploading resident sheet with deliberate format errors.",
+      "3": "Reviewing error preview identifying duplicate flats and invalid mobile numbers.",
+      "4": "Uploading corrected sheet and authorizing import with step-up verification.",
+      "5": "Generating printable PDF credential slips containing activation codes.",
+      "6": "Re-issuing single activation code for flat A-102.",
+      "7": "Demonstrating role change to Committee with step-up authorization."
+    }
+  },
+  "A03": {
+    "title": "Society Configuration & Governance Chain",
+    "role": "Super Admin & Chairman",
+    "goal": "Configure 4-level escalation chain, category SLAs, and working hours",
+    "steps": {
+      "1": "Opening society governance configuration console.",
+      "2": "Configuring 4-level escalation chain: Secretary, Committee, Chairman, Governing Body.",
+      "3": "Setting category SLAs with priority multipliers for urgent issues.",
+      "4": "Configuring society working hours (09:00 - 18:00) and weekend pauses.",
+      "5": "Defining emergency leave delegate rules for committee members.",
+      "6": "Saving configuration with cryptographic audit log entry."
+    }
+  },
+  "A04": {
+    "title": "Secretary Grievance Resolution Workflow",
+    "role": "Secretary",
+    "goal": "Process grievance inbox, pause SLA, assign vendor, and resolve",
+    "steps": {
+      "1": "Reviewing grievance inbox with category and urgency filters.",
+      "2": "Acknowledging complaint and recording internal investigation note.",
+      "3": "Requesting additional information from resident, pausing SLA timer.",
+      "4": "Assigning external electrical vendor task with target completion time.",
+      "5": "Receiving resident response and closing grievance with verified note.",
+      "6": "Creating grievance on behalf of an elderly resident unable to use smartphone."
+    }
+  },
+  "A05": {
+    "title": "4-Level Auto-Escalation & Audit Chain",
+    "role": "System & Chairman",
+    "goal": "Demonstrate automated SLA breach escalation from L1 through L4",
+    "steps": {
+      "1": "Resident files urgent water pipeline leak grievance at Level 1.",
+      "2": "Advancing demo clock past L1 deadline; automated sweep raises warning.",
+      "3": "Clock advances to SLA breach; grievance auto-escalates to Level 2 (Committee).",
+      "4": "Further clock advance triggers Level 3 (Chairman) and Level 4 (Governing Body).",
+      "5": "Chairman reviews escalation monitor and executes administrative override.",
+      "6": "Auditing immutable SHA-256 hash chain verifying zero log tampering."
+    }
+  },
+  "A06": {
+    "title": "Anonymous Grievance Admin Handling & Reveal",
+    "role": "Super Admin & Governing Body",
+    "goal": "Handle anonymous grievance and execute audited emergency reveal",
+    "steps": {
+      "1": "Secretary inspects grievance marked strictly 'Anonymous Resident'.",
+      "2": "Verifying resident flat, name, and phone are completely redacted.",
+      "3": "Super Admin initiates statutory emergency reveal under severe safety hazard.",
+      "4": "Authorizing reveal with mandatory step-up and written statutory justification.",
+      "5": "System unmasks identity and dispatches immutable alert to Governing Body."
+    }
+  },
+  "A07": {
+    "title": "Analytics & Resolver Performance",
+    "role": "Chairman & Committee",
+    "goal": "Analyze SLA compliance, resolver scorecards, and audit formula definitions",
+    "steps": {
+      "1": "Opening society operational analytics dashboard.",
+      "2": "Inspecting resolver scorecards enforcing 5-ticket minimum sample size.",
+      "3": "Reviewing SLA breach breakdown by category and floor wing.",
+      "4": "Clicking formula info popovers explaining Working Hours and SLA deductions.",
+      "5": "Exporting verified monthly compliance report to spreadsheet."
+    }
+  },
+  "A08": {
+    "title": "Community Notices, Polls & Staff Admin",
+    "role": "Secretary",
+    "goal": "Publish bilingual notice, launch poll, and issue domestic staff passes",
+    "steps": {
+      "1": "Creating emergency water shutdown notice with English and Hindi copy.",
+      "2": "Publishing notice and monitoring real-time read receipt percentages.",
+      "3": "Launching secret-ballot community poll for festival celebration date.",
+      "4": "Verifying domestic staff KYC verification and generating gate pass QR code."
+    }
+  },
+  "A09": {
+    "title": "Security, Guard Desk & SOS Admin",
+    "role": "Security Supervisor",
+    "goal": "Manage guard shifts, audit patrol logs, and test emergency SOS console",
+    "steps": {
+      "1": "Configuring 24/7 guard shift roster across Main Gate and Tower B.",
+      "2": "Reviewing guard patrol checkpoint timestamps and incident logs.",
+      "3": "Testing emergency SOS console with simulated guard dispatch drill.",
+      "4": "Reviewing in-app alerting disclaimer and mandatory physical gate protocols."
+    }
+  },
+  "A10": {
+    "title": "Amenities & Cash Billing Ledger",
+    "role": "Secretary & Chairman",
+    "goal": "Run billing cycle, record cash payment with receipt, and verify ledger",
+    "steps": {
+      "1": "Configuring clubhouse amenity hourly fees and advance hold limits.",
+      "2": "Generating monthly society maintenance billing cycle with preview.",
+      "3": "Secretary records physical cash payment at office and generates digital receipt.",
+      "4": "Testing receipt void workflow requiring Chairman secondary checker approval.",
+      "5": "Performing daily cash counter day-close with zero cash variance.",
+      "6": "Inspecting cryptographic SHA-256 cash ledger hash chain."
+    }
+  },
+  "A11": {
+    "title": "Vendors, CMS & Super Admin Transfer",
+    "role": "Super Admin",
+    "goal": "Manage external vendor tasks, CMS FAQs, and execute admin transfer",
+    "steps": {
+      "1": "Reviewing vendor directory, trade categories, and job scorecards.",
+      "2": "Updating multilingual community FAQ and moderating resident testimonial.",
+      "3": "Checking /admin/system health, background queues, and backup status.",
+      "4": "Initiating Super Admin transfer protocol to successor nominee.",
+      "5": "Successor accepts transfer; initial Super Admin role steps down to Secretary."
+    }
+  },
+  "R01": {
+    "title": "Resident Account Activation",
+    "role": "Resident",
+    "goal": "Activate account from printed credential slip, set password and recovery",
+    "steps": {
+      "1": "Resident scans QR code from printed slip or navigates to /activate.",
+      "2": "Entering flat number and 10-character activation code.",
+      "3": "Creating strong password guided by visual entropy strength meter.",
+      "4": "Saving 10 single-use offline recovery codes and setting security questions.",
+      "5": "Activation complete: redirected to resident personalized dashboard."
+    }
+  },
+  "R02": {
+    "title": "Resident Login & Account Security",
+    "role": "Resident",
+    "goal": "Login, recover password via recovery code, and manage active sessions",
+    "steps": {
+      "1": "Logging in with username and password.",
+      "2": "Demonstrating account recovery using single-use offline recovery code.",
+      "3": "Demonstrating security question recovery with 24-hour safety delay notice.",
+      "4": "Viewing active login devices and terminating other active sessions."
+    }
+  },
+  "R03": {
+    "title": "Raise Named Grievance & PWA Prompt",
+    "role": "Resident",
+    "goal": "Submit grievance with evidence photos, draft autosave, and duplicate check",
+    "steps": {
+      "1": "Clicking 'File Grievance' and selecting 'Electricity & Power' category.",
+      "2": "Typing issue description; draft autosaves locally in real time.",
+      "3": "System displays duplicate warning for ongoing transformer repair.",
+      "4": "Attaching evidence photo and submitting complaint.",
+      "5": "Receiving public grievance ID and viewing installable PWA prompt."
+    }
+  },
+  "R04": {
+    "title": "Raise Anonymous Grievance",
+    "role": "Resident",
+    "goal": "Submit sensitive anonymous grievance and store one-time tracking code",
+    "steps": {
+      "1": "Selecting 'Anonymous Grievance' mode.",
+      "2": "Reading privacy disclosure explaining cryptographic anonymity guarantee.",
+      "3": "Submitting grievance regarding late-night corridor noise violation.",
+      "4": "Copying and saving secret 8-character tracking code displayed once."
+    }
+  },
+  "R05": {
+    "title": "Track Grievance & Rate Resolution",
+    "role": "Resident",
+    "goal": "Track 4-step stepper, view live updates, and rate vendor work",
+    "steps": {
+      "1": "Opening grievance detail view showing 4-step progress stepper and SLA countdown.",
+      "2": "Secretary acknowledges and assigns vendor; screen updates live via WebSocket.",
+      "3": "Clicking 'Remind Resolver' button when near SLA threshold.",
+      "4": "Secretary marks ticket resolved with photo; resident confirms and rates 5 stars."
+    }
+  },
+  "R06": {
+    "title": "Notices & Community Polls",
+    "role": "Resident",
+    "goal": "Read emergency notice banner, acknowledge, and cast secret poll vote",
+    "steps": {
+      "1": "Viewing prominent red emergency water maintenance banner on home screen.",
+      "2": "Clicking notice and acknowledging receipt.",
+      "3": "Opening active society poll for annual cultural festival date.",
+      "4": "Casting secret ballot vote and viewing aggregated percentage results."
+    }
+  },
+  "R07": {
+    "title": "Resident Directory & Privacy Settings",
+    "role": "Resident",
+    "goal": "Browse opted-in directory and access offline emergency phone list",
+    "steps": {
+      "1": "Opening society resident directory.",
+      "2": "Verifying privacy: residents only see members who explicitly opted in.",
+      "3": "Accessing offline emergency contacts for lift maintenance, security, and fire.",
+      "4": "Toggling personal directory visibility in privacy settings."
+    }
+  },
+  "R08": {
+    "title": "Domestic Staff & Pass QR",
+    "role": "Resident",
+    "goal": "Register domestic helper, generate pass QR, and audit monthly attendance",
+    "steps": {
+      "1": "Adding domestic staff helper (housekeeping) with consent declaration.",
+      "2": "Generating digital staff entry pass with verification QR code.",
+      "3": "Viewing gate check-in attendance log recorded by the security guard.",
+      "4": "Exporting monthly helper attendance sheet."
+    }
+  },
+  "R09": {
+    "title": "Visitor Passes & Walk-in Approval",
+    "role": "Resident",
+    "goal": "Pre-approve guest with pass QR, answer walk-in notification, and set DND",
+    "steps": {
+      "1": "Creating pre-approved guest pass for weekend dinner visitor.",
+      "2": "Sharing generated 6-digit visitor pass code.",
+      "3": "Receiving live walk-in visitor approval prompt on phone; approving entry.",
+      "4": "Configuring Do-Not-Disturb (DND) window and delivery drop-at-gate rule."
+    }
+  },
+  "R10": {
+    "title": "Emergency SOS Trigger & Alerts",
+    "role": "Resident",
+    "goal": "Trigger emergency SOS with 5-second countdown, cancel, and alert guard",
+    "steps": {
+      "1": "Tapping red SOS emergency trigger button.",
+      "2": "Viewing 5-second countdown buzzer with instant 'Cancel False Alarm' option.",
+      "3": "Timer expires: emergency alert dispatched with sound and coordinates.",
+      "4": "Viewing real-time security guard responder status on screen.",
+      "5": "Resolving emergency once security assistance arrives at the flat."
+    }
+  },
+  "R11": {
+    "title": "Amenities & Cash Dues Receipts",
+    "role": "Resident",
+    "goal": "Book tennis court with hold timer, view dues, and download cash receipt",
+    "steps": {
+      "1": "Exploring amenities and booking evening tennis court slot.",
+      "2": "Viewing 15-minute booking hold timer: 'Pay ₹200 cash at society office'.",
+      "3": "Secretary enters cash at counter; resident receives instant receipt notification.",
+      "4": "Viewing dues statement and downloading official stamped PDF receipt."
+    }
+  },
+  "R12": {
+    "title": "Office Messages & Privacy Data Export",
+    "role": "Resident",
+    "goal": "Message society office live, adjust display settings, and export personal data",
+    "steps": {
+      "1": "Sending real-time inquiry message to society management office.",
+      "2": "Secretary responds live in chat window.",
+      "3": "Adjusting font size and switching system language.",
+      "4": "Submitting DPDP statutory personal data download request."
+    }
+  },
+  "G01": {
+    "title": "Security Guard Gatehouse Console",
+    "role": "Gate Security Guard",
+    "goal": "Verify visitor pass QR, request walk-in approval, and test offline sync",
+    "steps": {
+      "1": "Guard logs in on gate tablet with registered device PIN.",
+      "2": "Scanning visitor pass QR code (camera simulation) and approving entry.",
+      "3": "Logging walk-in visitor without pass; dispatching approval prompt to flat.",
+      "4": "Resident approves on phone; guard gate screen turns green.",
+      "5": "Simulating network disconnection; queuing offline check-ins; syncing upon reconnect."
+    }
+  },
+  "G02": {
+    "title": "Amenity Check-In Verification",
+    "role": "Security Guard",
+    "goal": "Verify resident amenity pass and record entry at clubhouse gate",
+    "steps": {
+      "1": "Guard opens clubhouse amenity check-in console.",
+      "2": "Scanning resident clubhouse booking QR code.",
+      "3": "Console verifies payment confirmed by Secretary; marks slot checked-in.",
+      "4": "Displaying active clubhouse occupancy count."
+    }
+  },
+  "V01": {
+    "title": "Contractor Vendor Task Execution",
+    "role": "Vendor Contractor",
+    "goal": "Review assigned repair task, upload before/after photos, and complete job",
+    "steps": {
+      "1": "Vendor logs in to /vendor portal with assigned mobile credentials.",
+      "2": "Accepting assigned staircase lighting repair task and scheduling visit.",
+      "3": "Gate pass auto-generates for scheduled visit time.",
+      "4": "Uploading 'before' photo of damaged wiring and 'after' photo of repaired light.",
+      "5": "Submitting job completion; ticket routes to resident for final rating."
+    }
+  }
+}

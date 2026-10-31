@@ -65,91 +65,92 @@ export function middleware(request: NextRequest) {
     }
   }
 
-  // 1. Feature Flag: /register-society
-  if (pathname.startsWith('/register-society')) {
-    const isFeatureEnabled =
-      process.env.FEATURE_REGISTER_SOCIETY === 'true' ||
-      process.env.NEXT_PUBLIC_FEATURE_REGISTER_SOCIETY === 'true';
-    if (!isFeatureEnabled) {
-      return NextResponse.rewrite(new URL('/not-found', request.url), { status: 404 });
-    }
+  // ──────────────────────────────────────────────────────────
+  // 1. PUBLIC ROUTES (bypass all auth checks)
+  // ──────────────────────────────────────────────────────────
+  const isPublicRoute =
+    pathname === '/' ||
+    pathname.startsWith('/login') ||
+    pathname.startsWith('/activate') ||
+    pathname.startsWith('/reset-password') ||
+    pathname.startsWith('/forgot-password') ||
+    pathname.startsWith('/features') ||
+    pathname.startsWith('/how-it-works') ||
+    pathname.startsWith('/about') ||
+    pathname.startsWith('/faq') ||
+    pathname.startsWith('/contact') ||
+    pathname.startsWith('/transparency') ||
+    pathname.startsWith('/download') ||
+    pathname.startsWith('/privacy') ||
+    pathname.startsWith('/terms') ||
+    pathname.startsWith('/testimonials') ||
+    pathname.startsWith('/data-deletion') ||
+    pathname.startsWith('/track') ||
+    pathname.startsWith('/offline') ||
+    pathname.startsWith('/maintenance') ||
+    pathname.startsWith('/403') ||
+    pathname.startsWith('/session-expired') ||
+    pathname.startsWith('/society') ||
+    pathname.startsWith('/api') ||
+    pathname.startsWith('/_next') ||
+    pathname.includes('.');
+
+  // Explicitly disabled / stubbed registration routes
+  if (pathname.startsWith('/register-society') || pathname.startsWith('/join')) {
+    return NextResponse.rewrite(new URL('/404', request.url), { status: 404 });
   }
 
-  // Retrieve JWT access token from cookie (handles both HTTP and HTTPS __Host- prefix)
-  const token =
-    request.cookies.get('__Host-access_token')?.value ||
-    request.cookies.get('access_token')?.value;
-
-  const payload = token ? parseJwtPayload(token) : null;
-  const isAuthenticated = Boolean(payload && payload.userId && payload.role);
-  const userRole = payload?.role;
-
-  // 2. Redirect logged-in users away from /login
-  if (pathname === '/login' && isAuthenticated) {
-    if (userRole === 'RESIDENT') {
-      return NextResponse.redirect(new URL('/app', request.url));
-    }
-    if (ADMIN_ROLES.includes(userRole)) {
-      return NextResponse.redirect(new URL('/admin', request.url));
-    }
-    if (userRole === 'GUARD') {
-      return NextResponse.redirect(new URL('/guard', request.url));
-    }
-    if (userRole === 'VENDOR') {
-      return NextResponse.redirect(new URL('/vendor', request.url));
-    }
-    if (userRole === 'INVITED') {
-      return NextResponse.redirect(new URL('/activate', request.url));
-    }
+  if (isPublicRoute) {
+    return NextResponse.next();
   }
 
-  // 3. Protected Shell: /app (Resident only)
-  if (pathname.startsWith('/app')) {
-    if (!isAuthenticated) {
-      const loginUrl = new URL('/login', request.url);
-      loginUrl.searchParams.set('next', pathname);
-      return NextResponse.redirect(loginUrl);
-    }
-    if (ADMIN_ROLES.includes(userRole)) {
-      return NextResponse.redirect(new URL('/admin', request.url));
-    }
-    if (userRole !== 'RESIDENT') {
-      return NextResponse.redirect(new URL('/403', request.url));
-    }
+  // ──────────────────────────────────────────────────────────
+  // 2. TOKEN EXTRACTION & VERIFICATION
+  // ──────────────────────────────────────────────────────────
+  const token = request.cookies.get('access_token')?.value;
+
+  if (!token) {
+    const loginUrl = new URL('/login', request.url);
+    loginUrl.searchParams.set('next', pathname);
+    return NextResponse.redirect(loginUrl);
   }
 
-  // 4. Protected Shell: /admin (Admin roles only)
+  const payload = parseJwtPayload(token);
+  if (!payload || !payload.exp || Date.now() >= payload.exp * 1000) {
+    const expiredUrl = new URL('/session-expired', request.url);
+    expiredUrl.searchParams.set('next', pathname);
+    return NextResponse.redirect(expiredUrl);
+  }
+
+  // ──────────────────────────────────────────────────────────
+  // 3. ROLE-BASED ACCESS CONTROL (RBAC)
+  // ──────────────────────────────────────────────────────────
+  const userRole = payload.role;
+
+  // Protect /admin routes
   if (pathname.startsWith('/admin')) {
-    if (!isAuthenticated) {
-      const loginUrl = new URL('/login', request.url);
-      loginUrl.searchParams.set('next', pathname);
-      return NextResponse.redirect(loginUrl);
-    }
     if (!ADMIN_ROLES.includes(userRole)) {
       return NextResponse.redirect(new URL('/403', request.url));
     }
   }
 
-  // 5. Protected Shell: /guard (Guard only)
+  // Protect /guard routes
   if (pathname.startsWith('/guard')) {
-    if (!isAuthenticated) {
-      const loginUrl = new URL('/login', request.url);
-      loginUrl.searchParams.set('next', pathname);
-      return NextResponse.redirect(loginUrl);
-    }
-    if (userRole !== 'GUARD') {
+    if (userRole !== 'GUARD' && !ADMIN_ROLES.includes(userRole)) {
       return NextResponse.redirect(new URL('/403', request.url));
     }
   }
 
-  // 6. Protected Shell: /vendor (Vendor only)
+  // Protect /vendor routes
   if (pathname.startsWith('/vendor')) {
-    if (!isAuthenticated) {
-      const loginUrl = new URL('/login', request.url);
-      loginUrl.searchParams.set('next', pathname);
-      return NextResponse.redirect(loginUrl);
+    if (userRole !== 'VENDOR' && !ADMIN_ROLES.includes(userRole)) {
+      return NextResponse.redirect(new URL('/403', request.url));
     }
-    if (userRole !== 'VENDOR') {
+  }
+
+  // Protect /app (resident) routes
+  if (pathname.startsWith('/app')) {
+    if (userRole !== 'RESIDENT' && !ADMIN_ROLES.includes(userRole)) {
       return NextResponse.redirect(new URL('/403', request.url));
     }
   }
@@ -157,15 +158,11 @@ export function middleware(request: NextRequest) {
   return NextResponse.next();
 }
 
+export const proxy = middleware;
+export default middleware;
+
 export const config = {
   matcher: [
-    '/hi',
-    '/hi/:path*',
-    '/login',
-    '/register-society/:path*',
-    '/app/:path*',
-    '/admin/:path*',
-    '/guard/:path*',
-    '/vendor/:path*',
+    '/((?!_next/static|_next/image|favicon.ico|manifest.json|sw.js).*)',
   ],
 };

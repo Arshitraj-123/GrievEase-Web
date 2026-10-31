@@ -50,3 +50,4 @@ const sbom = {
 const outPath = path.resolve(__dirname, '../docs/evidence/sbom.json');
 fs.writeFileSync(outPath, JSON.stringify(sbom, null, 2), 'utf8');
 console.log(`✅ SBOM successfully generated at docs/evidence/sbom.json with ${components.length} components.`);
+

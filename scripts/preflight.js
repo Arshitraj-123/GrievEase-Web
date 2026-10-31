@@ -21,6 +21,7 @@ const STEPS = [
   { name: '6. Full Git History Secret Scan (40+ Commits)', command: 'node scripts/git-history-scan.js' },
   { name: '7. Shared Contracts Typecheck', command: 'pnpm --filter @grievease/contracts exec tsc -b' },
   { name: '8. API TypeScript Compilation Check', command: 'pnpm --filter @grievease/api exec tsc --noEmit' },
+  { name: '9. Demo Mode Production Safety Guard', command: 'pnpm --filter @grievease/api exec tsx ../../scripts/demo-safety-check.ts' },
 ];
 
 let failed = false;

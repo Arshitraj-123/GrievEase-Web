@@ -92,6 +92,9 @@ export function validateEnvironment(env: Record<string, string | undefined>): En
   if (env.DEBUG && env.DEBUG.includes('*')) {
     errors.push('Wildcard DEBUG logging is enabled; this may leak sensitive data into logs.');
   }
+  if (env.DEMO_MODE === 'true' || env.DEMO_MODE === '1') {
+    errors.push('DEMO_MODE is strictly prohibited in production mode.');
+  }
 
   return {
     valid: errors.length === 0,

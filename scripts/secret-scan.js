@@ -23,6 +23,7 @@ const IGNORED_PATHS = [
   'docs',
   'README.md',
   'mocks',
+  'demo',
 ];
 
 const SECRET_PATTERNS = [
