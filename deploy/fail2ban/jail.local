@@ -1,0 +1,27 @@
+# Fail2ban configuration for GrievEase Self-Hosted Nginx Edge Proxy
+[DEFAULT]
+bantime  = 3600
+findtime = 600
+maxretry = 5
+banaction = iptables-multiport
+backend = auto
+
+[grievease-auth]
+enabled  = true
+port     = http,https
+filter   = grievease-auth
+logpath  = /var/log/nginx/access.log
+maxretry = 5
+findtime = 300
+bantime  = 3600
+action   = iptables-multiport[name=GrievEase-Auth, port="http,https", protocol=tcp]
+
+[grievease-ddos]
+enabled  = true
+port     = http,https
+filter   = grievease-ddos
+logpath  = /var/log/nginx/access.log
+maxretry = 120
+findtime = 60
+bantime  = 7200
+action   = iptables-multiport[name=GrievEase-DDoS, port="http,https", protocol=tcp]

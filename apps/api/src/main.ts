@@ -7,8 +7,10 @@ import cookieParser from 'cookie-parser';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import * as dotenv from 'dotenv';
+import { assertValidEnvironment } from './common/config/env-validator';
 
 dotenv.config();
+assertValidEnvironment();
 
 async function bootstrap() {
   const logger = new Logger('GrievEase-API');

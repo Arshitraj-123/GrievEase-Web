@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams, notFound } from 'next/navigation';
 import Link from 'next/link';
 import {
   AuthLayout,
@@ -78,28 +78,7 @@ function FirstRunSetupContent() {
   };
 
   if (isAvailable === false) {
-    return (
-      <AuthLayout
-        LinkComponent={Link}
-        currentLocale={locale}
-        onLocaleChange={setLocale}
-      >
-        <div className="w-full">
-          <Card className="border border-slate-200/90 dark:border-slate-800 shadow-xl dark:shadow-2xl bg-white dark:bg-slate-900 rounded-2xl overflow-hidden text-center p-6 space-y-4">
-            <div className="w-14 h-14 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-500 flex items-center justify-center mx-auto">
-              <Lock className="w-7 h-7" />
-            </div>
-            <CardTitle className="text-xl sm:text-2xl font-bold">Setup Unavailable</CardTitle>
-            <p className="text-xs sm:text-sm text-slate-500 leading-relaxed max-w-sm mx-auto">
-              First-time Super Admin bootstrap has already been completed or is permanently locked.
-            </p>
-            <Button variant="primary" size="lg" className="w-full" onClick={() => router.push('/login')}>
-              Go to Sign In
-            </Button>
-          </Card>
-        </div>
-      </AuthLayout>
-    );
+    notFound();
   }
 
   return (

@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import * as csvParse from 'csv-parse/sync';
 import * as csvStringify from 'csv-stringify/sync';
-import * as XLSX from 'xlsx';
+import * as ExcelJS from 'exceljs';
 import * as QRCode from 'qrcode';
 import crypto from 'crypto';
 import { pool } from '../../database/db';
@@ -113,19 +113,37 @@ export class ImportService {
         throw new BadRequestException(`CSV parsing failed: ${e.message}`);
       }
     } else {
-      // XLSX
+      // XLSX via secure ExcelJS (read cell values without executing formulas)
       try {
-        const workbook = XLSX.read(fileBuffer, {
-          type: 'buffer',
-          cellFormula: false, // Do not evaluate formulas
-          cellHTML: false,
-        });
-        const sheetName = workbook.SheetNames[0];
-        if (!sheetName || !workbook.Sheets[sheetName]) {
-          throw new BadRequestException('Excel workbook contains no sheets.');
+        const workbook = new ExcelJS.Workbook();
+        await workbook.xlsx.load(fileBuffer as any);
+        const worksheet = workbook.worksheets[0];
+        if (!worksheet || worksheet.rowCount === 0) {
+          throw new BadRequestException('Excel workbook contains no sheets or rows.');
         }
-        const sheet = workbook.Sheets[sheetName]!;
-        rawRecords = XLSX.utils.sheet_to_json(sheet, { defval: '' });
+
+        const headers: Record<number, string> = {};
+        const headerRow = worksheet.getRow(1);
+        headerRow.eachCell((cell, colNumber) => {
+          headers[colNumber] = String(cell.value ?? '').trim();
+        });
+
+        worksheet.eachRow((row, rowNumber) => {
+          if (rowNumber === 1) return;
+          const record: Record<string, any> = {};
+          let hasValue = false;
+          row.eachCell((cell, colNumber) => {
+            const h = headers[colNumber];
+            if (h) {
+              const val = cell.value !== null && cell.value !== undefined ? String(cell.value).trim() : '';
+              record[h] = val;
+              if (val) hasValue = true;
+            }
+          });
+          if (hasValue) {
+            rawRecords.push(record);
+          }
+        });
       } catch (e: any) {
         throw new BadRequestException(`Excel parsing failed: ${e.message}`);
       }

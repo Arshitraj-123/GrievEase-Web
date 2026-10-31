@@ -3,6 +3,7 @@ import {
   UnauthorizedException,
   BadRequestException,
   ForbiddenException,
+  NotFoundException,
 } from '@nestjs/common';
 import * as jwt from 'jsonwebtoken';
 import { authenticator } from 'otplib';
@@ -13,6 +14,7 @@ import {
   hashPassword,
   verifyPassword,
   validatePasswordStrength,
+  needsRehash,
 } from '../../common/utils/password-policy';
 import {
   encryptTotpSecret,
@@ -214,6 +216,16 @@ export class AuthService {
         WHERE id = $1;
       `, [user.id]);
       this.ipFailures.delete(ip);
+
+      // Automated Password Hash Upgrade (OWASP parameter migration / pepper rollout)
+      if (needsRehash(user.password_hash)) {
+        try {
+          const upgradedHash = await hashPassword(dto.password);
+          await client.query(`UPDATE app_user SET password_hash = $1 WHERE id = $2;`, [upgradedHash, user.id]);
+        } catch {
+          // Non-blocking hash migration failure
+        }
+      }
 
       // Check if Admin Role: Mandatory TOTP
       if (isAdminRole(user.role as Role)) {
@@ -1194,7 +1206,7 @@ export class AuthService {
       // Check if setup already complete
       const stateRes = await client.query(`SELECT * FROM bootstrap_state WHERE id = 1;`);
       if (stateRes.rows.length === 0 || stateRes.rows[0].setup_completed_at) {
-        throw new ForbiddenException('First-time setup has already been completed or is permanently locked.');
+        throw new NotFoundException('Setup endpoint not found or first-time setup has already been completed.');
       }
 
       const state = stateRes.rows[0];

@@ -10,14 +10,24 @@ const COMMON_PASSWORDS = new Set([
   'society123', 'security123', 'committee1', 'secretary1', 'chairman1'
 ]);
 
+export const ARGON2_CONFIG = {
+  type: argon2.argon2id,
+  memoryCost: 65536, // 64 MB memory
+  timeCost: 3,       // 3 iterations
+  parallelism: 2,   // 2 lanes / threads
+};
+
+function getPepper(): Buffer | undefined {
+  const pepper = process.env.SECURITY_PEPPER;
+  return pepper && pepper.length > 0 ? Buffer.from(pepper, 'utf8') : undefined;
+}
+
 // Pre-computed dummy Argon2id hash for constant-time comparisons when a user does not exist
 let DUMMY_HASH = '';
 argon2
   .hash('dummy_constant_time_string_for_unregistered_users', {
-    type: argon2.argon2id,
-    memoryCost: 65536,
-    timeCost: 3,
-    parallelism: 2,
+    ...ARGON2_CONFIG,
+    ...(getPepper() ? { secret: getPepper() } : {}),
   })
   .then((h) => {
     DUMMY_HASH = h;
@@ -71,26 +81,44 @@ export function validatePasswordStrength(
 }
 
 export async function hashPassword(password: string): Promise<string> {
+  const pepper = getPepper();
   return argon2.hash(password, {
-    type: argon2.argon2id,
-    memoryCost: 65536,
-    timeCost: 3,
-    parallelism: 2,
+    ...ARGON2_CONFIG,
+    ...(pepper ? { secret: pepper } : {}),
   });
 }
 
 export async function verifyPassword(hash: string | null | undefined, candidate: string): Promise<boolean> {
+  const pepper = getPepper();
   if (!hash) {
     // Perform constant-time dummy verification to prevent timing attack / user enumeration
     if (DUMMY_HASH) {
-      await argon2.verify(DUMMY_HASH, candidate).catch(() => false);
+      await argon2.verify(DUMMY_HASH, candidate, pepper ? { secret: pepper } : undefined).catch(() => false);
     }
     return false;
   }
 
   try {
+    if (pepper) {
+      const matchWithPepper = await argon2.verify(hash, candidate, { secret: pepper }).catch(() => false);
+      if (matchWithPepper) return true;
+      // Fallback: Check without pepper for legacy hashes awaiting upgrade
+      return await argon2.verify(hash, candidate).catch(() => false);
+    }
     return await argon2.verify(hash, candidate);
   } catch {
     return false;
+  }
+}
+
+export function needsRehash(hash: string): boolean {
+  if (!hash) return false;
+  try {
+    return argon2.needsRehash(hash, {
+      memoryCost: ARGON2_CONFIG.memoryCost,
+      timeCost: ARGON2_CONFIG.timeCost,
+    });
+  } catch {
+    return true;
   }
 }

@@ -1261,7 +1261,7 @@ export class AnalyticsService implements OnModuleInit, OnModuleDestroy {
     const filename = `${type}_${timestampStr}.${format}`;
 
     if (format === 'xlsx') {
-      const buffer = this.reportExporterService.generateExcel(type, headers, rows);
+      const buffer = await this.reportExporterService.generateExcel(type, headers, rows);
       return {
         data: buffer,
         contentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',

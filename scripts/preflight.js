@@ -14,11 +14,13 @@ console.log('================================================================\n'
 
 const STEPS = [
   { name: '1. Multilingual i18n Key Parity Check', command: 'node scripts/check-i18n.js' },
-  { name: '2. Claims & Zero 3rd-Party Compliance Audit', command: 'node scripts/claims-audit.js' },
-  { name: '3. Encrypted Backup & Integrity Check', command: 'node scripts/backup-verify.js' },
-  { name: '4. Secret & Credentials Security Scanner', command: 'node scripts/secret-scan.js' },
-  { name: '5. Shared Contracts Typecheck', command: 'pnpm --filter @grievease/contracts exec tsc -b' },
-  { name: '6. API TypeScript Compilation Check', command: 'pnpm --filter @grievease/api exec tsc --noEmit' },
+  { name: '2. Marathi Removal Guard', command: 'node scripts/guard-no-marathi.js' },
+  { name: '3. Claims & Zero 3rd-Party Compliance Audit', command: 'node scripts/claims-audit.js' },
+  { name: '4. Encrypted Backup & Integrity Benchmark', command: 'node scripts/backup-verify.js' },
+  { name: '5. Working Tree Secret & Credentials Scanner', command: 'node scripts/secret-scan.js' },
+  { name: '6. Full Git History Secret Scan (40+ Commits)', command: 'node scripts/git-history-scan.js' },
+  { name: '7. Shared Contracts Typecheck', command: 'pnpm --filter @grievease/contracts exec tsc -b' },
+  { name: '8. API TypeScript Compilation Check', command: 'pnpm --filter @grievease/api exec tsc --noEmit' },
 ];
 
 let failed = false;
@@ -43,4 +45,3 @@ if (failed) {
   console.log('🎉 ALL PREFLIGHT VERIFICATIONS PASSED CLEANLY! Ready for deployment.');
   process.exit(0);
 }
-

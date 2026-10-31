@@ -20,14 +20,14 @@ describe('Phase 4: ReportExporterService Unit Tests', () => {
   });
 
   describe('2. XLSX Generation', () => {
-    it('should generate a valid XLSX buffer with sanitized cells', () => {
+    it('should generate a valid XLSX buffer with sanitized cells', async () => {
       const headers = ['Category', 'Formula Test', 'Count'];
       const rows = [
         ['Water Supply', '=cmd|calc!A0', 15],
         ['Electrical', '+9876543210', 8],
       ];
 
-      const buffer = exporter.generateExcel('Test Sheet', headers, rows);
+      const buffer = await exporter.generateExcel('Test Sheet', headers, rows);
       expect(Buffer.isBuffer(buffer)).toBe(true);
       expect(buffer.length).toBeGreaterThan(100);
     });
