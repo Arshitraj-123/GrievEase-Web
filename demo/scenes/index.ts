@@ -76,3 +76,4 @@ export const ALL_SCENES: SceneDefinition[] = [
   { id: 'G02', category: 'GUARD', role: 'Security Guard', title: 'Amenity Check-In Verification', viewport: { width: 1024, height: 768 }, run: runSceneG02 },
   { id: 'V01', category: 'VENDOR', role: 'Vendor Contractor', title: 'Vendor Task Execution & Proof', viewport: { width: 1440, height: 900 }, run: runSceneV01 },
 ];
+

@@ -203,3 +203,4 @@ export async function runSceneA11(ctx: SceneContext) {
   await p.recordStep('A11', 4, 5, cap['4']);
   await p.recordStep('A11', 5, 5, cap['5']);
 }
+

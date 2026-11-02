@@ -46,3 +46,4 @@ export class GuardVendorPage extends BasePage {
     }
   }
 }
+

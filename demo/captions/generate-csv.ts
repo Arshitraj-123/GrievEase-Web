@@ -28,3 +28,4 @@ for (const sceneId of Object.keys(en)) {
 
 fs.writeFileSync(csvPath, '\uFEFF' + rows.join('\n'), 'utf-8');
 console.log(`✅ Generated captions CSV with ${rows.length - 1} steps at ${csvPath}`);
+

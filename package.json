@@ -38,8 +38,6 @@
     "demo:coverage": "node demo/cli.js coverage"
   },
   "devDependencies": {
-    "@playwright/test": "^1.64.1",
-    "otplib": "^13.5.0",
     "typescript": "^5.7.3"
   }
 }

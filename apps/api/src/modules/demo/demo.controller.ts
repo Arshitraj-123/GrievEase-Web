@@ -22,3 +22,4 @@ export class DemoController {
     return this.demoService.seedExtra(body.scenario);
   }
 }
+

@@ -81,3 +81,4 @@ export class AdminPage extends BasePage {
     await this.page.waitForTimeout(800);
   }
 }
+

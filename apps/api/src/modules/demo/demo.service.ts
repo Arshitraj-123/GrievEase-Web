@@ -100,3 +100,4 @@ export class DemoService {
     return { success: true, scenario: scenario || 'none' };
   }
 }
+

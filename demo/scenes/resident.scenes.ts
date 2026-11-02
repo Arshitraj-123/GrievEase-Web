@@ -196,3 +196,4 @@ export async function runSceneR12(ctx: SceneContext) {
   await p.recordStep('R12', 3, 4, cap['3']);
   await p.recordStep('R12', 4, 4, cap['4']);
 }
+

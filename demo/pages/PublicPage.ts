@@ -38,3 +38,4 @@ export class PublicPage extends BasePage {
     await this.page.waitForTimeout(800);
   }
 }
+

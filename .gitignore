@@ -31,6 +31,15 @@ pnpm-debug.log*
 .DS_Store
 Thumbs.db
 *.pem
+*.key
+deploy/certs/
+
+# Local database backups, dumps and encrypted archives
+*.dump
+*.enc
+*.sql
+!apps/api/src/database/migrations/*.sql
+!deploy/db-roles.sql
 
 # TypeScript
 *.tsbuildinfo

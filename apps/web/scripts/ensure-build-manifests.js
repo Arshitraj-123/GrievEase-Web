@@ -33,3 +33,4 @@ if (fs.existsSync(routesManifestPath)) {
     console.warn('⚠️ Could not update routes-manifest.json:', err.message);
   }
 }
+
